@@ -1,0 +1,40 @@
+.footer-container {
+    background-color: #343a40; /* Cor de fundo escura para contraste */
+    padding: 40px 0;
+    font-size: 14px;
+  }
+  
+  .footer-row {
+    margin-bottom: 20px;
+  }
+  
+  .logo-longo {
+    width: 50px;
+    height: auto;
+    border-radius: 5%;
+    padding-right: 5px;
+  }
+
+  .footer-col h5 {
+    color: #ffffff;
+    margin-bottom: 15px;
+  }
+  
+  .footer-col p, .footer-col a {
+    color: #dcdcdc; /* Cor mais clara para o texto */
+    text-decoration: none;
+  }
+  
+  .logo-longo, .logo-quad {
+    margin-bottom: 15px;
+  }
+  
+  .footer-bottom-row {
+    border-top: 1px solid #555;
+    padding-top: 20px;
+  }
+  
+  .footer-bottom-row .col {
+    font-size: 12px;
+  }
+  

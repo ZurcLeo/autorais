@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "elossolucoescloud-1804e",
+    "eloswebapp": "elossolucoescloud-1804e"
+  },
+  "targets": {},
+  "etags": {
+    "elossolucoescloud-1804e": {
+      "extensionInstances": {}
+    }
+  },
+  "dataconnectEmulatorConfig": {}
+}

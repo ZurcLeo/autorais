@@ -1,0 +1,115 @@
+@media (max-width: 991px) {
+    .menu-lateral {
+        display: none; /* Esconde os menus laterais em telas menores que 992px */
+    }
+}
+
+.footer-menu {
+    position: sticky;
+    bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 20px;
+    width: 100%;
+    cursor: pointer;
+    background-color: #262626;
+    color: white;
+    text-align: center;
+    padding: 25px 0;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+
+.footer-menu-icon {
+    font-size: 24px; /* Tamanho do ícone */
+}
+
+.footer-menu.opened {
+    background-color: #333; /* Quando o menu está aberto */
+}
+
+.text-center.col-3:hover {
+    background-color: #ff5000;
+    cursor: pointer; 
+    border-radius: 5%;
+    color: white;
+   padding: 10px;
+   font-weight: bold;
+
+}
+
+.footer-menu-content {
+    display: none; /* Inicialmente escondido */
+    border-radius: 5px;
+}
+
+.text-center, 
+.col-3{
+    padding: 15px;
+    border-radius: 15%;
+}
+
+.footer-menu.opened + .footer-menu-content {
+    display: flex; /* Mostra quando o menu de rodapé está aberto */
+    
+}
+
+/* Estilização adicional para ícones e texto no menu de rodapé */
+.footer-menu-content p {
+    margin: 0; /* Remove margens padrão */
+    font-size: 0.9em; /* Reduz o tamanho da fonte para o texto */
+}
+
+.menu-lateral {
+    height: 100%;
+}
+
+.menu-card {
+    background-color: #9D8E7A; /* Dark background for the menu */
+    color: white; /* White text color */
+    border: none; /* Remove card border */
+    margin-top: 20px;
+}
+
+.menu-lateral, .col-lg-2 {
+    height: 100vh;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+.list-group, .list-group-flush {
+    width: 100%;
+    height: 100%;
+}
+
+.row {
+    left: 0;
+}
+
+.menu-card .list-group-item {
+    border: none; /* Remove borders from list items */
+    padding: 12px 20px; /* Top/bottom and left/right padding */
+    background-color: transparent; /* Transparent background for list items */
+}
+
+.menu-card .list-group-item:hover {
+    background-color: #D9C2A7;
+    border-radius: 5px; 
+    color: #594A3C;
+}
+
+
+.list-group-item.active {
+    background-color: #ff5000; /* Highlight color for the active item */
+    border-radius: 5px;
+}
+
+.icon {
+    margin-right: 10px; /* Space between icon and text */
+    font-size: 1.2em; /* Slightly larger icons */
+}

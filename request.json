@@ -1,0 +1,11 @@
+{
+    "event": {
+      "token": "TOKEN",
+      "siteKey": "6Ld1li8mAAAAAHTO-Mqf0IAK3JCyVTcunfZ1wosC",
+      "userAgent": "USER_AGENT",
+      "userIpAddress": "USER_IP_ADDRESS",
+      "ja3": "JA3",
+      "expectedAction": "USER_ACTION"
+    }
+  }
+  
