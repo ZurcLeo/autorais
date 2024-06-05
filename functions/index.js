@@ -104,7 +104,7 @@ function getEmailTemplate(subject, content) {
 async function sendEmail(to, subject, content) {
     const htmlContent = getEmailTemplate(subject, content);
     const mailOptions = {
-        from: 'suporte@eloscloud.com.br',
+        from: 'suporte@eloscloud.com.br.br',
         to: to,
         subject: subject,
         html: htmlContent,
@@ -146,7 +146,7 @@ exports.generateInvite = functions.https.onCall(async (data, context) => {
             Você recebeu um convite. <br><br>
             Clique no botão abaixo para aceitar o convite:
             <br><br>
-            <a href="https://eloscloud.com.br/invite?inviteId=${inviteId}" style="background-color: #345C72; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Aceitar Convite</a>
+            <a href="https://eloscloud.com.br.br/invite?inviteId=${inviteId}" style="background-color: #345C72; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Aceitar Convite</a>
             <br><br>
             Obrigado, <br>
             Equipe ElosCloud
@@ -162,7 +162,7 @@ exports.generateInvite = functions.https.onCall(async (data, context) => {
             data: {
                 inviteId: inviteId,
                 senderId: senderId,
-                url: `https://eloscloud.com.br/invite?inviteId=${inviteId}`
+                url: `https://eloscloud.com.br.br/invite?inviteId=${inviteId}`
             }
         };
 
@@ -511,7 +511,7 @@ exports.notifyStreamStarted = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const liveStreamLink = `https://eloscloud.com/live/${userId}`;
+    const liveStreamLink = `https://eloscloud.com.br/LiveStreamViewer/${userId}`;
 
     const notificationRef = admin.firestore().collection('notificacoes').doc('global').collection('notifications');
     const liveStreamsRef = admin.firestore().collection('liveStreams');
@@ -547,7 +547,6 @@ exports.checkTurnServer = functions.https.onCall((data, context) => {
         credential: functions.config().turn.pass
     };
 
-    // Teste básico de conectividade com o servidor TURN
     try {
         const iceServers = [{ urls: turnServerConfig.urls, username: turnServerConfig.username, credential: turnServerConfig.credential }];
         const pc = new RTCPeerConnection({ iceServers });
@@ -566,6 +565,7 @@ exports.checkTurnServer = functions.https.onCall((data, context) => {
 });
 
 
+
 exports.checkVideoStream = functions.https.onCall((data, context) => {
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -581,7 +581,6 @@ exports.checkVideoStream = functions.https.onCall((data, context) => {
             }
 
             const streamData = doc.data();
-            // Verificar status do stream e se está enviando dados corretamente
             if (streamData.isActive) {
                 return { success: true, message: 'Stream is active' };
             } else {
@@ -592,6 +591,7 @@ exports.checkVideoStream = functions.https.onCall((data, context) => {
             throw new functions.https.HttpsError('internal', 'Error checking video stream: ' + error.message);
         });
 });
+
 
 exports.notifyStreamStopped = functions.https.onCall(async (data, context) => {
     const { userId } = data;
@@ -608,7 +608,6 @@ exports.notifyStreamStopped = functions.https.onCall(async (data, context) => {
 
     return { success: true };
 });
-
 
 exports.sendOffer = functions.https.onCall(async (data, context) => {
     if (!context.auth) {
@@ -638,6 +637,7 @@ exports.sendOffer = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('internal', 'Unable to create offer');
     }
 });
+
 
 exports.sendAnswer = functions.https.onCall(async (data, context) => {
     if (!context.auth) {

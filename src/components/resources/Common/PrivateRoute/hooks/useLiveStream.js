@@ -1,7 +1,9 @@
+// src/hooks/useLiveStream.js
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../../../firebase.config';
+import { toast } from 'react-toastify';
 
 const useLiveStream = (currentUser) => {
     const [isStreaming, setIsStreaming] = useState(false);
@@ -15,7 +17,7 @@ const useLiveStream = (currentUser) => {
     const sentOffers = useRef(new Set());
     const sentAnswers = useRef(new Set());
 
-    const createPeerConnection = (userId) => {
+    const createPeerConnection = useCallback((userId) => {
         const peerConnection = new RTCPeerConnection({ iceServers });
 
         peerConnection.onicecandidate = (event) => {
@@ -42,35 +44,36 @@ const useLiveStream = (currentUser) => {
         peerConnection.onnegotiationneeded = () => handleNegotiationNeededEvent(userId);
 
         return peerConnection;
-    };
+    }, [iceServers, functions]);
 
-    const handleNegotiationNeededEvent = async (userId) => {
+    const handleNegotiationNeededEvent = useCallback(async (userId) => {
         if (negotiationNeeded.current[userId] || !isStreaming) return;
         negotiationNeeded.current[userId] = true;
-      
-        try {
-          const peerConnection = peerConnections.current[userId];
-          const offer = await peerConnection.createOffer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: true
-          });
-          await peerConnection.setLocalDescription(offer);
-      
-          if (!offer.sdp || !offer.type) {
-            console.error('Invalid offer generated:', offer);
-            return;
-          }
-      
-          const sendOffer = httpsCallable(functions, 'sendOffer');
-          await sendOffer({ offer: peerConnection.localDescription, userId });
-        } catch (error) {
-          console.error('Failed to create or send offer:', error);
-        } finally {
-          negotiationNeeded.current[userId] = false;
-        }
-      };
 
-    const createOffer = async (userId) => {
+        try {
+            const peerConnection = peerConnections.current[userId];
+            const offer = await peerConnection.createOffer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: true
+            });
+            await peerConnection.setLocalDescription(offer);
+
+            if (!offer.sdp || !offer.type) {
+                toast.error('Invalid offer generated');
+                return;
+            }
+
+            const sendOffer = httpsCallable(functions, 'sendOffer');
+            await sendOffer({ offer: peerConnection.localDescription, userId });
+        } catch (error) {
+            toast.error('Failed to create or send offer');
+            console.error('Failed to create or send offer:', error);
+        } finally {
+            negotiationNeeded.current[userId] = false;
+        }
+    }, [functions, isStreaming]);
+
+    const createOffer = useCallback(async (userId) => {
         if (!isStreaming) return;
 
         const peerConnection = createPeerConnection(userId);
@@ -83,14 +86,14 @@ const useLiveStream = (currentUser) => {
         await peerConnection.setLocalDescription(offer);
 
         if (!offer.sdp || !offer.type) {
-            console.error('Invalid offer generated:', offer);
+            toast.error('Invalid offer generated');
             return;
         }
 
         const sendOffer = httpsCallable(functions, 'sendOffer');
         await sendOffer({ offer: peerConnection.localDescription, userId });
         sentOffers.current.add(userId);
-    };
+    }, [createPeerConnection, functions, isStreaming]);
 
     const handleReceiveOffer = useCallback(async (data) => {
         if (!isStreaming) return;
@@ -98,6 +101,7 @@ const useLiveStream = (currentUser) => {
         const { from, sdp, type } = data;
 
         if (!sdp || !type) {
+            toast.error('Invalid offer received');
             console.error('Invalid offer received:', data);
             return;
         }
@@ -111,6 +115,7 @@ const useLiveStream = (currentUser) => {
 
         try {
             if (peerConnection.signalingState !== 'stable') {
+                toast.warn('Cannot set remote offer in current state');
                 console.warn('Cannot set remote offer in current state', peerConnection.signalingState);
                 return;
             }
@@ -120,7 +125,7 @@ const useLiveStream = (currentUser) => {
             await peerConnection.setLocalDescription(answer);
 
             if (!answer.sdp || !answer.type) {
-                console.error('Invalid answer generated:', answer);
+                toast.error('Invalid answer generated');
                 return;
             }
 
@@ -128,9 +133,10 @@ const useLiveStream = (currentUser) => {
             await sendAnswer({ answer: peerConnection.localDescription, userId: from, from: currentUser.uid });
             sentAnswers.current.add(from);
         } catch (error) {
+            toast.error('Failed to handle received offer');
             console.error('Failed to handle received offer:', error);
         }
-    }, [functions, currentUser, isStreaming]);
+    }, [createPeerConnection, functions, currentUser, isStreaming]);
 
     const handleReceiveAnswer = useCallback(async (data) => {
         if (!isStreaming) return;
@@ -138,6 +144,7 @@ const useLiveStream = (currentUser) => {
         const { from, sdp, type } = data;
 
         if (!sdp || !type) {
+            toast.error('Invalid answer received');
             console.error('Invalid answer received:', data);
             return;
         }
@@ -147,31 +154,35 @@ const useLiveStream = (currentUser) => {
         if (peerConnection) {
             try {
                 if (peerConnection.signalingState !== 'have-local-offer') {
+                    toast.warn('Cannot set remote answer in current state');
                     console.warn('Cannot set remote answer in current state', peerConnection.signalingState);
                     return;
                 }
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
             } catch (error) {
+                toast.error('Failed to set remote description');
                 console.error('Failed to set remote description:', error);
             }
         } else {
+            toast.error('PeerConnection not found for user');
             console.error('PeerConnection not found for user:', from);
         }
     }, [isStreaming]);
 
     const handleReceiveCandidate = useCallback(async (data) => {
         if (!isStreaming) return;
-      
+
         const { from, candidate } = data;
         const peerConnection = peerConnections.current[from];
         if (peerConnection) {
-          try {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-          } catch (error) {
-            console.error('Failed to add ICE candidate:', error);
-          }
+            try {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (error) {
+                toast.error('Failed to add ICE candidate');
+                console.error('Failed to add ICE candidate:', error);
+            }
         }
-      }, [isStreaming]);
+    }, [isStreaming]);
 
     useEffect(() => {
         if (!currentUser || !currentUser.uid) return;
@@ -222,6 +233,7 @@ const useLiveStream = (currentUser) => {
                 const result = await getTurnCredentials();
                 setIceServers([result.data.turnServer]);
             } catch (error) {
+                toast.error('Failed to get TURN credentials');
                 setError('Failed to get TURN credentials.');
             }
         };
@@ -231,9 +243,9 @@ const useLiveStream = (currentUser) => {
 
     useEffect(() => {
         Object.values(peerConnections.current).forEach((peerConnection) => {
-          peerConnection.onnegotiationneeded = () => handleNegotiationNeededEvent(currentUser.uid);
+            peerConnection.onnegotiationneeded = () => handleNegotiationNeededEvent(currentUser.uid);
         });
-      }, [peerConnections.current]);
+    }, [currentUser.uid]);
 
     const startStream = async () => {
         try {
@@ -250,16 +262,15 @@ const useLiveStream = (currentUser) => {
             const notifyStreamStarted = httpsCallable(functions, 'notifyStreamStarted');
             await notifyStreamStarted({ userId: currentUser.uid, userName: currentUser.displayName });
 
-            // Register frame callback using requestAnimationFrame
             const handleVideoFrame = (now) => {
                 console.log('Processing video frame:', now);
                 animationFrameId.current = requestAnimationFrame(handleVideoFrame);
             };
             animationFrameId.current = requestAnimationFrame(handleVideoFrame);
 
-            // Create offer to initiate connection
             await createOffer(currentUser.uid);
         } catch (err) {
+            toast.error('Failed to access media devices. Please check your permissions.');
             setError('Failed to access media devices. Please check your permissions.');
         }
     };
@@ -271,7 +282,6 @@ const useLiveStream = (currentUser) => {
         }
         setIsStreaming(false);
 
-        // Cancel the animation frame loop
         if (animationFrameId.current) {
             cancelAnimationFrame(animationFrameId.current);
             animationFrameId.current = null;
@@ -281,6 +291,7 @@ const useLiveStream = (currentUser) => {
         try {
             await notifyStreamStopped({ userId: currentUser.uid });
         } catch (error) {
+            toast.error('Error notifying stream stopped');
             console.error('Error notifying stream stopped:', error);
         }
 

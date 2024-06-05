@@ -155,7 +155,7 @@ const TopNavBar = () => {
                                         <IoPersonCircleOutline size={20} style={{ marginRight: '10px' }} />
                                         Conta
                                     </Dropdown.Item>
-                                    <Dropdown.Item href="#settings">
+                                    <Dropdown.Item href="/UserProfileSettings">
                                         <IoSettingsOutline size={20} style={{ marginRight: '10px' }} />
                                         Configurações
                                     </Dropdown.Item>
