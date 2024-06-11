@@ -41,9 +41,6 @@ import ElosCoinManager from './components/resources/Common/PrivateRoute/elosCoin
 import ConvidarAmigos from './components/resources/Common/PrivateRoute/convidarAmigos';
 import ValidateInvite from './components/resources/Common/PrivateRoute/ValidateInvite';
 import GridPublicUsers from './components/pages/gridPublicUsers';
-import SearchFriends from './components/resources/Common/PrivateRoute/SearchFriends';
-import FriendRequests from './components/resources/Common/PrivateRoute/FriendRequests';
-import ActiveConnections from './components/resources/Common/PrivateRoute/ActiveConnections';
 import axios from 'axios';
 
 function App() {

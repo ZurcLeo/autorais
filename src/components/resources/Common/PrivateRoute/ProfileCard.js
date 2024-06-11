@@ -28,7 +28,7 @@ const ProfileCard = ({ userData, toggleEdit }) => {
 
     return (
         <Container>
-            <Card className="profile-card">
+            <Card className="main-card">
                 <Row>
                     <Col md={4} className="profile-card-left">
                         <Card.Body className="text-center">
@@ -45,7 +45,7 @@ const ProfileCard = ({ userData, toggleEdit }) => {
                         </Card.Body>
                     </Col>
                     <Col md={8}>
-                        <Card.Body className="profile-card-right">
+                        <Card.Body className="sub-card">
                             <h6 className="card-title">Resumo</h6>
                             <ListGroup variant="flush">
                                

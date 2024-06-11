@@ -27,12 +27,13 @@ const GridPublicUsers = () => {
 
     return (
         <div className="grid-public">
+            <h3>Nossos Elos</h3>
             <div className="grid">
                 {users.length > 0 ? (
                     users.map((user, index) => (
                         <div key={index} className="card">
                             <img className="img-card" src={user.photoURL} alt="User Photo" />
-                            <p>{user.userId}</p>
+                            <p>{user.displayName}</p>
                         </div>
                     ))
                 ) : (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, updateDoc, limit, startAfter } from 'firebase/firestore';
 import { db, storage } from '../../firebase.config';
-import { Button, Card, Form, InputGroup, FormControl, Container, ProgressBar, Col, Row } from 'react-bootstrap';
+import { Button, Card, Form, InputGroup, FormControl, Container, ProgressBar} from 'react-bootstrap';
 import { IoPaperPlaneOutline, IoAttachOutline, IoMicOutline, IoStopCircleOutline } from "react-icons/io5";
 import { formatDistanceToNow, format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';

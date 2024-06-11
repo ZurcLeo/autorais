@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { db, storage } from '../../../../firebase.config';
 import { useAuth } from '../../AuthService';
 import { useUserContext } from '../../userContext';
 import { formatDistanceToNow } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import { collection, query, orderBy, startAfter, onSnapshot, getDocs, addDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Button, InputGroup, FormControl, DropdownButton, Dropdown, Card, Row, Col, Container } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { IoGiftOutline, IoCameraOutline, IoEarthOutline, IoLockClosedOutline } from 'react-icons/io5';
+import { IoGiftOutline, IoAlertCircle, IoCameraOutline, IoEarthOutline, IoLockClosedOutline } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import './postagens.css';
 import Reactions from './reacoes';
 import Comentarios from './comentarios';
 import GiftsModal from './giftsModal';
-import usePostLoader from '../../Common/PrivateRoute/hooks/usePostLoader'; // Um hook customizado para carregar posts
+import usePostLoader from '../../Common/PrivateRoute/hooks/usePostLoader';
 
 const Postagens = () => {
     const { currentUser } = useAuth();
@@ -24,7 +24,7 @@ const Postagens = () => {
     const [postText, setPostText] = useState('');
     const [visibility, setVisibility] = useState('publico');
     const [showGiftsModal, setShowGiftsModal] = useState(false);
-    const [selectedPost, setSelectedPost] = useState(null); // Atualizado para armazenar o post selecionado
+    const [selectedPost, setSelectedPost] = useState(null);
     const { posts, hasMore, loadMorePosts } = usePostLoader(currentUser);
 
     const handleFileChange = (e) => setFile(e.target.files[0]);
@@ -36,7 +36,7 @@ const Postagens = () => {
             return;
         }
 
-        const fileType = file.type.split('/')[0]; // 'image' or 'video'
+        const fileType = file.type.split('/')[0];
         const storagePath = `media/${currentUser.uid}/${visibility}/${file.name}`;
         const fileRef = ref(storage, storagePath);
         try {
@@ -52,6 +52,11 @@ const Postagens = () => {
                 tipoMedia: fileType,
                 visibilidade: visibility,
             });
+
+            const userPostRef = await addDoc(collection(db, "usuario", currentUser.uid, "postagens"), {
+                postId: [postRef.id]
+            });
+
             toast.success('Postagem criada com sucesso!');
         } catch (error) {
             console.error('Erro ao enviar arquivo e criar postagem:', error);
@@ -64,9 +69,10 @@ const Postagens = () => {
 
     return (
         <Container style={{ marginTop: '20px', marginBottom: '20px' }} className='postagem-container'>
-            <Card className="postagem-card">
-                <Card.Header className="postagem-header">Postagens</Card.Header>
+            <Card className="main-card">
+               
                 <Card.Body className="postagem-body">
+                <Card.Text>Postagens</Card.Text>
                     <InputGroup>
                         <FormControl
                             as="textarea"
@@ -84,7 +90,7 @@ const Postagens = () => {
                             <Dropdown.Item onClick={() => handleVisibilityChange('Privado')}><IoLockClosedOutline /> Privado</Dropdown.Item>
                         </DropdownButton>
                         <Button variant="outline-secondary" onClick={() => document.getElementById('file-input').click()}>
-                            <IoCameraOutline /> {/* Ícone de câmera */}
+                            <IoCameraOutline />
                         </Button>
                         <Button variant='outline-success' style={{ borderTopRightRadius: 20, borderBottomRightRadius: 20 }} onClick={handleUploadAndPost} disabled={!file || !postText}>
                             Postar
@@ -99,9 +105,9 @@ const Postagens = () => {
                     </InputGroup>
                     <hr />
                     <div>
-                        <Card className='postagem-card'>
-                            <Card.Header>Feed</Card.Header>
+                        <Card className='main-card'>
                             <Card.Body>
+                            <Card.Text>Feed</Card.Text>
                                 <InfiniteScroll
                                     dataLength={posts.length}
                                     next={loadMorePosts}
@@ -114,7 +120,7 @@ const Postagens = () => {
                                     }
                                 >
                                     {posts.map(post => (
-                                        <Card key={post.id} className="mb-4">
+                                        <Card key={post.id} className="sub-card">
                                             <Card.Header className="d-flex align-items-center">
                                                 <img src={post.usuarioFoto} alt="Foto do perfil" className="post-foto mr-2" />
                                                 <div>
@@ -134,25 +140,35 @@ const Postagens = () => {
                                                 {post.mediaUrl && <img className='thumbnail' src={post.mediaUrl} alt="Post media" />}
                                             </Card.Body>
                                             <Card.Footer>
-                                                <Row className="mt-1">
-                                                    <Col>
+                                            <Col>
                                                         <Reactions className="reaction-buttons" post={post} />
-                                                    </Col>
-                                                    <Col>
-                                                        <Button className='reaction-button' variant="outline-secondary">
+                                                   
+                                                        <div className='reaction-button-wrapper'>
                                                             <Comentarios key={post.id} postId={post.id} isPrivate={post.visibilidade === 'Privado'} />
+                                                        </div>
+                                                    </Col>
+                                                <Row className="mt-1">
+                                                   
+                                                    <Col>
+                                                        <Button
+                                                            className='reaction-button'
+                                                            variant="warning"
+                                                            onClick={() => { setSelectedPost(post); setShowGiftsModal(true); }}
+                                                        >
+                                                            <IoGiftOutline /> Enviar Presente
                                                         </Button>
                                                     </Col>
                                                     <Col>
                                                         <Button
                                                             className='reaction-button'
-                                                            variant="outline-success"
-                                                            onClick={() => { setSelectedPost(post); setShowGiftsModal(true); }}
+                                                            variant="outline-danger"
+                                                            
                                                         >
-                                                            <IoGiftOutline />
+                                                            <IoAlertCircle /> Denunciar
                                                         </Button>
                                                     </Col>
                                                 </Row>
+                                               
                                             </Card.Footer>
                                         </Card>
                                     ))}

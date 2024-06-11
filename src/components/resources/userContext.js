@@ -20,7 +20,6 @@ export const UserProvider = ({ children }) => {
   const [friendsIds, setFriendsIds] = useState([]);
   const [bestFriendsIds, setBestFriendsIds] = useState([]);
   const [userReactions, setUserReactions] = useState({});
-  const [userReactionsDoc, setUserReactionsDoc] = useState({});
 
 
   useEffect(() => {
@@ -72,7 +71,7 @@ export const UserProvider = ({ children }) => {
       const postDoc = await transaction.get(postReactionsRef);
   
       if (!userDoc.exists() || !postDoc.exists()) {
-        throw ("Documento não encontrado!");
+        throw new Error("Documento não encontrado!");
       }
   
       let newUserReactions = userDoc.data().reacoes || {};
@@ -147,7 +146,7 @@ export const UserProvider = ({ children }) => {
     register,
     setLoading,
     setFeedbackMessage,
-    handleUserReaction
+    handleUserReaction, 
     };
     
     return (

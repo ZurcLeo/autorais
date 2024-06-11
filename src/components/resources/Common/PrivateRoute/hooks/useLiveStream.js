@@ -17,13 +17,20 @@ const useLiveStream = (currentUser) => {
     const sentOffers = useRef(new Set());
     const sentAnswers = useRef(new Set());
 
+    const sendCandidate = useCallback((userId, candidate) => {
+        const sendCandidateFunction = httpsCallable(functions, 'sendCandidate');
+        sendCandidateFunction({ to: userId, candidate }).catch(error => {
+            toast.error('Failed to send ICE candidate');
+            console.error('Failed to send ICE candidate:', error);
+        });
+    }, [functions]);
+
     const createPeerConnection = useCallback((userId) => {
         const peerConnection = new RTCPeerConnection({ iceServers });
 
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
-                const sendCandidate = httpsCallable(functions, 'sendCandidate');
-                sendCandidate({ to: userId, candidate: event.candidate });
+                sendCandidate(userId, event.candidate);
             }
         };
 
@@ -44,7 +51,7 @@ const useLiveStream = (currentUser) => {
         peerConnection.onnegotiationneeded = () => handleNegotiationNeededEvent(userId);
 
         return peerConnection;
-    }, [iceServers, functions]);
+    }, [iceServers, sendCandidate]);
 
     const handleNegotiationNeededEvent = useCallback(async (userId) => {
         if (negotiationNeeded.current[userId] || !isStreaming) return;
@@ -73,12 +80,7 @@ const useLiveStream = (currentUser) => {
         }
     }, [functions, isStreaming]);
 
-    const createOffer = useCallback(async (userId) => {
-        if (!isStreaming) return;
-
-        const peerConnection = createPeerConnection(userId);
-        peerConnections.current[userId] = peerConnection;
-
+    const handleCreateOffer = useCallback(async (peerConnection, userId) => {
         const offer = await peerConnection.createOffer({
             offerToReceiveAudio: true,
             offerToReceiveVideo: true
@@ -87,13 +89,36 @@ const useLiveStream = (currentUser) => {
 
         if (!offer.sdp || !offer.type) {
             toast.error('Invalid offer generated');
-            return;
+            throw new Error('Invalid offer generated');
         }
 
         const sendOffer = httpsCallable(functions, 'sendOffer');
         await sendOffer({ offer: peerConnection.localDescription, userId });
         sentOffers.current.add(userId);
-    }, [createPeerConnection, functions, isStreaming]);
+    }, [functions]);
+
+    const handleCreateAnswer = useCallback(async (peerConnection, userId, from) => {
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        if (!answer.sdp || !answer.type) {
+            toast.error('Invalid answer generated');
+            throw new Error('Invalid answer generated');
+        }
+
+        const sendAnswer = httpsCallable(functions, 'sendAnswer');
+        await sendAnswer({ answer: peerConnection.localDescription, userId, from });
+        sentAnswers.current.add(userId);
+    }, [functions]);
+
+    const createOffer = useCallback(async (userId) => {
+        if (!isStreaming) return;
+
+        const peerConnection = createPeerConnection(userId);
+        peerConnections.current[userId] = peerConnection;
+
+        await handleCreateOffer(peerConnection, userId);
+    }, [createPeerConnection, handleCreateOffer, isStreaming]);
 
     const handleReceiveOffer = useCallback(async (data) => {
         if (!isStreaming) return;
@@ -121,22 +146,12 @@ const useLiveStream = (currentUser) => {
             }
 
             await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-
-            if (!answer.sdp || !answer.type) {
-                toast.error('Invalid answer generated');
-                return;
-            }
-
-            const sendAnswer = httpsCallable(functions, 'sendAnswer');
-            await sendAnswer({ answer: peerConnection.localDescription, userId: from, from: currentUser.uid });
-            sentAnswers.current.add(from);
+            await handleCreateAnswer(peerConnection, currentUser.uid, from);
         } catch (error) {
             toast.error('Failed to handle received offer');
             console.error('Failed to handle received offer:', error);
         }
-    }, [createPeerConnection, functions, currentUser, isStreaming]);
+    }, [createPeerConnection, handleCreateAnswer, currentUser.uid, isStreaming]);
 
     const handleReceiveAnswer = useCallback(async (data) => {
         if (!isStreaming) return;

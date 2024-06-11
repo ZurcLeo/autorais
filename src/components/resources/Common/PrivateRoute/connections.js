@@ -4,10 +4,11 @@ import { Container } from "react-bootstrap";
 import SearchFriends from './SearchFriends';
 import ActiveConnections from './ActiveConnections';
 import FriendRequests from './FriendRequests';
+import './connections.css'
 
 const Connections = () => {
     return (
-        <Container style={{ marginTop: '20px' }}>
+        <Container style={{ margin: '10px' }}>
             <SearchFriends />
             <FriendRequests />
             <ActiveConnections />

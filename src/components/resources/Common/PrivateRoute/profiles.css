@@ -1,12 +1,15 @@
-
-.profile-card {
-    /* Styles to match the card with the sidebar */
+.main-card {
+    background-color: #9c8e79;
+    color: antiquewhite;
     border: none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Add shadow to lift the card off the page */
-    border-radius: 8px; /* Round the corners if necessary */
-    background-color: #9d8e7a;
-}
-
+    }
+    
+    .sub-card {
+        background-color: antiquewhite;
+        color: #9c8e79;
+     
+    }
+    
 
 .profile-image-bg {
    width: 100px;

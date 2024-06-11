@@ -3,11 +3,13 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAuth } from '../../AuthService';
 import { toast } from 'react-toastify';
 import { Form, Button, Card, Spinner, Container, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 const GenerateAndSendInvite = () => {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
 
     const handleInvite = async () => {
         if (!email || !currentUser) {
@@ -26,6 +28,9 @@ const GenerateAndSendInvite = () => {
 
             if (result.data.success) {
                 toast.success('Convite enviado com sucesso!');
+            } else if (result.data.redirectTo) {
+                toast.error(result.data.message);
+                navigate(result.data.redirectTo);
             } else {
                 toast.error('Erro ao enviar convite.');
             }
@@ -39,31 +44,29 @@ const GenerateAndSendInvite = () => {
     return (
         <Container fluid>
             <Row className="justify-content-md-center">
-                <Col >
-                    <Card fluid>
+                <Col>
+                    <Card>
                         <Card.Header>
-                    <h3>Enviar Convite</h3>
-                    </Card.Header>
-                    <Card.Body>
-                    <Form>
-                        <Form.Group controlId="formEmail">
-                            <Form.Label>Email do amigo</Form.Label>
-                            <Form.Control 
-                                type="email" 
-                                placeholder="Digite o email" 
-                                value={email} 
-                                onChange={(e) => setEmail(e.target.value)} 
-                            />
-                        </Form.Group>
-                       
-                    </Form>
-                    </Card.Body>
-                    <Card.Footer>
-                         
-                    <Button variant="primary" onClick={handleInvite} disabled={isLoading} block>
-                            {isLoading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Enviar Convite'}
-                        </Button>
-                    </Card.Footer>
+                            <h3>Enviar Convite</h3>
+                        </Card.Header>
+                        <Card.Body>
+                            <Form>
+                                <Form.Group controlId="formEmail">
+                                    <Form.Label>Email do amigo</Form.Label>
+                                    <Form.Control 
+                                        type="email" 
+                                        placeholder="Digite o email" 
+                                        value={email} 
+                                        onChange={(e) => setEmail(e.target.value)} 
+                                    />
+                                </Form.Group>
+                            </Form>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Button variant="primary" onClick={handleInvite} disabled={isLoading} className="w-100">
+                                {isLoading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : 'Enviar Convite'}
+                            </Button>
+                        </Card.Footer>
                     </Card>
                 </Col>
             </Row>

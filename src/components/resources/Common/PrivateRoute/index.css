@@ -4,6 +4,10 @@
     }
 }
 
+a {
+    text-decoration: none !important;
+}
+
 .footer-menu {
     position: sticky;
     bottom: 0;

@@ -1,186 +1,282 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../AuthService';
-import { Navbar, Nav, Form, Dropdown, Image, Container, Badge, DropdownButton } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import {
+  AppBar, Box, Toolbar, Button, Container, MenuItem, Drawer, IconButton, Avatar, Badge, Menu, Tooltip, Divider
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../AuthService';
 import useUnreadConnections from './hooks/useUnreadConnections';
 import useUnreadMessage from '../PrivateRoute/hooks/useUnreadMessage';
 import useNotification from './hooks/useNotification';
-import { IoChatbubblesOutline, IoNewspaperOutline, IoThumbsUp, IoGiftOutline, IoExtensionPuzzleOutline, IoPersonCircleOutline, IoNotificationsOutline, IoBasketOutline, IoPersonOutline, IoSettingsOutline, IoExitOutline } from "react-icons/io5";
+import CustomLinkContainer from '../../../customLinkContainer';
+import { IoPersonOutline, IoPersonCircleOutline, IoSettingsOutline, IoExitOutline, IoNotificationsOutline } from "react-icons/io5";
 import './topNavBar.css';
 
-const placeholder = process.env.REACT_APP_PLACE_HOLDER_IMG
+const placeholder = process.env.REACT_APP_PLACE_HOLDER_IMG;
 
-const NotificationDropdown = ({ globalNotifications, privateNotifications, markAsRead }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const navigate = useNavigate();
-
-    const handleToggle = () => {
-        setIsOpen(!isOpen);
-    };
-
-    const handleNotificationClick = (notification, type) => {
-        markAsRead(notification.id, type);
-        if (type === 'global') {
-            navigate(`/live/${notification.userId}`); // Ajuste o caminho conforme necessário
-        }
-    };
-
-    return (
-        <div className="notification-dropdown">
-            <button onClick={handleToggle} className="notification-button">
-                <IoNotificationsOutline size={20} />
-                <p>{globalNotifications.length + privateNotifications.length}</p>
-            </button>
-            {isOpen && (
-                <div className="notification-dropdown-menu">
-                    <h3>Notificações Globais</h3>
-                    {globalNotifications.length > 0 ? (
-                        globalNotifications.map(notification => (
-                            <div
-                                key={notification.id}
-                                className="notification-dropdown-item"
-                                onClick={() => handleNotificationClick(notification, 'global')}
-                            >
-                                {notification.conteudo}
-                            </div>
-                        ))
-                    ) : (
-                        <div className="notification-dropdown-item">Nenhuma notificação nova</div>
-                    )}
-
-                    <h3>Notificações Privadas</h3>
-                    {privateNotifications.length > 0 ? (
-                        privateNotifications.map(notification => (
-                            <div
-                                key={notification.id}
-                                className="notification-dropdown-item"
-                                onClick={() => handleNotificationClick(notification, 'private')}
-                            >
-                                {notification.conteudo}
-                            </div>
-                        ))
-                    ) : (
-                        <div className="notification-dropdown-item">Nenhuma notificação nova</div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+const logoStyle = {
+  width: '60px',
+  height: 'auto',
+  cursor: 'pointer',
 };
 
-const TopNavBar = () => {
-    const { currentUser, logout } = useAuth();
-    const unreadMessagesCount = useUnreadMessage();
-    const { newRequests } = useUnreadConnections();
-    const { globalNotifications, privateNotifications, markAsRead } = useNotification();
+const NotificationDropdown = ({ globalNotifications, privateNotifications, markAsRead }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
 
-    const handleLogout = async () => {
-        try {
-            await logout();
-            navigate('/Login'); // Redireciona para a página de login após o logout
-        } catch (error) {
-            console.error('Erro ao tentar deslogar:', error);
-            // Tratar o erro de logout aqui, se necessário
-        }
-    };
+  const handleNotificationClick = (notification, type) => {
+    markAsRead(notification.id, type);
+    if (type === 'global') {
+      navigate(`/live/${notification.userId}`);
+    }
+  };
 
-    return (
-        <Navbar className='nav_sup' expand="lg">
-            <Container fluid className='d-flex'>
-                <Navbar.Brand style={{ marginLeft: '30px' }} href="/">
-                    <div className="rainbow-text">
-                        el<span className="rainbow">o</span>s
-                    </div>
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        <Form className="busca-form d-flex"></Form>
-                    </Nav>
-                    <Nav>
-                        {currentUser ? (
-                            <>
-                                <LinkContainer className='menu-icons' to="/connections">
-                                    <Nav.Link>
-                                        <IoExtensionPuzzleOutline className='icon' size={20} />
-                                        <span className="d-lg-none">Buscar</span>
-                                        {newRequests > 0 && <Badge pill bg="danger">{newRequests}</Badge>}
-                                    </Nav.Link>
-                                </LinkContainer>
-                                <LinkContainer className='menu-icons' to="/Postagens">
-                                    <Nav.Link>
-                                        <IoNewspaperOutline className='icon' size={20} />
-                                        <span className="d-lg-none">Postagens</span>
-                                    </Nav.Link>
-                                </LinkContainer>
-                                <LinkContainer className='menu-icons' to="/goChat">
-                                    <Nav.Link>
-                                        <IoChatbubblesOutline className='icon' size={20} />
-                                        <span className="d-lg-none">Conversas</span>
-                                        {unreadMessagesCount > 0 && <Badge pill bg="danger">{unreadMessagesCount}</Badge>}
-                                    </Nav.Link>
-                                </LinkContainer>
+  return (
+    <div className="notification-dropdown">
+      <button onClick={handleToggle} className="notification-button">
+        <IoNotificationsOutline size={20} />
+        <p>{globalNotifications.length + privateNotifications.length}</p>
+      </button>
+      {isOpen && (
+        <div className="notification-dropdown-menu">
+          <h3>Notificações Globais</h3>
+          {globalNotifications.length > 0 ? (
+            globalNotifications.map(notification => (
+              <div
+                key={notification.id}
+                className="notification-dropdown-item"
+                onClick={() => handleNotificationClick(notification, 'global')}
+              >
+                {notification.conteudo}
+              </div>
+            ))
+          ) : (
+            <div className="notification-dropdown-item">Nenhuma notificação nova</div>
+          )}
 
-                                <NotificationDropdown
-                                    globalNotifications={globalNotifications}
-                                    privateNotifications={privateNotifications}
-                                    markAsRead={markAsRead}
-                                />
-                            <LinkContainer className='menu-icons' to="/Payments">
-                                <Nav.Link>
-                                    <IoBasketOutline className='icon' size={20} />
-                                    <span className="d-lg-none">Loja</span>
-                                </Nav.Link>
-                            </LinkContainer>
+          <h3>Notificações Privadas</h3>
+          {privateNotifications.length > 0 ? (
+            privateNotifications.map(notification => (
+              <div
+                key={notification.id}
+                className="notification-dropdown-item"
+                onClick={() => handleNotificationClick(notification, 'private')}
+              >
+                {notification.conteudo}
+              </div>
+            ))
+          ) : (
+            <div className="notification-dropdown-item">Nenhuma notificação nova</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
-                            <Dropdown className='dropdown'>
-                                <Dropdown.Toggle variant="outline-success" id="dropdown-profile">
-                                    <Image
-                                        className="profile-image"
-                                        src={currentUser.fotoDoPerfil || placeholder }
-                                        roundedCircle
-                                       
-                                    />
-                                    <Nav.Link className='email'>{currentUser.email}</Nav.Link>
-                                </Dropdown.Toggle>
-                                <Dropdown.Menu className='dropdown-menu-right'>
-                                    <Dropdown.Item href={`/PerfilPessoal/${currentUser.uid}`}>
-                                        <IoPersonOutline size={20} style={{ marginRight: '10px' }} />
-                                        Meu perfil
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="#account">
-                                        <IoPersonCircleOutline size={20} style={{ marginRight: '10px' }} />
-                                        Conta
-                                    </Dropdown.Item>
-                                    <Dropdown.Item href="/UserProfileSettings">
-                                        <IoSettingsOutline size={20} style={{ marginRight: '10px' }} />
-                                        Configurações
-                                    </Dropdown.Item>
-                                    <hr />
-                                    <Dropdown.Item onClick={handleLogout}>
-                                        <IoExitOutline />
-                                        Sair
-                                    </Dropdown.Item>
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </>
-                    ) : (
-                        <>
-                            <Nav.Link style={{ color: 'antiquewhite' }} className='menu-icons' href="/homepage">Home</Nav.Link>
-                            <Nav.Link style={{ color: 'antiquewhite' }} className='menu-icons' href="/services">Serviços</Nav.Link>
-                            <Nav.Link style={{ color: 'antiquewhite' }} className='menu-icons' href="/blog">Blog</Nav.Link>
-                            <Nav.Link style={{ color: 'antiquewhite' }} className='menu-icons' href="/Sobre">Sobre</Nav.Link>
-                            <Nav.Link style={{ color: 'antiquewhite' }} className='menu-icons' href="/Login">Entrar</Nav.Link>
-                        </>
-                    )}
-                </Nav>
-            </Navbar.Collapse>
+const TopNavBar = ({ mode, toggleColorMode }) => {
+  const { currentUser, logout } = useAuth();
+  const unreadMessagesCount = useUnreadMessage();
+  const { newRequests } = useUnreadConnections();
+  const { globalNotifications, privateNotifications, markAsRead } = useNotification();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  const toggleDrawer = (newOpen) => () => {
+    setOpen(newOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/Login');
+    } catch (error) {
+      console.error('Erro ao tentar deslogar:', error);
+    }
+  };
+
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const drawer = (
+    <Box
+      sx={{
+        minWidth: '60dvw',
+        p: 2,
+        backgroundColor: 'background.paper',
+        flexGrow: 1,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'end',
+          flexGrow: 1,
+        }}
+      >
+        <Button
+          color="primary"
+          variant="contained"
+          component="a"
+          href="/material-ui/getting-started/templates/sign-up/"
+          target="_blank"
+          sx={{ width: '100%' }}
+        >
+          Sign up
+        </Button>
+        <Button
+          color="primary"
+          variant="outlined"
+          component="a"
+          href="/material-ui/getting-started/templates/sign-in/"
+          target="_blank"
+          sx={{ width: '100%' }}
+        >
+          Sign in
+        </Button>
+      </Box>
+      <Divider />
+      <MenuItem onClick={() => navigate('/homepage')}>Home</MenuItem>
+      <MenuItem onClick={() => navigate('/services')}>Serviços</MenuItem>
+      <MenuItem onClick={() => navigate('/blog')}>Blog</MenuItem>
+      <MenuItem onClick={() => navigate('/Sobre')}>Sobre</MenuItem>
+      <MenuItem onClick={() => navigate('/Login')}>Entrar</MenuItem>
+    </Box>
+  );
+
+  return (
+    <div>
+      <AppBar position="fixed" sx={{ boxShadow: 0, color: '#9D8E7A', bgcolor: 'transparent', backgroundImage: 'none', mt: 2 }}>
+        <Container maxWidth="lg">
+          <Toolbar
+            variant="regular"
+            sx={(theme) => ({
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexShrink: 0,
+              borderRadius: '999px',
+              bgcolor:
+                theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+              backdropFilter: 'blur(24px)',
+              maxHeight: 40,
+              border: '1px solid',
+              borderColor: 'divider',
+              boxShadow:
+                theme.palette.mode === 'light'
+                  ? `0 0 1px rgba(85, 166, 246, 0.1), 1px 1.5px 2px -1px rgba(85, 166, 246, 0.15), 4px 4px 12px -2.5px rgba(85, 166, 246, 0.15)`
+                  : '0 0 1px rgba(2, 31, 59, 0.7), 1px 1.5px 2px -1px rgba(2, 31, 59, 0.65), 4px 4px 12px -2.5px rgba(2, 31, 59, 0.65)',
+            })}
+          >
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', ml: '-18px', px: 0 }}>
+              <img
+                src={placeholder}
+                style={logoStyle}
+                alt="logo of sitemark"
+                onClick={() => navigate('/')}
+              />
+              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <MenuItem component="a" href="/homepage">
+                  Home
+                </MenuItem>
+                <MenuItem component="a" href="/services">
+                  Serviços
+                </MenuItem>
+                <MenuItem component="a" href="/blog">
+                  Blog
+                </MenuItem>
+                <MenuItem component="a" href="/Sobre">
+                  Sobre
+                </MenuItem>
+                {/* <MenuItem component="a" href="/Login">
+                  Entrar
+                </MenuItem> */}
+              </Box>
+            </Box>
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, alignItems: 'center' }}>
+              {currentUser ? (
+                <>
+                  <NotificationDropdown
+                    globalNotifications={globalNotifications}
+                    privateNotifications={privateNotifications}
+                    markAsRead={markAsRead}
+                  />
+                  <Tooltip title="Perfil">
+                    <IconButton
+                      edge="end"
+                      aria-label="account of current user"
+                      aria-haspopup="true"
+                      onClick={handleProfileMenuOpen}
+                      color="inherit"
+                    >
+                      <Avatar src={currentUser.fotoDoPerfil || placeholder} />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    anchorEl={anchorEl}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    keepMounted
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleMenuClose}
+                  >
+                    <MenuItem component={CustomLinkContainer} to={`/PerfilPessoal/${currentUser.uid}`}>
+                      <IoPersonOutline fontSize="small" />
+                      Meu perfil
+                    </MenuItem>
+                    <MenuItem component={CustomLinkContainer} to="#account">
+                      <IoPersonCircleOutline fontSize="small" />
+                      Conta
+                    </MenuItem>
+                    <MenuItem component={CustomLinkContainer} to="/UserProfileSettings">
+                      <IoSettingsOutline fontSize="small" />
+                      Configurações
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={handleLogout}>
+                      <IoExitOutline fontSize="small" />
+                      Sair
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  <Button component="a" href="/Login" color="inherit">
+                    Entrar
+                  </Button>
+                </>
+              )}
+            </Box>
+            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={toggleDrawer(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
+                {drawer}
+              </Drawer>
+            </Box>
+          </Toolbar>
         </Container>
-    </Navbar>
-);
+      </AppBar>
+    </div>
+  );
 };
 
 export default TopNavBar;

@@ -84,8 +84,8 @@ const AuthProvider = ({ children }) => {
         tipoDeConta: 'Cliente',
         isOwnerOrAdmin: false,
         fotoDoPerfil: CLAUD_PROFILE_IMG,
-        amigos: ['0000000000'],  // Sempre usa imagem de placeholder
-        amigosAutorizados: ['0000000000'],
+        amigos: [],  
+        amigosAutorizados: [],
         conversasComMensagensNaoLidas: [],
       });
 
@@ -96,7 +96,7 @@ const AuthProvider = ({ children }) => {
         status: 'pendente',
         fotoDoPerfil: CLAUD_PROFILE_IMG,
         descricao: 'Gostaria de conectar com você.',
-        amigos: ['0000000000'],
+        amigos: [],
       });
 
       await batch.commit();
@@ -179,6 +179,7 @@ const AuthProvider = ({ children }) => {
       await ensureUserProfileExists(userCredential);
       toast.success('Login com provedor bem-sucedido.');
       navigate('/homepage');
+      console.log('idToken: ', auth.idToken)
     } catch (error) {
       toast.error('Erro no login com provedor.');
       console.error(error);

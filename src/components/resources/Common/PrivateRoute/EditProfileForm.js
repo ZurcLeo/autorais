@@ -19,7 +19,7 @@ const EditProfileForm = ({
         handleImageChange,
         uploadSelectedImage
     } = useImageUpload(currentUser);
-const { updateProfileData } = useUserProfile();
+    const { updateProfileData } = useUserProfile();
     const [isLoading, setIsLoading] = useState(true);
     const personalInterests = ["Relacionamentos", "Encontros Casuais", "Passeios Românticos", "Sem Compromisso"];
     const businessInterests = ["Venda de Produtos", "Oferta de Serviços"];
@@ -29,6 +29,7 @@ const { updateProfileData } = useUserProfile();
         ...userData,
         interessesPessoais: Array.isArray(userData?.interessesPessoais) ? userData.interessesPessoais : [],
         interessesNegocios: Array.isArray(userData?.interessesNegocios) ? userData.interessesNegocios : [],
+        descricao: userData?.descricao || ''
     };
 
     const handleCheckboxChange = (field, value) => {
@@ -44,7 +45,7 @@ const { updateProfileData } = useUserProfile();
     const handleSave = async () => {
         setIsLoading(true);
         try {
-            const updatedData = { ...userData };
+            const updatedData = { ...safeUserData };
             await updateProfileData(updatedData);
             toast.success("Dados do perfil atualizados com sucesso.");
         } catch (error) {
@@ -71,11 +72,12 @@ const { updateProfileData } = useUserProfile();
 
     useEffect(() => {
         adjustTextareaHeight();
-    }, [userData.descricao]);
+    }, [safeUserData.descricao]);
 
     return (
-        <Container>
-            <Form onSubmit={(e) => e.preventDefault()}>
+        <Container >
+            <Card className="main-card">
+            <Form  onSubmit={(e) => e.preventDefault()}>
                 <FormGroup controlId="profileImage" className="text-center">
                     <Card.Header>Editando Perfil de {safeUserData.nome}</Card.Header>
                     <div className="profile-image-preview">
@@ -101,7 +103,7 @@ const { updateProfileData } = useUserProfile();
                         onChange={handleImageChange}
                         className="my-3"
                     />
-                    <Button variant="success" onClick={uploadSelectedImage} disabled={!isPhotoSelected}>
+                    <Button variant="outline-warning" onClick={uploadSelectedImage} disabled={!isPhotoSelected}>
                         <FaUpload style={{ marginRight: '10px' }} /> Enviar Imagem
                     </Button>
                     <hr />
@@ -126,18 +128,18 @@ const { updateProfileData } = useUserProfile();
                 </FloatingLabel>
                 
                 <FloatingLabel controlId="description" label="Descrição" className="mb-3">
-                <FormControl
-                    as="textarea"
-                    placeholder="Digite sua descrição"
-                    value={safeUserData.descricao}
-                    onChange={handleDescriptionChange}
-                    ref={textAreaRef}
-                    onInput={adjustTextareaHeight}
-                />
-                <Form.Text className="text-muted">
-                    {safeUserData.descricao.length}/500 caracteres
-                </Form.Text>
-            </FloatingLabel>
+                    <FormControl
+                        as="textarea"
+                        placeholder="Digite sua descrição"
+                        value={safeUserData.descricao}
+                        onChange={handleDescriptionChange}
+                        ref={textAreaRef}
+                        onInput={adjustTextareaHeight}
+                    />
+                    <Form.Text className="main-card">
+                        {safeUserData.descricao.length}/500 caracteres
+                    </Form.Text>
+                </FloatingLabel>
 
                 <FormGroup controlId="perfilPublico" style={{ textAlign: 'left' }}>
                     <FormCheck
@@ -146,13 +148,13 @@ const { updateProfileData } = useUserProfile();
                         checked={safeUserData.perfilPublico}
                         onChange={e => setUserData({...safeUserData, perfilPublico: e.target.checked})}
                     />
-                    <Form.Text style={{ marginLeft: '10px' }}>
+                    <Form.Text className="main-card" style={{ marginLeft: '10px' }}>
                         Para que outros usuários possam encontrar você, esta opção deve estar selecionada.
-                    </Form.Text>
-                    <Form.Text style={{ marginLeft: '10px' }}>
+                    </Form.Text><br/>
+                    <Form.Text className="main-card" style={{ marginLeft: '10px' }}>
                         Ao selecionar a opção, você concorda em compartilhar seus dados com outros usuários registrados.
-                    </Form.Text>
-                    <Form.Text style={{ marginLeft: '10px' }}>
+                    </Form.Text><br/>
+                    <Form.Text className="main-card" style={{ marginLeft: '10px' }}>
                         Você pode alterar isso depois.
                     </Form.Text>
                 </FormGroup>
@@ -230,13 +232,14 @@ const { updateProfileData } = useUserProfile();
                     </Card.Body>
                 </FormGroup>
 
-                <Button variant="primary" onClick={handleSave} style={{ marginRight: '10px' }}>
+                <Button variant="warning" onClick={handleSave} style={{ marginRight: '10px' }}>
                     Salvar Alterações
                 </Button>
-                <Button variant="secondary" onClick={toggleEdit} style={{ marginLeft: '10px' }}>
+                <Button variant="outline-warning" onClick={toggleEdit} style={{ marginLeft: '10px' }}>
                     Cancelar
                 </Button>
             </Form>
+            </Card>
         </Container>
     );
 };

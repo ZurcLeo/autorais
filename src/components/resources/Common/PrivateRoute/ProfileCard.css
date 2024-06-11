@@ -1,8 +1,14 @@
-.profile-card {
-    border-radius: 5px;
-    overflow: hidden;
-    background-color: #9C8E79;
-}
+.main-card {
+    background-color: #9c8e79;
+    color: antiquewhite;
+    border: none;
+    }
+    
+    .sub-card {
+        background-color: antiquewhite;
+        color: #9c8e79;
+        border-radius: 8px;
+    }
 
 .profile-card-left, .profile-card-right {
     padding: 20px;

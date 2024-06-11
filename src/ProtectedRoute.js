@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children }) => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log('Usuário autenticado, exibindo conteúdo protegido...');
+        console.log('Usuário autenticado, exibindo conteúdo protegido...', user);
         setUser(user);
       } else {
         console.log('Usuário não autenticado, redirecionando para a página de login...');

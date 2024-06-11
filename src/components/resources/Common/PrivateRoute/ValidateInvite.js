@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { toast } from 'react-toastify';
-import { Container, Form, Button } from 'react-bootstrap';
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
 
 const ValidateInvite = () => {
     const location = useLocation();
@@ -45,20 +45,26 @@ const ValidateInvite = () => {
     };
 
     return (
-        <Container style={{ marginTop: '20px', marginBottom: '20px', maxWidth: '400px' }}>
-            <h1>Validar Convite</h1>
-            <Form>
-                <Form.Group controlId="formEmailInvite">
-                    <Form.Label>Email que recebeu o convite:</Form.Label>
-                    <Form.Control
-                        type="email"
-                        value={userEmail}
-                        onChange={(e) => setUserEmail(e.target.value)}
-                        required
-                    />
-                </Form.Group>
-                <Button onClick={handleValidateInvite} className="w-100 mt-3">Validar Convite</Button>
-            </Form>
+        <Container maxWidth="xs" sx={{ mt: 4, mb: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Validar Convite
+            </Typography>
+            <Box component="form">
+                <TextField
+                    id="email-invite"
+                    label="Email que recebeu o convite"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    type="email"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    required
+                />
+                <Button variant="contained" onClick={handleValidateInvite} fullWidth sx={{ mt: 3 }}>
+                    Validar Convite
+                </Button>
+            </Box>
         </Container>
     );
 };

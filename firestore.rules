@@ -15,11 +15,19 @@ service cloud.firestore {
         allow create, read, update: if request.auth.uid == userId;
       }
 
+  match /usuario/{userId}/postagens/{postagemId} {
+        allow create, read, update: if request.auth.uid == userId;
+      }
+
       // Subcoleção 'pagamentos'
       match /usuario/{userId}/pagamentos/{pagamentoId} {
         allow create, read, update: if request.auth.uid == userId;
       }
-    
+
+            // Subcoleção 'pagamentos'
+      match /usuario/{userId}/ancestralidade/{document=**} {
+        allow read: if request.auth.uid == userId || isFriend(request.auth.uid);
+      }
 
     // Regras para a coleção 'reservasIndex'
     match /reservasIndex/{reservationId} {
@@ -55,6 +63,11 @@ match /usuario/{userId}/uploadHistory/{uploadId} {
     function isOwnerOrAdmin(uid) {
       let userDoc = get(/databases/$(database)/documents/usuario/$(uid));
       return userDoc.data.isOwnerOrAdmin || userDoc.data.isOwner;
+    }
+
+        function isFriend(uid) {
+      let userDoc = get(/databases/$(database)/documents/usuario/$(uid));
+      return userDoc.data.amigos || userDoc.data.amigosAutorizados;
     }
 
     // Regras para a coleção 'hospedagens'
@@ -203,17 +216,17 @@ match /publico/imgs/{allPaths=**} {
     
     // Regra para ofertas
     match /offers/{offerId} {
-      allow read, write: if request.auth != null && request.auth.token.admin == true;
+      allow read, write, update: if true;
     }
     
     // Regra para respostas
     match /answers/{answerId} {
-      allow read, write: if request.auth != null && request.auth.token.admin == true;
+     allow read, write, update: if true;
     }
 
     // Regra para candidatos
     match /candidates/{candidateId} {
-      allow read, write: if request.auth != null && request.auth.token.admin == true;
+     allow read, write, update: if true;
     }
   }
 }

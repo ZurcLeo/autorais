@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../AuthService'; // Importando o hook useAuth
-import { Card, Container, Form, Button, FloatingLabel } from 'react-bootstrap';
+import { Card, Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { toast } from 'react-toastify';
 
 const Register = () => {
@@ -69,45 +69,53 @@ const Register = () => {
     };
 
     return (
-        <Container style={{ marginTop: '20px', marginBottom: '20px', maxWidth: '400px' }}>
+        <Container maxWidth="xs" sx={{ mt: 4, mb: 4 }}>
             <Card>
-                <Card.Header>Registrar</Card.Header>
-                <Card.Body>
-                    <Form>
-                        <FloatingLabel controlId="floatingEmailRegister1" label="Email" className="mb-3">
-                            <Form.Control
-                                type="email"
-                                placeholder="Digite seu email"
-                                value={userEmail}
-                                onChange={(e) => setUserEmail(e.target.value)}
-                                required
-                                autoComplete="email"
-                                disabled // Desabilitado porque o email já está validado
-                            />
-                        </FloatingLabel>
-                        <FloatingLabel controlId="floatingPasswordRegister1" label="Senha" className="mb-3">
-                            <Form.Control
-                                type="password"
-                                placeholder="Digite sua senha"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                autoComplete="new-password"
-                            />
-                        </FloatingLabel>
-                    </Form>
-                </Card.Body>
-                <Card.Footer>
-                    <Button variant="primary" onClick={handleRegisterWithEmail} type="submit" className="w-100 mt-3">
+                <Box sx={{ p: 2 }}>
+                    <Typography variant="h5" component="div" gutterBottom>
+                        Registrar
+                    </Typography>
+                    <Box component="form">
+                        <TextField
+                            id="email"
+                            label="Email"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            type="email"
+                            placeholder="Digite seu email"
+                            value={userEmail}
+                            onChange={(e) => setUserEmail(e.target.value)}
+                            required
+                            autoComplete="email"
+                            disabled // Desabilitado porque o email já está validado
+                        />
+                        <TextField
+                            id="password"
+                            label="Senha"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            type="password"
+                            placeholder="Digite sua senha"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </Box>
+                </Box>
+                <Box sx={{ p: 2 }}>
+                    <Button variant="contained" onClick={handleRegisterWithEmail} fullWidth sx={{ mt: 1 }}>
                         Registrar com Email
                     </Button>
-                    <Button variant="outline-danger" onClick={handleGoogleRegister} className="w-100 mt-2">
+                    <Button variant="outlined" color="error" onClick={handleGoogleRegister} fullWidth sx={{ mt: 2 }}>
                         Registrar com Google
                     </Button>
-                    <Button variant="outline-primary" onClick={handleMicrosoftRegister} className="w-100 mt-2">
+                    <Button variant="outlined" color="primary" onClick={handleMicrosoftRegister} fullWidth sx={{ mt: 2 }}>
                         Registrar com Microsoft
                     </Button>
-                </Card.Footer>
+                </Box>
             </Card>
         </Container>
     );

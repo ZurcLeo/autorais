@@ -21,7 +21,7 @@ const Profile = () => {
     if (!currentUser) return <Container>Usuário não autenticado.</Container>;
 
     return (
-        <Container className="profile-container">
+        <Container>
             {isEditing ? (
                 <EditProfileForm
                     userData={userData}

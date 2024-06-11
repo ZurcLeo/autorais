@@ -104,7 +104,7 @@ function getEmailTemplate(subject, content) {
 async function sendEmail(to, subject, content) {
     const htmlContent = getEmailTemplate(subject, content);
     const mailOptions = {
-        from: 'suporte@eloscloud.com.br.br',
+        from: 'suporte@eloscloud.com.br',
         to: to,
         subject: subject,
         html: htmlContent,
@@ -127,26 +127,50 @@ exports.generateInvite = functions.https.onCall(async (data, context) => {
     }
 
     const senderId = context.auth.uid;
+
+    // Obtenha os dados do usuário a partir do Firestore
+    const userRef = admin.firestore().collection('usuario').doc(senderId);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'User not found.');
+    }
+
+    const userData = userDoc.data();
+    const senderName = userData.nome || null;
+    const senderPhotoURL = userData.fotoDoPerfil || null;
+
+    // Verifique se os dados obrigatórios estão presentes
+    if (!senderName || !senderPhotoURL) {
+        return {
+            success: false,
+            redirectTo: `/PerfilPessoal/${senderId}`,
+            message: 'Por favor, preencha seu nome e foto de perfil para continuar.'
+        };
+    }
+
     const inviteId = uuidv4();
     const createdAt = admin.firestore.FieldValue.serverTimestamp();
 
     const inviteData = {
         email,
         senderId,
+        senderName,
         inviteId,
         createdAt,
+        senderPhotoURL,
         status: 'pending'
     };
 
     try {
-        await admin.firestore().collection('convites').doc(inviteId).set(inviteData);
+        await admin.firestore().collection('convites').doc(inviteId).set(inviteData, { merge: true });
 
         const content = `
             Olá! <br>
             Você recebeu um convite. <br><br>
             Clique no botão abaixo para aceitar o convite:
             <br><br>
-            <a href="https://eloscloud.com.br.br/invite?inviteId=${inviteId}" style="background-color: #345C72; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Aceitar Convite</a>
+            <a href="https://eloscloud.com.br/invite?inviteId=${inviteId}" style="background-color: #345C72; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Aceitar Convite</a>
             <br><br>
             Obrigado, <br>
             Equipe ElosCloud
@@ -162,7 +186,7 @@ exports.generateInvite = functions.https.onCall(async (data, context) => {
             data: {
                 inviteId: inviteId,
                 senderId: senderId,
-                url: `https://eloscloud.com.br.br/invite?inviteId=${inviteId}`
+                url: `https://eloscloud.com.br/invite?inviteId=${inviteId}`
             }
         };
 
@@ -197,25 +221,25 @@ exports.validateInvite = functions.https.onCall(async (data, context) => {
     return { success: true };
   });
   
-exports.invalidateInvite = functions.https.onCall(async (data, context) => {
+  exports.invalidateInvite = functions.https.onCall(async (data, context) => {
     const { inviteId } = data;
     if (!inviteId) {
-      throw new functions.https.HttpsError('invalid-argument', 'InviteId is required.');
+        throw new functions.https.HttpsError('invalid-argument', 'InviteId is required.');
     }
-  
+
     const inviteRef = admin.firestore().collection('convites').doc(inviteId);
     const inviteDoc = await inviteRef.get();
-  
+
     if (!inviteDoc.exists) {
-      throw new functions.https.HttpsError('not-found', 'Invite not found.');
+        throw new functions.https.HttpsError('not-found', 'Invite not found.');
     }
-  
+
     const inviteData = inviteDoc.data();
-  
+
     if (inviteData.status === 'used') {
-      throw new functions.https.HttpsError('failed-precondition', 'Invite already used.');
+        throw new functions.https.HttpsError('failed-precondition', 'Invite already used.');
     }
-  
+
     await inviteRef.update({ status: 'used' });
 
     const welcomeContent = `
@@ -236,32 +260,69 @@ exports.invalidateInvite = functions.https.onCall(async (data, context) => {
     `;
 
     await sendEmail(inviteData.email, 'ElosCloud - Bem-vindo!', welcomeContent);
-    
-       // Registra a compra inicial de ElosCoins
-       const userRef = admin.firestore().collection('usuario').doc(userId);
-       const comprasRef = userRef.collection('compras');
-       await comprasRef.add({
-           quantidade: 5000,
-           valorPago: 0,
-           dataCompra: admin.firestore.FieldValue.serverTimestamp(),
-           meioPagamento: 'oferta-boas-vindas'
-       });
-   
+
+    const newUserId = context.auth.uid; // Usando o UID do usuário que acabou de ser autenticado
+    console.log('newUserId:', newUserId);
+
+    const newUserRef = admin.firestore().collection('usuario').doc(newUserId);
+    const comprasRef = newUserRef.collection('compras');
+    const ancestralidadeRef = newUserRef.collection('ancestralidade');
+
+    await comprasRef.add({
+        quantidade: 5000,
+        valorPago: 0,
+        dataCompra: admin.firestore.FieldValue.serverTimestamp(),
+        meioPagamento: 'oferta-boas-vindas'
+    });
+
+    console.log('Adicionando ancestralidade:', {
+        inviteId: inviteId,
+        senderId: inviteData.senderId,
+        dataAceite: admin.firestore.FieldValue.serverTimestamp(),
+        fotoDoUsuario: inviteData.senderPhotoURL
+    });
+
+    await ancestralidadeRef.add({
+        inviteId: inviteId,
+        senderId: inviteData.senderId,
+        dataAceite: admin.firestore.FieldValue.serverTimestamp(),
+        fotoDoUsuario: inviteData.senderPhotoURL // Supondo que inviteData contém a URL da foto do remetente
+    });
+
+    const senderRef = admin.firestore().collection('usuario').doc(inviteData.senderId);
+    const descendentesRef = senderRef.collection('descendentes');
+
+    console.log('Adicionando descendência:', {
+        userId: newUserId,
+        nome: inviteData.senderName, // Supondo que inviteData contém o nome do remetente
+        email: inviteData.email,
+        fotoDoPerfil: inviteData.senderPhotoURL,
+        dataAceite: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    await descendentesRef.add({
+        userId: newUserId,
+        nome: inviteData.senderName, // Supondo que inviteData contém o nome do remetente
+        email: inviteData.email,
+        fotoDoPerfil: inviteData.senderPhotoURL,
+        dataAceite: admin.firestore.FieldValue.serverTimestamp()
+    });
 
     await admin.firestore().collection('mail').add({
         to: [{ email: inviteData.email }],
-        subject: 'ElosCloud - Bem-vindo!',
+        subject: 'ElosCloud - Boas-vindas!',
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         status: 'sent',
         data: {
             inviteId: inviteId,
-            userId: inviteData.usedBy,
+            userId: newUserId,
             email: inviteData.email
         }
     });
 
     return { success: true };
 });
+
 
 
 exports.calculateJA3 = functions.region('us-central1').https.onRequest((req, res) => {
@@ -899,7 +960,7 @@ exports.notifyAcceptance = functions.firestore
             return null;
         });
 
-        exports.handleFriendshipChangesNotification = functions.firestore
+    exports.handleFriendshipChangesNotification = functions.firestore
     .document("conexoes/{userId}/solicitadas/{solicitanteId}")
     .onUpdate(async (change, context) => {
         const beforeData = change.before.data();
@@ -1001,8 +1062,6 @@ exports.notifyAcceptance = functions.firestore
             return null;
         });
     
-
-    
         exports.updateUserProfileInConnections = functions.firestore
         .document('usuario/{userId}')
         .onUpdate(async (change, context) => {
@@ -1026,19 +1085,21 @@ exports.notifyAcceptance = functions.firestore
                 const userId = context.params.userId;
                 const amigos = afterData.amigos || []; // Array de UIDs dos amigos
     
-                const batch = admin.firestore().batch();
+                if (amigos.length > 0) {
+                    const batch = admin.firestore().batch();
     
-                amigos.forEach(amigoId => {
-                    const friendActiveRef = admin.firestore().doc(`conexoes/${amigoId}/ativas/${userId}`);
-                    batch.update(friendActiveRef, updates);
-                });
+                    amigos.forEach(amigoId => {
+                        const friendActiveRef = admin.firestore().doc(`conexoes/${amigoId}/ativas/${userId}`);
+                        batch.set(friendActiveRef, updates, { merge: true });
+                    });
     
-                try {
-                    await batch.commit();
-                    console.log('Perfil atualizado nas conexões ativas com sucesso.');
-                } catch (error) {
-                    console.error("Erro ao atualizar conexões:", error);
-                    return null;
+                    try {
+                        await batch.commit();
+                        console.log('Perfil atualizado nas conexões ativas com sucesso.');
+                    } catch (error) {
+                        console.error("Erro ao atualizar conexões:", error);
+                        return null;
+                    }
                 }
             }
     

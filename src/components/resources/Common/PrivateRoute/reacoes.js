@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../../firebase.config';
-import { collection, query, where, getDocs, addDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { useUserContext } from '../../userContext';
 import { Button } from 'react-bootstrap';
 import { IoHeartOutline, IoHappyOutline, IoSadSharp, IoSadOutline, IoThumbsDown, IoHappy, IoHeartSharp, IoThumbsUpOutline, IoThumbsUp } from 'react-icons/io5';
@@ -8,62 +8,69 @@ import { IoHeartOutline, IoHappyOutline, IoSadSharp, IoSadOutline, IoThumbsDown,
 const Reactions = ({ post }) => {
     const { currentUser } = useUserContext();
     const [activeReactions, setActiveReactions] = useState({});
+    const [reactionCounts, setReactionCounts] = useState({
+        like: 0,
+        love: 0,
+        haha: 0,
+        sad: 0,
+        dislike: 0
+    });
 
     useEffect(() => {
-        const fetchReactions = async () => {
-            const reactionsRef = collection(db, `postagens/${post.id}/reacoes`);
-            const q = query(reactionsRef, where("docId", "==", currentUser.uid));
-            const reactionDocs = await getDocs(q);
-            const reactions = {};
-            reactionDocs.forEach(doc => {
-                reactions[doc.data().tipoDeReacao] = true;
-            });
-            setActiveReactions(reactions);
-        };
+        const reactionsRef = collection(db, `postagens/${post.id}/reacoes`);
+        
+        // Listen for real-time updates to reactions
+        const unsubscribe = onSnapshot(reactionsRef, (snapshot) => {
+            const counts = {
+                like: 0,
+                love: 0,
+                haha: 0,
+                sad: 0,
+                dislike: 0
+            };
+            const userReactions = {};
 
-        if (currentUser && post.id) {
-            fetchReactions();
-        }
-    }, [post.id, currentUser]);
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                counts[data.tipoDeReacao]++;
+                if (data.docId === currentUser.uid) {
+                    userReactions[data.tipoDeReacao] = true;
+                }
+            });
+
+            setReactionCounts(counts);
+            setActiveReactions(userReactions);
+        });
+
+        return () => unsubscribe();
+    }, [post.id, currentUser.uid]);
 
     const handleReaction = async (reactionType) => {
         const reactionsRef = collection(db, `postagens/${post.id}/reacoes`);
-        const q = query(reactionsRef, where("docId", "==", currentUser.uid));
-        
-        // Buscar todas as reações do usuário para esta postagem
-        const snapshot = await getDocs(q);
-    
-        // Deletar todas as reações existentes antes de adicionar uma nova
-        const batch = writeBatch(db); // Supondo que você possa usar batch
-        snapshot.forEach((doc) => {
-            batch.delete(doc.ref);
-        });
-        await batch.commit();
-    
-        // Adicionar nova reação apenas se ela não é a mesma que estava ativa
-        if (!activeReactions[reactionType]) {
-            await addDoc(reactionsRef, {
+        const userReactionDoc = doc(reactionsRef, currentUser.uid);
+
+        if (activeReactions[reactionType]) {
+            // If the same reaction is clicked again, remove it
+            await deleteDoc(userReactionDoc);
+        } else {
+            // Otherwise, set the new reaction, overwriting any existing reaction
+            await setDoc(userReactionDoc, {
                 docId: currentUser.uid,
                 timestamp: new Date(),
                 tipoDeReacao: reactionType,
                 senderName: currentUser.nome,
                 senderFoto: currentUser.fotoDoPerfil
             });
-            setActiveReactions({ [reactionType]: true });
-        } else {
-            // Se clicar na mesma reação que estava ativa, desativa todas as reações
-            setActiveReactions({});
         }
     };
-    
 
     return (
-        <div>
+        <div className="reactions-container">
             {['like', 'love', 'haha', 'sad', 'dislike'].map(type => (
-                <Button
+                <div
                     key={type}
-                    style={{ border: 'none' }}
-                    variant={activeReactions[type] ? 'primary' : 'secondary'}
+                    className="reaction-button"
+                    variant={activeReactions[type] ? 'warning' : 'outline-warning'}
                     onClick={() => handleReaction(type)}
                 >
                     {activeReactions[type] ? (
@@ -71,7 +78,8 @@ const Reactions = ({ post }) => {
                     ) : (
                         { 'like': <IoThumbsUpOutline />, 'love': <IoHeartOutline />, 'haha': <IoHappyOutline />, 'sad': <IoSadOutline />, 'dislike': <IoThumbsDown /> }[type]
                     )}
-                </Button>
+                    <span className="reaction-count">{reactionCounts[type]}</span>
+                </div>
             ))}
         </div>
     );

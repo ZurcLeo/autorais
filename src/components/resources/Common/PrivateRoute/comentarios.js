@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../../../firebase.config';
 import { collection, addDoc, onSnapshot } from 'firebase/firestore';
 import { useUserContext } from '../../userContext';
-import { Button, Form, ListGroup } from 'react-bootstrap';
+import { Button, Form, ListGroup, InputGroup, FormControl } from 'react-bootstrap';
+import { IoIosSend } from "react-icons/io";
 
 const Comentarios = ({ postId, isPrivate }) => {
     const { currentUser, friendsIds } = useUserContext();
@@ -42,6 +43,7 @@ const Comentarios = ({ postId, isPrivate }) => {
             <ListGroup variant="flush">
                 {comentarios.map(comentario => (
                     <ListGroup.Item key={comentario.id}>
+                        <img src={comentario.usuarioFoto} alt="Foto do perfil" className="comment-foto mr-2" />
                         <strong>{comentario.usuarioNome}</strong>: {comentario.texto}
                     </ListGroup.Item>
                 ))}
@@ -50,19 +52,17 @@ const Comentarios = ({ postId, isPrivate }) => {
             <strong style={{ fontSize: '10px' }}>{comentarios.length} comentarios</strong>
             
             {currentUser && (
-                <Form>
-                    <Form.Group controlId="novoComentario">
-                        <Form.Control
-                            type="text"
-                            placeholder="Adicione um comentário..."
-                            value={novoComentario}
-                            onChange={(e) => setNovoComentario(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Button variant="primary" onClick={handleAddComentario}>
-                        Comentar
+                <InputGroup>
+                    <FormControl
+                        type="text"
+                        placeholder="Adicione um comentário..."
+                        value={novoComentario}
+                        onChange={(e) => setNovoComentario(e.target.value)}
+                    />
+                    <Button variant="warning" onClick={handleAddComentario}>
+                        <IoIosSend />
                     </Button>
-                </Form>
+                </InputGroup>
             )}
         </div>
     );
