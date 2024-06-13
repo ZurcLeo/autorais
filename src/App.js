@@ -40,6 +40,8 @@ import ElosCoinManager from './components/resources/Common/PrivateRoute/elosCoin
 import ConvidarAmigos from './components/resources/Common/PrivateRoute/convidarAmigos';
 import ValidateInvite from './components/resources/Common/PrivateRoute/ValidateInvite';
 import GridPublicUsers from './components/pages/gridPublicUsers';
+import Return from './components/resources/Common/PrivateRoute/return';
+import SuccessPage from './components/resources/Common/PrivateRoute/successPage';
 import EditProfileForm from './components/resources/Common/PrivateRoute/EditProfileForm';
 import axios from 'axios';
 import { CssBaseline, ThemeProvider, Container } from '@mui/material';
@@ -132,6 +134,8 @@ function App() {
                 <Route path="/PerfilAmigo/:uid" element={<PerfilAmigo />} />
                 <Route path="/Postagens" element={<Postagens />} />
                 <Route path="/Payments" element={<Payments />} />
+                <Route path="/return" element={<Return />} />
+                <Route path="/Payments/success" element={<SuccessPage />} />
                 <Route path="/ElosCoinManager" element={<ElosCoinManager />} />
                 <Route path="/ConvidarAmigos" element={<ConvidarAmigos />} />
                 <Route path="/LiveStream" element={<LiveStream />} />

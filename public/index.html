@@ -9,8 +9,8 @@
   <link rel="apple-touch-icon" href="/logo192.png" />
   <link rel="manifest" href="/manifest.json" />
   <title>Elos Soluções Cloud</title>
-  <script type="text/javascript" src="https://www.google.com/recaptcha/enterprise.js?render=6LeOHeopAAAAANKidFB-GP_qqirmNYb9oF-87UZz"></script>
-  <script type="text/javascript" defer src="/static/js/bundle.js"></script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6LeOHeopAAAAANKidFB-GP_qqirmNYb9oF-87UZz"></script>
+  <script defer src="/static/js/bundle.js"></script>
 </head>
 <body>
   <noscript>
@@ -18,18 +18,17 @@
   </noscript>
   <div id="root"></div>
   <div id="recaptcha-container"></div>
-    <script type="text/javascript">
+  <script>
     function onloadCallback() {
-      grecaptcha.ready(function() {
-      grecaptcha.enterprise.render("recaptcha-container", {
-        sitekey: "6LeOHeopAAAAANKidFB-GP_qqirmNYb9oF-87UZz", // Substitua pela sua chave do site correta
-        callback: function(response) {
-          console.log("reCAPTCHA response:", response);
-        }
+      grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.render('recaptcha-container', {
+          sitekey: '6LeOHeopAAAAANKidFB-GP_qqirmNYb9oF-87UZz',
+          callback: function(response) {
+            console.log('reCAPTCHA response:', response);
+          }
+        });
       });
-    })
     }
   </script>
-  <!-- <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script> -->
 </body>
 </html>

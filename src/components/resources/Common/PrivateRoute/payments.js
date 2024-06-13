@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { auth, requestNotificationPermission } from '../../../../firebase.config';
 import { getIdToken, onAuthStateChanged } from 'firebase/auth';
-import { Box, Grid, Button, Typography, CircularProgress, Paper } from '@mui/material';
+import { Box, Grid, Button, Typography, CircularProgress, Paper, Container } from '@mui/material';
 import { toast } from 'react-toastify';
 import './payments.css';
+import { useNavigate } from 'react-router-dom';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -21,10 +22,11 @@ const CheckoutForm = ({ clientSecret }) => {
             return;
         }
 
-        const result = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: elements.getElement(CardElement),
-            }
+        const result = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: `${window.location.origin}/return`
+            },
         });
 
         if (result.error) {
@@ -38,11 +40,53 @@ const CheckoutForm = ({ clientSecret }) => {
 
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <CardElement className="stripe-card-element" />
+            <PaymentElement />
             <Button type="submit" variant="contained" color="primary" disabled={!stripe} sx={{ mt: 2 }}>
                 Pagar
             </Button>
         </Box>
+    );
+};
+
+const Return = () => {
+    const [status, setStatus] = useState(null);
+    const [customerEmail, setCustomerEmail] = useState('');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const sessionId = urlParams.get('payment_intent');
+
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/session-status?payment_intent=${sessionId}`)
+            .then((res) => {
+                setStatus(res.data.status);
+                setCustomerEmail(res.data.customer_email);
+                if (res.data.status === 'succeeded') {
+                    navigate('/payments/success');
+                }
+            });
+    }, [navigate]);
+
+    if (status === 'requires_action') {
+        return navigate('/checkout');
+    }
+
+    return (
+        <Container>
+            {status === 'succeeded' ? (
+                <>
+                    <Typography variant="h4" gutterBottom>
+                        Pagamento realizado com sucesso!
+                    </Typography>
+                    <Typography>
+                        Um e-mail de confirmação foi enviado para {customerEmail}. Se você tiver alguma dúvida, entre em contato com suporte@eloscloud.com.br.
+                    </Typography>
+                </>
+            ) : (
+                <Typography variant="h6">Aguardando confirmação do pagamento...</Typography>
+            )}
+        </Container>
     );
 };
 
@@ -54,7 +98,7 @@ const Payments = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                await getIdToken(user);
+                const token = await getIdToken(user);
                 setCurrentUser(user);
             } else {
                 setCurrentUser(null);
@@ -66,12 +110,12 @@ const Payments = () => {
 
     const handleNotificationPermission = () => {
         requestNotificationPermission()
-          .then(() => {
-           toast.success('Permissão para notificações solicitada.');
-          })
-          .catch((error) => {
-            console.error('Erro ao solicitar permissão para notificações:', error);
-          });
+            .then(() => {
+                toast.success('Permissão para notificações solicitada.');
+            })
+            .catch((error) => {
+                console.error('Erro ao solicitar permissão para notificações:', error);
+            });
     };
 
     const handleCompra = async (quantidade, valor) => {
@@ -88,33 +132,31 @@ const Payments = () => {
             if (grecaptcha && !window.recaptchaExecuted) {
                 window.recaptchaExecuted = true;
 
-                grecaptcha.enterprise.ready(() => {
-                    grecaptcha.enterprise.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'purchase' })
-                        .then(async (recaptchaToken) => {
+                grecaptcha.enterprise.ready(async () => {
+                    try {
+                        const recaptchaToken = await grecaptcha.enterprise.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'purchase' });
 
-                            const result = await axios.post('http://localhost:4000/api/create-payment-intent', {
-                                quantidade: Number(quantidade),
-                                valor: Number(valor),
-                                userId: currentUser.uid,
-                                description,
-                                recaptchaToken
-                            }, {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${currentUser.stsTokenManager.accessToken}`
-                                }
-                            });
-
-                            setClientSecret(result.data.clientSecret);
-                            window.recaptchaExecuted = false; // Reset the flag for future use
-                            setLoading(false);
-                        })
-                        .catch(error => {
-                            console.error('Erro ao executar reCAPTCHA:', error);
-                            toast.error('Erro ao executar reCAPTCHA. Por favor, tente novamente mais tarde.');
-                            window.recaptchaExecuted = false; // Reset the flag for future use
-                            setLoading(false);
+                        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/create-payment-intent`, {
+                            quantidade: Number(quantidade),
+                            valor: Number(valor),
+                            userId: currentUser.uid,
+                            description,
+                            recaptchaToken
+                        }, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${currentUser.stsTokenManager.accessToken}`
+                            }
                         });
+
+                        setClientSecret(response.data.clientSecret);
+                        window.recaptchaExecuted = false; // Reset the flag for future use
+                    } catch (error) {
+                        console.error('Erro ao executar reCAPTCHA ou criar intenção de pagamento:', error);
+                        toast.error('Erro ao executar reCAPTCHA ou criar intenção de pagamento. Por favor, tente novamente mais tarde.');
+                    } finally {
+                        setLoading(false);
+                    }
                 });
             } else {
                 console.error('reCAPTCHA não está carregado ou já foi executado');
@@ -138,7 +180,7 @@ const Payments = () => {
     ];
 
     return (
-        <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Container>
             <Typography variant="h4" gutterBottom>
                 Comprar ElosCoins
             </Typography>
@@ -171,7 +213,7 @@ const Payments = () => {
                     <CheckoutForm clientSecret={clientSecret} />
                 </Elements>
             )}
-        </Box>
+        </Container>
     );
 };
 
