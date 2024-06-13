@@ -10,6 +10,7 @@ import useUnreadMessage from '../PrivateRoute/hooks/useUnreadMessage';
 import useNotification from './hooks/useNotification';
 import CustomLinkContainer from '../../../customLinkContainer';
 import { IoPersonOutline, IoPersonCircleOutline, IoSettingsOutline, IoExitOutline, IoNotificationsOutline } from "react-icons/io5";
+import { FaSun, FaMoon } from 'react-icons/fa';
 import './topNavBar.css';
 
 const placeholder = process.env.REACT_APP_PLACE_HOLDER_IMG;
@@ -126,7 +127,7 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
           flexGrow: 1,
         }}
       >
-        <Button
+        {/* <Button
           color="primary"
           variant="contained"
           component="a"
@@ -135,13 +136,12 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
           sx={{ width: '100%' }}
         >
           Sign up
-        </Button>
+        </Button> */}
         <Button
-          color="primary"
+          color="secondary"
           variant="outlined"
           component="a"
-          href="/material-ui/getting-started/templates/sign-in/"
-          target="_blank"
+          href="/Login"
           sx={{ width: '100%' }}
         >
           Sign in
@@ -158,7 +158,7 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
 
   return (
     <div>
-      <AppBar position="fixed" sx={{ boxShadow: 0, color: '#9D8E7A', bgcolor: 'transparent', backgroundImage: 'none', mt: 2 }}>
+      <AppBar position="fixed" sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 2 }}>
         <Container maxWidth="lg">
           <Toolbar
             variant="regular"
@@ -200,9 +200,6 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
                 <MenuItem component="a" href="/Sobre">
                   Sobre
                 </MenuItem>
-                {/* <MenuItem component="a" href="/Login">
-                  Entrar
-                </MenuItem> */}
               </Box>
             </Box>
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, alignItems: 'center' }}>
@@ -213,6 +210,11 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
                     privateNotifications={privateNotifications}
                     markAsRead={markAsRead}
                   />
+                  <Tooltip title="Alterar Tema">
+                    <IconButton onClick={toggleColorMode} color="inherit">
+                      {mode === 'light' ? <FaSun /> : <FaMoon />}
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="Perfil">
                     <IconButton
                       edge="end"
@@ -236,9 +238,9 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
                       <IoPersonOutline fontSize="small" />
                       Meu perfil
                     </MenuItem>
-                    <MenuItem component={CustomLinkContainer} to="#account">
+                    <MenuItem component={CustomLinkContainer} to="/Payments">
                       <IoPersonCircleOutline fontSize="small" />
-                      Conta
+                      Compras
                     </MenuItem>
                     <MenuItem component={CustomLinkContainer} to="/UserProfileSettings">
                       <IoSettingsOutline fontSize="small" />

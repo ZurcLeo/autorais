@@ -12,10 +12,6 @@
         "destination": "https://eloscloudapp-1cefc4b4944e.herokuapp.com/**"
       },
       {
-        "source": "/create-payment-intent",
-        "function": "createPaymentIntent"
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }

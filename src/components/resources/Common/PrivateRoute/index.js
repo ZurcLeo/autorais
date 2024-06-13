@@ -1,207 +1,219 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Container, Col, Row, Tab, ListGroup, Badge, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import {
+  Container,
+  Grid,
+  Badge,
+  Button,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from '@mui/material';
 import { useNavigate, Outlet } from 'react-router-dom';
-import Profile from './profiles';
 import { useAuth } from '../../AuthService';
 import useUnreadMessage from '../PrivateRoute/hooks/useUnreadMessage';
 import useUnreadConnections from './hooks/useUnreadConnections';
-import Connections from './connections';
 import useUnreadComments from './hooks/useUnreadComments';
-import { BsPersonVcard } from "react-icons/bs";
-import CustomLinkContainer from '../../../customLinkContainer';
-import { IoSettingsOutline, IoGiftOutline, IoHomeOutline, IoExtensionPuzzleOutline, IoChatbubblesOutline, IoTrailSignOutline, IoPersonOutline, IoIdCardOutline, IoNewspaperOutline, IoAirplaneOutline, IoPeopleOutline, IoPaperPlane, IoAddCircleOutline, IoExitOutline, IoHelpCircleOutline, IoVideocamOutline } from "react-icons/io5";
+import { toast } from 'react-toastify';
+import {
+  IoSettingsOutline,
+  IoGiftOutline,
+  IoHomeOutline,
+  IoExtensionPuzzleOutline,
+  IoChatbubblesOutline,
+  IoTrailSignOutline,
+  IoPersonOutline,
+  IoIdCardOutline,
+  IoNewspaperOutline,
+  IoAirplaneOutline,
+  IoPeopleOutline,
+  IoPaperPlane,
+  IoAddCircleOutline,
+  IoExitOutline,
+  IoHelpCircleOutline,
+  IoVideocamOutline,
+} from 'react-icons/io5';
+import { BsPersonVcard } from 'react-icons/bs';
 import { GiPartyHat } from 'react-icons/gi';
-import './index.css';
 
 const DashboardMenu = () => {
-    const { currentUser, logout } = useAuth();
-    const [isFooterMenuOpen, setIsFooterMenuOpen] = useState(false);
-    const [expanded, setExpanded] = useState(false);
-    const unreadMessagesCount = useUnreadMessage();
-    const { newRequests } = useUnreadConnections();
-    const unreadCommentsCount = useUnreadComments();
+  const { currentUser, logout } = useAuth();
+  const [isFooterMenuOpen, setIsFooterMenuOpen] = useState(false);
+  const unreadMessagesCount = useUnreadMessage();
+  const { newRequests } = useUnreadConnections();
+  const unreadCommentsCount = useUnreadComments();
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const ELO_EVENT = process.env.REACT_APP_ELO_EVENT_IMAGE_URL;
-    const ELO_COIN = process.env.REACT_APP_ELO_COIN_IMAGE_URL;
+  const ELO_EVENT = process.env.REACT_APP_ELO_EVENT_IMAGE_URL;
+  const ELO_COIN = process.env.REACT_APP_ELO_COIN_IMAGE_URL;
 
-    const handleLogout = async () => {
-        if (!currentUser) {
-            return;
-        }
+  const handleLogout = async () => {
+    if (!currentUser) {
+      return;
+    }
 
-        try {
-            await logout();
-            navigate('/Login'); // Redireciona para a página de login após o logout
-        } catch (error) {
-            console.error('Erro ao tentar deslogar:', error);
-            // Tratar o erro de logout aqui, se necessário
-        }
-    };
+    try {
+      await logout();
+      navigate('/Login');
+      toast.success('Logout realizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao tentar deslogar:', error);
+      toast.error('Erro ao tentar deslogar!');
+    }
+  };
 
-    return (
-        <Container fluid>
-            <Row>
-                <Col xs={12} style={{ backgroundColor: '#FEEAD0' }}>
-                    <Tab.Container id="dashboard-tabs" defaultActiveKey="/homepage">
-                        <Row>
-                            <Col lg={3} className="menu-lateral">
-                                <ListGroup variant="flush">
-                                    <Card className="menu-card">
-                                        <Card.Header className="menu-header">SideMenu</Card.Header>
-                                        <Card.Body>
-                                            <CustomLinkContainer to="/homepage">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoHomeOutline className="icon" /> <span> Principal</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to="/LivesOnline">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoVideocamOutline className="icon" /> <span> Ao Vivo</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to='/UserProfileSettings'>
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoSettingsOutline className="icon" /> <span> Configurações</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to='/Postagens'>
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoNewspaperOutline className='icon' />
-                                                    <span> Postagens</span>
-                                                    {unreadCommentsCount > 0 && <Badge pill bg="danger">{unreadCommentsCount}</Badge>}
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to="/Connections">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoExtensionPuzzleOutline className='icon' />
-                                                    <span> Amigos</span>
-                                                    {newRequests > 0 && <Badge pill bg="danger">{newRequests}</Badge>}
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to="/ConvidarAmigos">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <BsPersonVcard className='icon' />
-                                                    <span> Convidar</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to="/goChat">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoChatbubblesOutline className='icon' />
-                                                    <span> Conversas</span>
-                                                    {unreadMessagesCount > 0 && <Badge pill bg="danger">{unreadMessagesCount}</Badge>}
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to="/Hospedagens">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoTrailSignOutline className='icon' /><span> Viagens</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <CustomLinkContainer to="/HospedagensClientes">
-                                                <ListGroup.Item action className="d-flex align-items-center" disabled>
-                                                    <IoPersonOutline className='icon' /><span> Clientes</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
+  return (
+    <Container sx={{ mt: '100px' }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} lg={3}>
+          <List>
+            <ListItemButton onClick={() => navigate('/homepage')}>
+              <ListItemIcon>
+                <IoHomeOutline />
+              </ListItemIcon>
+              <ListItemText primary="Principal" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/LivesOnline')}>
+              <ListItemIcon>
+                <IoVideocamOutline />
+              </ListItemIcon>
+              <ListItemText primary="Ao Vivo" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/UserProfileSettings')}>
+              <ListItemIcon>
+                <IoSettingsOutline />
+              </ListItemIcon>
+              <ListItemText primary="Configurações" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/Postagens')}>
+              <ListItemIcon>
+                <IoNewspaperOutline />
+              </ListItemIcon>
+              <ListItemText primary="Postagens" />
+              {unreadCommentsCount > 0 && <Badge badgeContent={unreadCommentsCount} color="error" />}
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/Connections')}>
+              <ListItemIcon>
+                <IoExtensionPuzzleOutline />
+              </ListItemIcon>
+              <ListItemText primary="Amigos" />
+              {newRequests > 0 && <Badge badgeContent={newRequests} color="error" />}
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/ConvidarAmigos')}>
+              <ListItemIcon>
+                <BsPersonVcard />
+              </ListItemIcon>
+              <ListItemText primary="Convidar" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/goChat')}>
+              <ListItemIcon>
+                <IoChatbubblesOutline />
+              </ListItemIcon>
+              <ListItemText primary="Conversas" />
+              {unreadMessagesCount > 0 && <Badge badgeContent={unreadMessagesCount} color="error" />}
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/Hospedagens')}>
+              <ListItemIcon>
+                <IoTrailSignOutline />
+              </ListItemIcon>
+              <ListItemText primary="Viagens" />
+            </ListItemButton>
+            <ListItemButton disabled onClick={() => navigate('/HospedagensClientes')}>
+              <ListItemIcon>
+                <IoPersonOutline />
+              </ListItemIcon>
+              <ListItemText primary="Clientes" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/HospedagensProprietarios')}>
+              <ListItemIcon>
+                <IoIdCardOutline />
+              </ListItemIcon>
+              <ListItemText primary="Proprietários" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/RegistrarPresente')}>
+              <ListItemIcon>
+                <IoGiftOutline />
+              </ListItemIcon>
+              <ListItemText primary="Presentes" />
+            </ListItemButton>
+            <ListItemButton onClick={() => navigate('/faq')}>
+              <ListItemIcon>
+                <IoHelpCircleOutline />
+              </ListItemIcon>
+              <ListItemText primary="F.A.Q." />
+            </ListItemButton>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemIcon>
+                <IoExitOutline />
+              </ListItemIcon>
+              <ListItemText primary="Sair" />
+            </ListItemButton>
+          </List>
+        </Grid>
 
-                                            <CustomLinkContainer to="/HospedagensProprietarios">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoIdCardOutline className='icon' /><span> Proprietários</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
+        <Grid item xs={12} lg={6}>
+          <div style={{ padding: '16px' }}>
+            <Outlet />
+          </div>
+        </Grid>
 
-                                            <CustomLinkContainer to="/RegistrarPresente">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoGiftOutline className='icon' /><span> Presentes</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
+        <Grid item lg={3} sx={{ display: { xs: 'none', lg: 'block' } }}>
+          <div style={{ marginBottom: '16px', backgroundColor: 'background.paper', borderRadius: '8px', padding: '16px' }}>
+            <Typography variant="h6">Compre ElosCoin ℰ</Typography>
+            <img src={ELO_COIN} alt="Elos Moeda Virtual" style={{ width: '100%', borderRadius: '8px' }} />
+            <Typography variant="body2" style={{ marginTop: '16px' }}>
+              Junte-se à comunidade ElosCloud e obtenha elos para aproveitar todos os recursos exclusivos. Torne sua
+              experiência ainda mais rica e conectada!
+            </Typography>
+            <Button href="/Payments" variant="outlined" startIcon={<GiPartyHat />} sx={{ mt: 1 }}>
+              Veja
+            </Button>
+          </div>
+          <div style={{ backgroundColor: 'background.paper', borderRadius: '8px', padding: '16px' }}>
+            <Typography variant="h6" display="flex" alignItems="center">
+              <GiPartyHat style={{ marginRight: '8px' }} />
+              Eventos
+            </Typography>
+            <img src={ELO_EVENT} alt="Eventos" style={{ width: '100%', borderRadius: '8px' }} />
+            <Typography variant="body2" style={{ marginTop: '16px' }}>
+              Veja os eventos acontecendo na sua região e interaja com seus amigos de diversas formas!
+            </Typography>
+            <Button variant="outlined" startIcon={<GiPartyHat />} sx={{ mt: 1 }}>
+              Veja
+            </Button>
+          </div>
+        </Grid>
+      </Grid>
 
-                                            <CustomLinkContainer to="/faq">
-                                                <ListGroup.Item action className="d-flex align-items-center">
-                                                    <IoHelpCircleOutline className='icon' /><span> F.A.Q.</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                            <hr />
-                                            <CustomLinkContainer to="/">
-                                                <ListGroup.Item onClick={handleLogout} action className="d-flex align-items-center">
-                                                    <IoExitOutline className='icon' /><span> Sair</span>
-                                                </ListGroup.Item>
-                                            </CustomLinkContainer>
-                                        </Card.Body>
-                                    </Card>
-                                </ListGroup>
-                            </Col>
+      {/* Menu de rodapé para dispositivos menores */}
+      <div className={`footer-menu ${isFooterMenuOpen ? 'opened' : ''}`} onClick={() => setIsFooterMenuOpen(!isFooterMenuOpen)} style={{ position: 'fixed', bottom: '0', width: '100%', backgroundColor: 'background.default', color: 'text.primary', textAlign: 'center', padding: '10px 0' }}>
+        <IoAddCircleOutline className="footer-menu-icon" />
+      </div>
 
-                            <Col xs={12} lg={6}>
-                                <Tab.Content>
-                                    <Tab.Pane eventKey="/homepage">
-                                        <Outlet />
-                                    </Tab.Pane>
-                                    <Tab.Pane eventKey="/Profile">
-                                        <Profile />
-                                    </Tab.Pane>
-                                    <Tab.Pane eventKey="/Connections">
-                                        <Connections />
-                                    </Tab.Pane>
-                                </Tab.Content>
-                            </Col>
-
-                            <Col lg={3} className="menu-lateral d-none d-lg-block">
-                                <Card className="menu-card">
-                                    <Card.Img variant="top" src={ELO_COIN} alt="Elos Moeda Virtual" />
-                                    <Card.Body>
-                                        <Card.Title>Compre ElosCoin ℰ</Card.Title>
-                                        <Card.Text>
-                                            Junte-se à comunidade ElosCloud e obtenha elos para aproveitar todos os recursos exclusivos.
-                                            Torne sua experiência ainda mais rica e conectada!
-                                        </Card.Text>
-                                        <Button to="/Payments" variant="outline-warning">Veja <GiPartyHat /></Button>
-                                    </Card.Body>
-                                </Card>
-                                <Card className="menu-card">
-                                    <Card.Img variant="top" src={ELO_EVENT} alt="Elos Moeda Virtual" />
-                                    <Card.Body>
-                                        <Card.Title><GiPartyHat /> Eventos </Card.Title>
-                                        <Card.Text>
-                                            Veja os eventos acontecendo na sua regiao e interaja com seus amigos de diversas formas!
-                                        </Card.Text>
-                                        <Button variant="outline-warning">Veja <GiPartyHat /></Button>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Tab.Container>
-                </Col>
-            </Row>
-
-            {/* Menu de rodapé para dispositivos menores */}
-            <div className={`footer-menu ${isFooterMenuOpen ? 'opened' : ''}`} onClick={() => setIsFooterMenuOpen(!isFooterMenuOpen)}>
-                <IoAddCircleOutline className="footer-menu-icon" />
-                {/* Seu menu de rodapé com outros ícones aqui */}
-            </div>
-
-            {isFooterMenuOpen && (
-                <Row className="fixed-bottom footer-menu-content bg-dark text-white">
-                    <Col xs={3} className="text-center">
-                        <IoPaperPlane />
-                        <p>Postar</p>
-                    </Col>
-                    <Col xs={3} className="text-center">
-                        <IoChatbubblesOutline />
-                        <p>Mensagens</p>
-                    </Col>
-                    <Col xs={3} className="text-center">
-                        <IoPeopleOutline />
-                        <p>Amigos</p>
-                    </Col>
-                    <Col xs={3} className="text-center">
-                        <IoAirplaneOutline />
-                        <p>Viagens</p>
-                    </Col>
-                </Row>
-            )}
-        </Container>
-    );
+      {isFooterMenuOpen && (
+        <Grid container className="fixed-bottom footer-menu-content" sx={{ bgcolor: 'background.default', color: 'text.primary' }}>
+          <Grid item xs={3} className="text-center">
+            <IoPaperPlane />
+            <Typography variant="caption">Postar</Typography>
+          </Grid>
+          <Grid item xs={3} className="text-center">
+            <IoChatbubblesOutline />
+            <Typography variant="caption">Mensagens</Typography>
+          </Grid>
+          <Grid item xs={3} className="text-center">
+            <IoPeopleOutline />
+            <Typography variant="caption">Amigos</Typography>
+          </Grid>
+          <Grid item xs={3} className="text-center">
+            <IoAirplaneOutline />
+            <Typography variant="caption">Viagens</Typography>
+          </Grid>
+        </Grid>
+      )}
+    </Container>
+  );
 };
 
 export default DashboardMenu;

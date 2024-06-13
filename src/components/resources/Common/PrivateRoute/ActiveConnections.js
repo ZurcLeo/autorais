@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Grid, Typography, Avatar, Button, Box } from '@mui/material';
 import { FaUserCircle } from 'react-icons/fa';
 import { useConnections } from './hooks/useConnections';
 import { useAuth } from '../../AuthService';
@@ -20,61 +20,74 @@ const ActiveConnections = () => {
     const isAuthorized = (uid) => currentUser.amigosAutorizados.includes(uid);
 
     return (
-        <Card className="main-card shadow-sm border-0">
-            <Card.Body>
-            <Card.Text>
-               Conexões Ativas
-            </Card.Text>
-                <Container>
-                    <Row className="g-4">
-                        {activeConnections.length > 0 ? (
-                            activeConnections.map((connection) => (
-                                <Col key={connection.uid} sm={6}>
-                                    <Card 
-                                        className="sub-card h-100 shadow-sm border-0 clickable-card"
-                                        onClick={() => handleCardClick(connection.uid)}
-                                    >
-                                        <div className="position-relative">
-                                            <Card.Img
-                                                variant="top"
-                                                src={connection.fotoDoPerfil || process.env.REACT_APP_PLACE_HOLDER_IMG}
-                                                alt={connection.nome}
-                                                onError={handleImageError}
-                                                className="rounded-circle mx-auto mt-3"
-                                                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+        <Box sx={{ mt: 4, p: 2 }}>
+            <Typography variant="h6" gutterBottom>Conexões Ativas</Typography>
+            <Container>
+                <Grid container spacing={4}>
+                    {activeConnections.length > 0 ? (
+                        activeConnections.map((connection) => (
+                            <Grid item key={connection.uid} sm={6}>
+                                <Box
+                                    className="clickable-card"
+                                    onClick={() => handleCardClick(connection.uid)}
+                                    sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2, boxShadow: 3, borderRadius: 2, bgcolor: 'background.paper', cursor: 'pointer' }}
+                                >
+                                    <Box sx={{ position: 'relative' }}>
+                                        <Avatar
+                                            src={connection.fotoDoPerfil || process.env.REACT_APP_PLACE_HOLDER_IMG}
+                                            alt={connection.nome}
+                                            onError={handleImageError}
+                                            sx={{ width: 100, height: 100, marginBottom: 2 }}
+                                        />
+                                        {isAuthorized(connection.uid) && (
+                                            <Box
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    width: 16,
+                                                    height: 16,
+                                                    bgcolor: 'primary.main',
+                                                    borderRadius: '50%',
+                                                }}
                                             />
-                                            {isAuthorized(connection.uid) && (
-                                                <div className="best-friend-marker"></div>
-                                            )}
-                                        </div>
-                                        <Card.Body>
-                                            <Card.Title className="text-name mb-2">{connection.nome}</Card.Title>
-                                            <Card.Text className="text-muted mb-3">{connection.email}</Card.Text>
-                                            {/* {isAuthorized(connection.uid) ? (
-                                                <Button variant="outline-danger" onClick={() => handleDeauthorizeFriend(connection.uid)}>
-                                                    Desautorizar
-                                                </Button>
-                                            ) : (
-                                                <Button variant="outline-success" onClick={() => handleAuthorizeFriend(connection.uid)}>
-                                                    Autorizar
-                                                </Button>
-                                            )} */}
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            ))
-                        ) : (
-                            <Col>
-                                <div className="sub-card">
-                                    <FaUserCircle size={50} className="icon-white mb-3" />
-                                    <p className="text-white">Você não possui conexões ativas.</p>
-                                </div>
-                            </Col>
-                        )}
-                    </Row>
-                </Container>
-            </Card.Body>
-        </Card>
+                                        )}
+                                    </Box>
+                                    <Typography variant="h6" className="text-name mb-2">{connection.nome}</Typography>
+                                    <Typography variant="body2" color="text.secondary" className="text-muted mb-3">{connection.email}</Typography>
+                                    {/* {isAuthorized(connection.uid) ? (
+                                        <Button variant="outlined" color="error" onClick={() => handleDeauthorizeFriend(connection.uid)}>
+                                            Desautorizar
+                                        </Button>
+                                    ) : (
+                                        <Button variant="outlined" color="success" onClick={() => handleAuthorizeFriend(connection.uid)}>
+                                            Autorizar
+                                        </Button>
+                                    )} */}
+                                </Box>
+                            </Grid>
+                        ))
+                    ) : (
+                        <Grid item>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    p: 2,
+                                    bgcolor: 'background.paper',
+                                    borderRadius: 2,
+                                    boxShadow: 3,
+                                }}
+                            >
+                                <FaUserCircle size={50} style={{ color: 'white' }} className="mb-3" />
+                                <Typography variant="body1" style={{ color: 'white' }}>Você não possui conexões ativas.</Typography>
+                            </Box>
+                        </Grid>
+                    )}
+                </Grid>
+            </Container>
+        </Box>
     );
 };
 

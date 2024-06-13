@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Card, Form, FormControl, Button, Image } from "react-bootstrap";
+import { Card, TextField, Button, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, IconButton, Box } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useConnections } from './hooks/useConnections';
 
 const SearchFriends = () => {
@@ -9,48 +11,48 @@ const SearchFriends = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Form submitted with searchTerm:", searchTerm);
-
         handleSearch(searchTerm);
     };
 
     return (
-        <Card className='main-card'>
-            <Card.Body>
-                <Card.Text>Buscar Conexões</Card.Text>
-                <Form className="d-flex mb-4" onSubmit={handleSubmit}>
-                    <FormControl
-                        type="search"
-                        placeholder="Buscar por nome ou email"
-                        className="me-2"
-                        aria-label="Buscar"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)} />
-                    <Button variant="outline-warning" type="submit">Buscar</Button>
-                </Form>
-                {searchResults.length > 0 && (
-                    <Card className="main-card">
-                        <Card.Body>
-                            {searchResults.map((result) => (
-                                <Card key={result.user} className="sub-card mb-2">
-                                    <Card.Body className="d-flex align-items-center">
-                                        <Image src={result.fotoDoPerfil} roundedCircle width="50" height="50" className="me-3" />
-                                        <div>
-                                            <Card.Title>
-                                                <a href={`/perfil/${result.user}`} className="text-decoration-none">
-                                                    {result.nome}
-                                                </a>
-                                            </Card.Title>
-                                            <Card.Text>{result.email}</Card.Text>
-                                        </div>
-                                        <Button variant="warning" onClick={() => handleSendRequest(result.user)} className="ms-auto">Enviar Solicitação</Button>
-                                    </Card.Body>
-                                </Card>
-                            ))}
-                        </Card.Body>
-                    </Card>
-                )}
-            </Card.Body>
-        </Card>
+        <Box sx={{ mt: 4, p: 2 }}>
+            <Typography variant="h6" gutterBottom>Buscar Conexões</Typography>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', mb: 4 }}>
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Buscar por nome ou email"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    InputProps={{
+                        startAdornment: <SearchIcon />,
+                    }}
+                />
+                <Button type="submit" variant="contained" color="primary" sx={{ ml: 2 }}>
+                    Buscar
+                </Button>
+            </Box>
+            {searchResults.length > 0 && (
+                <List>
+                    {searchResults.map((result) => (
+                        <ListItem key={result.user} alignItems="flex-start">
+                            <ListItemAvatar>
+                                <Avatar src={result.fotoDoPerfil} />
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary={<a href={`/perfil/${result.user}`} style={{ textDecoration: 'none', color: 'inherit' }}>{result.nome}</a>}
+                                secondary={result.email}
+                            />
+                            <ListItemSecondaryAction>
+                                <IconButton edge="end" color="primary" onClick={() => handleSendRequest(result.user)}>
+                                    <PersonAddIcon />
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    ))}
+                </List>
+            )}
+        </Box>
     );
 };
 

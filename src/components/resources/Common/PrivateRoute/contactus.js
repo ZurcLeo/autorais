@@ -1,7 +1,6 @@
 //eloswebapp/src/components/resources/Common/PrivateRoute/contactus.jsx
 import React, { useState, useEffect } from "react";
 import { Card, Container, Image } from "react-bootstrap";
-import styles from './index.module.css';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const ContactUs = () => {
@@ -34,7 +33,7 @@ const ContactUs = () => {
   }
 
   return (
-    <div className={styles.outletContainer}>
+    <div>
       <Container className="d-flex justify-content-center align-items-center my-5">
         <Card style={{ width: '18rem' }}>
             <Card.Header>Fale Conosco</Card.Header>

@@ -20,6 +20,7 @@ export default function Hero() {
             : `linear-gradient(#02294F, ${alpha('#090E10', 0.0)})`,
         backgroundSize: '100% 20%',
         backgroundRepeat: 'no-repeat',
+        padding: theme.spacing(4),
       })}
     >
       <Container
@@ -82,8 +83,29 @@ export default function Hero() {
                 autoComplete: 'off',
                 'aria-label': 'Informe o seu e-mail',
               }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'primary.main',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'primary.dark',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'primary.light',
+                  },
+                },
+              }}
             />
-            <Button variant="contained" color="primary">
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{
+                ':hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              }}
+            >
               Pedir um Convite
             </Button>
           </Stack>

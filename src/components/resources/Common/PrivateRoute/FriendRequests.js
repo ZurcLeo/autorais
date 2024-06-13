@@ -1,44 +1,56 @@
 import React, { useEffect } from 'react';
-import { Card, ListGroup, Button, Row, Col } from "react-bootstrap";
+import { Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, ListItemSecondaryAction, IconButton, Box, Button, Grid } from '@mui/material';
 import { useConnections } from './hooks/useConnections';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const FriendRequests = () => {
     const { friendRequests, handleAcceptFriendRequest, handleRejectRequest, fetchFriendRequests } = useConnections();
 
     useEffect(() => {
-        fetchFriendRequests(); // Certifique-se de buscar as solicitações de amizade ao montar o componente
+        fetchFriendRequests(); 
     }, [fetchFriendRequests]);
 
     return (
-        <Card className='main-card'>
-            <Card.Body>
-                <Card.Text>Solicitações de Amizade</Card.Text>
-                <ListGroup variant="flush">
-                    {friendRequests.map((request) => (
-                        <Card  className='main-card' key={request.id}>
-                        <ListGroup.Item className='sub-card'>
-                                <Row className='mt-3'>
-                                <Col>
-                                    <img className="foto-perfil" src={request.fotoDoPerfil} alt="Foto do perfil" width="50" height="50" />
-                                    <Card.Text>{request.nome}</Card.Text>
-                                    <Card.Text>{request.email}</Card.Text>
-                                </Col>
-                                <Col>
-                                    <Button variant="warning" onClick={() => handleAcceptFriendRequest(request.uid)}>
+        <Box sx={{ mt: 4, p: 2 }}>
+            <Typography variant="h6" gutterBottom>Solicitações de Amizade</Typography>
+            <List>
+                {friendRequests.map((request) => (
+                    <ListItem key={request.id} alignItems="flex-start">
+                        <ListItemAvatar>
+                            <Avatar src={request.fotoDoPerfil} />
+                        </ListItemAvatar>
+                        <ListItemText
+                            primary={request.nome}
+                            secondary={request.email}
+                        />
+                        <ListItemSecondaryAction>
+                            <Grid container spacing={1}>
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={<FaCheck />}
+                                        onClick={() => handleAcceptFriendRequest(request.uid)}
+                                    >
                                         Aceitar
                                     </Button>
-                                    <Button variant="outline-warning" onClick={() => handleRejectRequest(request.uid)}>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        startIcon={<FaTimes />}
+                                        onClick={() => handleRejectRequest(request.uid)}
+                                    >
                                         Rejeitar
                                     </Button>
-                                </Col>
-                                </Row>
-                                </ListGroup.Item>
-                            </Card>
-                       
-                    ))}
-                </ListGroup>
-            </Card.Body>
-        </Card>
+                                </Grid>
+                            </Grid>
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                ))}
+            </List>
+        </Box>
     );
 };
 

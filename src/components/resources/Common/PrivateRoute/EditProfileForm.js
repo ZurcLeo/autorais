@@ -1,247 +1,265 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Form, Button, FormGroup, FormControl, FormCheck, FloatingLabel, Card, Container } from 'react-bootstrap';
+import React, { useState } from 'react';
+import {
+  Button,
+  Checkbox,
+  Container,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Grid,
+  Input,
+  InputLabel,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { FaUpload } from 'react-icons/fa';
 import AvatarEditor from 'react-avatar-editor';
 import useImageUpload from './hooks/useImageUpload';
-import useUserProfile from "./hooks/useUserProfile";
+import useUserProfile from './hooks/useUserProfile';
 import { toast } from 'react-toastify';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const EditProfileForm = ({
-    userData,
-    setUserData,
-    toggleEdit,
-    currentUser
-}) => {
-    const {
-        profileImage,
-        isPhotoSelected,
-        avatarEditorRef,
-        handleImageChange,
-        uploadSelectedImage
-    } = useImageUpload(currentUser);
-    const { updateProfileData } = useUserProfile();
-    const [isLoading, setIsLoading] = useState(true);
-    const personalInterests = ["Relacionamentos", "Encontros Casuais", "Passeios Românticos", "Sem Compromisso"];
-    const businessInterests = ["Venda de Produtos", "Oferta de Serviços"];
-    const textAreaRef = useRef(null);
+const EditProfileForm = ({ currentUser }) => {
+  const location = useLocation();
+  const userData = location.state?.userData || {};
+  const navigate = useNavigate();
 
-    const safeUserData = {
-        ...userData,
-        interessesPessoais: Array.isArray(userData?.interessesPessoais) ? userData.interessesPessoais : [],
-        interessesNegocios: Array.isArray(userData?.interessesNegocios) ? userData.interessesNegocios : [],
-        descricao: userData?.descricao || ''
-    };
+  const {
+    profileImage,
+    isPhotoSelected,
+    avatarEditorRef,
+    handleImageChange,
+    uploadSelectedImage,
+  } = useImageUpload(currentUser);
 
-    const handleCheckboxChange = (field, value) => {
-        setUserData(prevState => {
-            const currentField = Array.isArray(prevState[field]) ? prevState[field] : [];
-            const updatedInterests = currentField.includes(value) 
-                ? currentField.filter(interest => interest !== value)
-                : [...currentField, value];
-            return { ...prevState, [field]: updatedInterests };
-        });
-    };
+  const { updateProfileData } = useUserProfile();
+  const [isLoading, setIsLoading] = useState(false);
+  const [safeUserData, setUserData] = useState({
+    ...userData,
+    interessesPessoais: Array.isArray(userData?.interessesPessoais)
+      ? userData.interessesPessoais
+      : [],
+    interessesNegocios: Array.isArray(userData?.interessesNegocios)
+      ? userData.interessesNegocios
+      : [],
+    descricao: userData?.descricao || '',
+  });
+  const personalInterests = [
+    'Relacionamentos',
+    'Encontros Casuais',
+    'Passeios Românticos',
+    'Sem Compromisso',
+  ];
+  const businessInterests = ['Venda de Produtos', 'Oferta de Serviços'];
 
-    const handleSave = async () => {
-        setIsLoading(true);
-        try {
-            const updatedData = { ...safeUserData };
-            await updateProfileData(updatedData);
-            toast.success("Dados do perfil atualizados com sucesso.");
-        } catch (error) {
-            console.error("Erro ao salvar o perfil:", error);
-            toast.error("Erro ao atualizar o perfil.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const handleCheckboxChange = (field, value) => {
+    setUserData((prevState) => {
+      const currentField = Array.isArray(prevState[field])
+        ? prevState[field]
+        : [];
+      const updatedInterests = currentField.includes(value)
+        ? currentField.filter((interest) => interest !== value)
+        : [...currentField, value];
+      return { ...prevState, [field]: updatedInterests };
+    });
+  };
 
-    const handleDescriptionChange = (e) => {
-        const value = e.target.value;
-        if (value.length <= 500) {
-            setUserData({ ...safeUserData, descricao: value });
-        }
-    };
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const updatedData = { ...safeUserData };
+      await updateProfileData(updatedData);
+      toast.success('Dados do perfil atualizados com sucesso.');
+      navigate(-1); // Go back to the previous page after save
+    } catch (error) {
+      console.error('Erro ao salvar o perfil:', error);
+      toast.error('Erro ao atualizar o perfil.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const adjustTextareaHeight = () => {
-        if (textAreaRef.current) {
-            textAreaRef.current.style.height = "auto";
-            textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
-        }
-    };
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 500) {
+      setUserData({ ...safeUserData, descricao: value });
+    }
+  };
 
-    useEffect(() => {
-        adjustTextareaHeight();
-    }, [safeUserData.descricao]);
+  const adjustTextareaHeight = (e) => {
+    const textarea = e.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
 
-    return (
-        <Container >
-            <Card className="main-card">
-            <Form  onSubmit={(e) => e.preventDefault()}>
-                <FormGroup controlId="profileImage" className="text-center">
-                    <Card.Header>Editando Perfil de {safeUserData.nome}</Card.Header>
-                    <div className="profile-image-preview">
-                        {profileImage && (
-                            <AvatarEditor
-                                ref={avatarEditorRef}
-                                image={profileImage}
-                                width={200}
-                                height={200}
-                                border={50}
-                                borderRadius={100}
-                                scale={1.2}
-                                rotate={0}
-                            />
-                        )}
-                    </div>
-                    <Form.Text className="text-muted">
-                        A imagem deve ser no formato JPEG ou PNG e ter até 1MB.
-                    </Form.Text>
-                    <FormControl
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="my-3"
+  return (
+    <Container sx={{ bgcolor: 'background.paper' }}>
+      <div style={{ backgroundColor: 'background.paper', padding: '16px', borderRadius: '8px' }}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Editando Perfil de {safeUserData.nome}
+        </Typography>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'background.default' }}>
+          <FormControl>
+            <Typography variant="h6" align="center">
+              Imagem de Perfil
+            </Typography>
+            <div style={{ textAlign: 'center' }}>
+              {profileImage && (
+                <AvatarEditor
+                  ref={avatarEditorRef}
+                  image={profileImage}
+                  width={200}
+                  height={200}
+                  border={50}
+                  borderRadius={100}
+                  scale={1.2}
+                  rotate={0}
+                />
+              )}
+            </div>
+            <Input
+              id="profileImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              inputProps={{ 'aria-label': 'Upload Profile Image', autoComplete: 'off' }}
+            />
+            <Button
+              variant="outlined"
+              onClick={uploadSelectedImage}
+              disabled={!isPhotoSelected}
+              startIcon={<FaUpload />}
+              sx={{ mt: 2 }}
+            >
+              Enviar Imagem
+            </Button>
+            <InputLabel htmlFor="profileImage" shrink>
+              A imagem deve ser no formato JPEG ou PNG e ter até 1MB.
+            </InputLabel>
+            <hr />
+          </FormControl>
+
+          <TextField
+            id="name"
+            label="Nome"
+            variant="outlined"
+            fullWidth
+            defaultValue={safeUserData.nome}
+            onChange={(e) => setUserData({ ...safeUserData, nome: e.target.value })}
+            inputProps={{ autoComplete: 'off' }}
+          />
+
+          <TextField
+            id="email"
+            label="E-mail"
+            variant="outlined"
+            fullWidth
+            defaultValue={safeUserData.email}
+            onChange={(e) => setUserData({ ...safeUserData, email: e.target.value })}
+            inputProps={{ autoComplete: 'off' }}
+          />
+
+          <TextField
+            id="description"
+            label="Descrição"
+            variant="outlined"
+            multiline
+            fullWidth
+            maxRows={4}
+            value={safeUserData.descricao}
+            onChange={(e) => {
+              handleDescriptionChange(e);
+              adjustTextareaHeight(e);
+            }}
+            inputProps={{ 'aria-label': 'Profile Description', autoComplete: 'off' }}
+            helperText={`${safeUserData.descricao.length}/500 caracteres`}
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={safeUserData.perfilPublico}
+                onChange={(e) => setUserData({ ...safeUserData, perfilPublico: e.target.checked })}
+              />
+            }
+            label="Faça o meu perfil público"
+          />
+          <Typography variant="body2" sx={{ ml: 3 }}>
+            Para que outros usuários possam encontrar você, esta opção deve estar selecionada. Ao selecionar a opção,
+            você concorda em compartilhar seus dados com outros usuários registrados. Você pode alterar isso depois.
+          </Typography>
+
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Selecione o tipo de conta</FormLabel>
+            <FormGroup>
+              {['cliente', 'proprietario', 'suporte'].map((type) => (
+                <FormControlLabel
+                  key={type}
+                  control={
+                    <Checkbox
+                      checked={safeUserData.tipoDeConta === type}
+                      onChange={(e) => setUserData({ ...safeUserData, tipoDeConta: e.target.checked ? type : '' })}
                     />
-                    <Button variant="outline-warning" onClick={uploadSelectedImage} disabled={!isPhotoSelected}>
-                        <FaUpload style={{ marginRight: '10px' }} /> Enviar Imagem
-                    </Button>
-                    <hr />
-                </FormGroup>
-                
-                <FloatingLabel controlId="name" label="Nome" className="mb-3">
-                    <FormControl
-                        type="text"
-                        placeholder="Digite seu nome"
-                        defaultValue={safeUserData.nome}
-                        onChange={e => setUserData({...safeUserData, nome: e.target.value})}
+                  }
+                  label={type.toUpperCase()}
+                />
+              ))}
+            </FormGroup>
+          </FormControl>
+
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Interesses Pessoais</FormLabel>
+            <FormGroup>
+              {personalInterests.map((interest) => (
+                <FormControlLabel
+                  key={interest}
+                  control={
+                    <Checkbox
+                      checked={safeUserData.interessesPessoais.includes(interest)}
+                      onChange={() => handleCheckboxChange('interessesPessoais', interest)}
                     />
-                </FloatingLabel>
-                
-                <FloatingLabel controlId="email" label="E-mail" className="mb-3">
-                    <FormControl
-                        type="email"
-                        placeholder="Digite seu e-mail"
-                        defaultValue={safeUserData.email}
-                        onChange={e => setUserData({...safeUserData, email: e.target.value})}
+                  }
+                  label={interest}
+                />
+              ))}
+            </FormGroup>
+          </FormControl>
+
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Interesses de Negócios</FormLabel>
+            <FormGroup>
+              {businessInterests.map((interest) => (
+                <FormControlLabel
+                  key={interest}
+                  control={
+                    <Checkbox
+                      checked={safeUserData.interessesNegocios.includes(interest)}
+                      onChange={() => handleCheckboxChange('interessesNegocios', interest)}
                     />
-                </FloatingLabel>
-                
-                <FloatingLabel controlId="description" label="Descrição" className="mb-3">
-                    <FormControl
-                        as="textarea"
-                        placeholder="Digite sua descrição"
-                        value={safeUserData.descricao}
-                        onChange={handleDescriptionChange}
-                        ref={textAreaRef}
-                        onInput={adjustTextareaHeight}
-                    />
-                    <Form.Text className="main-card">
-                        {safeUserData.descricao.length}/500 caracteres
-                    </Form.Text>
-                </FloatingLabel>
+                  }
+                  label={interest}
+                />
+              ))}
+            </FormGroup>
+          </FormControl>
 
-                <FormGroup controlId="perfilPublico" style={{ textAlign: 'left' }}>
-                    <FormCheck
-                        type="checkbox"
-                        label="Faça o meu perfil público"
-                        checked={safeUserData.perfilPublico}
-                        onChange={e => setUserData({...safeUserData, perfilPublico: e.target.checked})}
-                    />
-                    <Form.Text className="main-card" style={{ marginLeft: '10px' }}>
-                        Para que outros usuários possam encontrar você, esta opção deve estar selecionada.
-                    </Form.Text><br/>
-                    <Form.Text className="main-card" style={{ marginLeft: '10px' }}>
-                        Ao selecionar a opção, você concorda em compartilhar seus dados com outros usuários registrados.
-                    </Form.Text><br/>
-                    <Form.Text className="main-card" style={{ marginLeft: '10px' }}>
-                        Você pode alterar isso depois.
-                    </Form.Text>
-                </FormGroup>
-
-                <Card.Header>Selecione o tipo de conta</Card.Header>
-                <FormGroup controlId="tipoDeConta" style={{ textAlign: 'left', padding: '10px' }}>
-                    <Card.Body>
-                        <FormCheck
-                            name="cliente"
-                            type="checkbox"
-                            label="CLIENTE"
-                            id="cliente"
-                            checked={safeUserData.tipoDeConta === "cliente"}
-                            onChange={e => setUserData({...safeUserData, tipoDeConta: e.target.checked ? "cliente" : ""})}
-                        />
-                        <Card.Text style={{ marginLeft: '10px', fontSize: '0.8rem' }}>
-                            Use esta opção se você é um Cliente, este é o perfil padrão. Se você deseja realizar check-in em um AirBNB, use esta opção.
-                        </Card.Text>
-                        
-                        <FormCheck
-                            name="proprietario"
-                            type="checkbox"
-                            label="PROPRIETÁRIO"
-                            id="proprietario"
-                            checked={safeUserData.tipoDeConta === "proprietario"}
-                            onChange={e => setUserData({...safeUserData, tipoDeConta: e.target.checked ? "proprietario" : ""})}
-                        />
-                        <Card.Text style={{ marginLeft: '10px', fontSize: '0.8rem' }}>
-                            Use esta opção se você é um Proprietário, este é o perfil para quem deseja incluir reservas em seu imóvel para check-in.
-                        </Card.Text>
-                        
-                        <FormCheck
-                            name="suporte"
-                            type="checkbox"
-                            label="SUPORTE"
-                            id="suporte"
-                            checked={safeUserData.tipoDeConta === "suporte"}
-                            onChange={e => setUserData({...safeUserData, tipoDeConta: e.target.checked ? "suporte" : ""})}
-                        />
-                        <Card.Text style={{ marginLeft: '10px', fontSize: '0.8rem' }}>
-                            Use esta opção se você é um agente de SUPORTE.
-                        </Card.Text>
-                    </Card.Body>
-                </FormGroup>
-
-                <Card.Header>Interesses Pessoais</Card.Header>
-                <FormGroup controlId="personalInterests" style={{ textAlign: 'left', padding: '10px' }}>
-                    <Card.Body>
-                        {personalInterests.map((interest, index) => (
-                            <FormCheck
-                                key={interest}
-                                type="checkbox"
-                                label={interest}
-                                id={`personalInterest-${index}`}
-                                checked={safeUserData.interessesPessoais.includes(interest)}
-                                onChange={e => handleCheckboxChange('interessesPessoais', interest)}
-                            />
-                        ))}
-                    </Card.Body>
-                </FormGroup>
-
-                <Card.Header>Interesses de Negócios</Card.Header>
-                <FormGroup controlId="businessInterests" style={{ textAlign: 'left', padding: '10px' }}>
-                    <Card.Body>
-                        {businessInterests.map((interest, index) => (
-                            <FormCheck
-                                key={interest}
-                                type="checkbox"
-                                label={interest}
-                                id={`businessInterest-${index}`}
-                                checked={safeUserData.interessesNegocios.includes(interest)}
-                                onChange={e => handleCheckboxChange('interessesNegocios', interest)}
-                            />
-                        ))}
-                    </Card.Body>
-                </FormGroup>
-
-                <Button variant="warning" onClick={handleSave} style={{ marginRight: '10px' }}>
-                    Salvar Alterações
-                </Button>
-                <Button variant="outline-warning" onClick={toggleEdit} style={{ marginLeft: '10px' }}>
-                    Cancelar
-                </Button>
-            </Form>
-            </Card>
-        </Container>
-    );
+          <Grid container spacing={2}>
+            <Grid item>
+              <Button variant="contained" color="primary" onClick={handleSave} disabled={isLoading}>
+                Salvar Alterações
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" color="primary" onClick={() => navigate(-1)}>
+                Cancelar
+              </Button>
+            </Grid>
+          </Grid>
+        </div>
+      </div>
+    </Container>
+  );
 };
 
 export default EditProfileForm;

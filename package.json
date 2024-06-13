@@ -124,7 +124,7 @@
     "postcss": ">=8.4.31",
     "nth-check": ">=2.0.1"
   },
-  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "description": "Elos Cloud App.",
   "main": "server.js",
   "author": ""
 }

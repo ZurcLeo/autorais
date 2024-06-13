@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -5,8 +6,6 @@ import { db } from './firebase.config';
 import { useAuth } from './components/resources/AuthService';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { UserProvider } from './components/resources/userContext';
-import { StatusProvider } from './components/resources/Usuarios/userStatus';
 import Footer from './components/pages/footer';
 import ProtectedRoute from './ProtectedRoute';
 import HomePage from './components/pages/home';
@@ -41,12 +40,20 @@ import ElosCoinManager from './components/resources/Common/PrivateRoute/elosCoin
 import ConvidarAmigos from './components/resources/Common/PrivateRoute/convidarAmigos';
 import ValidateInvite from './components/resources/Common/PrivateRoute/ValidateInvite';
 import GridPublicUsers from './components/pages/gridPublicUsers';
+import EditProfileForm from './components/resources/Common/PrivateRoute/EditProfileForm';
 import axios from 'axios';
+import { CssBaseline, ThemeProvider, Container } from '@mui/material';
+import { lightTheme, darkTheme } from './theme';
 
 function App() {
   let location = useLocation();
   const { currentUser } = useAuth();
   const [ja3Hash, setJa3Hash] = useState('');
+  const [themeMode, setThemeMode] = useState('light');
+
+  const toggleTheme = () => {
+    setThemeMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -89,54 +96,56 @@ function App() {
   }, [currentUser, ja3Hash]);
 
   return (
-    <div className="App">
-      <StatusProvider />
-      <TopNavBar />
-      <AnimatePresence mode='wait'>
-        <UserProvider>
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/sobre" element={<Sobre />} />
-            <Route path="/sobre/privacy" element={<Privacy />} />
-            <Route path="/sobre/terms" element={<Terms />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/Registro" element={<Register />} />
-            <Route path="/Login" element={<Login />} />
-            <Route path="/invite" element={<ValidateInvite />} />
-
-            <Route path="/PublicUsers" element={<GridPublicUsers />} />
-            
-            {/* Rotas protegidas dentro de MainLayout */}
-            <Route element={<MainLayout />}>
-              <Route path="/homepage" element={<ProtectedRoute><HomePageAuth /></ProtectedRoute>} />
-              <Route path="/UserProfileSettings" element={<ProtectedRoute><UserProfileSettings /></ProtectedRoute>} />
-              <Route path="/Connections" element={<ProtectedRoute><Connections /></ProtectedRoute>} />
-              <Route path="/Chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-              <Route path="/goChat" element={<ProtectedRoute><GoChat /></ProtectedRoute>} />
-              <Route path="/goChat/:connectionId" element={<ProtectedRoute><GoChat /></ProtectedRoute>} />
-              <Route path="/Hospedagens" element={<ProtectedRoute><Hospedagens /></ProtectedRoute>} />
-              <Route path="/HospedagensClientes" element={<ProtectedRoute><HospedagensClientes /></ProtectedRoute>} />
-              <Route path="/HospedagensProprietarios" element={<ProtectedRoute><HospedagensProprietarios /></ProtectedRoute>} />
-              <Route path="/HospedagensClientes/checkinform/:reservaCodigo" element={<ProtectedRoute><CheckInForm /></ProtectedRoute>} />
-              <Route path="/Profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/Perfil/:uid" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-              <Route path="/PerfilPessoal/:uid" element={<ProtectedRoute><PerfilPessoal /></ProtectedRoute>} />
-              <Route path="/PerfilAmigo/:uid" element={<ProtectedRoute><PerfilAmigo /></ProtectedRoute>} />
-              <Route path="/Postagens" element={<ProtectedRoute><Postagens /></ProtectedRoute>} />
-              <Route path="/Payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
-              <Route path="/ElosCoinManager" element={<ProtectedRoute><ElosCoinManager /></ProtectedRoute>} />
-              <Route path="/ConvidarAmigos" element={<ProtectedRoute><ConvidarAmigos /></ProtectedRoute>} />
-              <Route path="/LiveStream" element={<ProtectedRoute><LiveStream /></ProtectedRoute>} />
-              <Route path="/liveStreamViewer/:liveId" element={<ProtectedRoute><LiveStreamViewer /></ProtectedRoute>} />
+    <ThemeProvider theme={themeMode === 'light' ? lightTheme : darkTheme}>
+      <CssBaseline />
+      <TopNavBar mode={themeMode} toggleColorMode={toggleTheme} />
+      <Container>
+        {/* <div className="App"> */}
+          <AnimatePresence mode='wait'>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/sobre" element={<Sobre />} />
+              <Route path="/sobre/privacy" element={<Privacy />} />
+              <Route path="/sobre/terms" element={<Terms />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/Registro" element={<Register />} />
+              <Route path="/Login" element={<Login />} />
+              <Route path="/invite" element={<ValidateInvite />} />
+              <Route path="/PublicUsers" element={<GridPublicUsers />} />
               
-              <Route path="/LivesOnline" element={<LiveStreamsMosaic />} />
-            </Route>
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </UserProvider>
-      </AnimatePresence>
-      <Footer />
-    </div>
+              {/* Rotas protegidas dentro de MainLayout */}
+              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                <Route path="/homepage" element={<HomePageAuth />} />
+                <Route path="/UserProfileSettings" element={<UserProfileSettings />} />
+                <Route path="/Connections" element={<Connections />} />
+                <Route path="/Chat" element={<Chat />} />
+                <Route path="/goChat" element={<GoChat />} />
+                <Route path="/goChat/:connectionId" element={<GoChat />} />
+                <Route path="/Hospedagens" element={<Hospedagens />} />
+                <Route path="/HospedagensClientes" element={<HospedagensClientes />} />
+                <Route path="/HospedagensProprietarios" element={<HospedagensProprietarios />} />
+                <Route path="/HospedagensClientes/checkinform/:reservaCodigo" element={<CheckInForm />} />
+                <Route path="/Profile" element={<Profile />} />
+                <Route path="/EditarPerfil" element={<EditProfileForm mode={themeMode} toggleColorMode={toggleTheme}/>} />
+                <Route path="/Perfil/:uid" element={<Perfil />} />
+                <Route path="/PerfilPessoal/:uid" element={<PerfilPessoal />} />
+                <Route path="/PerfilAmigo/:uid" element={<PerfilAmigo />} />
+                <Route path="/Postagens" element={<Postagens />} />
+                <Route path="/Payments" element={<Payments />} />
+                <Route path="/ElosCoinManager" element={<ElosCoinManager />} />
+                <Route path="/ConvidarAmigos" element={<ConvidarAmigos />} />
+                <Route path="/LiveStream" element={<LiveStream />} />
+                <Route path="/liveStreamViewer/:liveId" element={<LiveStreamViewer />} />
+                
+                <Route path="/LivesOnline" element={<LiveStreamsMosaic />} />
+              </Route>
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </AnimatePresence>
+          <Footer />
+        {/* </div> */}
+      </Container>
+    </ThemeProvider>
   );
 }
 
