@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../AuthService';
-import { Card, Container, TextField, Button, Typography, Box, Alert, Dialog, DialogContent, DialogActions } from '@mui/material';
+import {
+    Card, Container, TextField, Button, Typography, Box, Alert, Dialog, DialogContent, DialogActions
+} from '@mui/material';
 import ComoFunciona from '../../../pages/howitwork';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 const validationSchema = Yup.object({
     email: Yup.string().email('Email inválido').required('Email é obrigatório'),
@@ -39,6 +42,25 @@ const Login = () => {
 
     const handleMicrosoftLogin = async () => {
         await signInWithProvider('microsoft');
+    };
+
+    const handleFacebookLogin = (response) => {
+        console.log(response);
+        if (response.accessToken) {
+            // Enviar o token para o backend para autenticação
+            axios.post('/api/facebook-login', { accessToken: response.accessToken })
+                .then(res => {
+                    console.log(res.data);
+                    // Obter a lista de amigos
+                    axios.get(`https://graph.facebook.com/me/friends?access_token=${response.accessToken}`)
+                        .then(friendsResponse => {
+                            console.log(friendsResponse.data);
+                            // Use os dados dos amigos conforme necessário
+                        })
+                        .catch(err => console.error('Erro ao obter amigos:', err));
+                })
+                .catch(err => console.error('Erro ao autenticar com Facebook:', err));
+        }
     };
 
     const handleOpen = () => {
@@ -106,6 +128,17 @@ const Login = () => {
                     <Button variant="outlined" color="primary" onClick={handleMicrosoftLogin} fullWidth sx={{ mt: 2 }}>
                         Entrar com Microsoft
                     </Button>
+                    <FacebookLogin
+                        appId={process.env.REACT_APP_FACEBOOK_APP_ID}
+                        fields="name,email,picture"
+                        scope="public_profile,email"
+                        callback={handleFacebookLogin}
+                        render={renderProps => (
+                            <Button variant="outlined" color="primary" onClick={renderProps.onClick} fullWidth sx={{ mt: 2 }}>
+                                Entrar com Facebook
+                            </Button>
+                        )}
+                    />
                 </Box>
             </Card>
             <Box textAlign="center" sx={{ mt: 2 }}>

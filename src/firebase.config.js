@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { signOut, getIdToken, getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider  } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 import { getFunctions } from 'firebase/functions';
@@ -46,4 +46,18 @@ export const requestNotificationPermission = async () => {
 };
 
 // Exportações
-export { db, auth, storage, onAuthStateChanged, functions, analytics, messaging };
+export { 
+  db, 
+  auth,
+  signOut, 
+  storage,
+  getIdToken,
+  onAuthStateChanged, 
+  functions, 
+  analytics, 
+  messaging, 
+  signInWithPopup, 
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  OAuthProvider
+};

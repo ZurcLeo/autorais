@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -34,18 +33,20 @@ import Postagens from './components/resources/Common/PrivateRoute/postagens';
 import Payments from './components/resources/Common/PrivateRoute/payments';
 import TopNavBar from './components/resources/Common/PrivateRoute/topNavBar';
 import LiveStream from './components/resources/Common/PrivateRoute/LiveStream';
-import LiveStreamViewer from './components/resources/Common/PrivateRoute/LiveStreamViewer';
-import LiveStreamsMosaic from './components/resources/Common/PrivateRoute/LiveStreamMosaic';
+import LiveStreamApp from './components/resources/Common/PrivateRoute/LiveStreamApp';
+import MeetingView from './components/resources/Common/PrivateRoute/MeetingView';
 import ElosCoinManager from './components/resources/Common/PrivateRoute/elosCoinManager';
-import ConvidarAmigos from './components/resources/Common/PrivateRoute/convidarAmigos';
+import ConvidarAmigos from './components/resources/Common/PrivateRoute/GenerateAndSendInvite';
 import ValidateInvite from './components/resources/Common/PrivateRoute/ValidateInvite';
 import GridPublicUsers from './components/pages/gridPublicUsers';
 import Return from './components/resources/Common/PrivateRoute/return';
 import SuccessPage from './components/resources/Common/PrivateRoute/successPage';
 import EditProfileForm from './components/resources/Common/PrivateRoute/EditProfileForm';
+import Pricing from './components/pages/pricing';
 import axios from 'axios';
 import { CssBaseline, ThemeProvider, Container } from '@mui/material';
 import { lightTheme, darkTheme } from './theme';
+import PaymentsHistory from './components/resources/Common/PrivateRoute/paymentsHistory';
 
 function App() {
   let location = useLocation();
@@ -73,7 +74,7 @@ function App() {
         if (userDoc.exists() && userDoc.data().ja3Hash) {
           setJa3Hash(userDoc.data().ja3Hash);
         } else {
-          const response = await axios.post('https://us-central1-elossolucoescloud-1804e.cloudfunctions.net/calculateJA3', {
+          const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/ja3/calculate`, {
             version: '769', // Versão do SSL/TLS
             cipherSuites: ['4865', '4866', '4867'], // Suítes de cifragem
             extensions: ['0', '11', '10'], // Extensões
@@ -114,6 +115,7 @@ function App() {
               <Route path="/Login" element={<Login />} />
               <Route path="/invite" element={<ValidateInvite />} />
               <Route path="/PublicUsers" element={<GridPublicUsers />} />
+              <Route path="/Precos" element={<Pricing />} />
               
               {/* Rotas protegidas dentro de MainLayout */}
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
@@ -136,12 +138,13 @@ function App() {
                 <Route path="/Payments" element={<Payments />} />
                 <Route path="/return" element={<Return />} />
                 <Route path="/Payments/success" element={<SuccessPage />} />
+                <Route path="/payments-history" element={<PaymentsHistory/>} />
                 <Route path="/ElosCoinManager" element={<ElosCoinManager />} />
                 <Route path="/ConvidarAmigos" element={<ConvidarAmigos />} />
-                <Route path="/LiveStream" element={<LiveStream />} />
-                <Route path="/liveStreamViewer/:liveId" element={<LiveStreamViewer />} />
-                
-                <Route path="/LivesOnline" element={<LiveStreamsMosaic />} />
+                <Route path="/LivesOnline" element={<LiveStream />} />
+                <Route path="/LiveStream" element={<LiveStreamApp />} />
+                <Route path="/MeetingView/:liveId" element={<MeetingView />} />
+               
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

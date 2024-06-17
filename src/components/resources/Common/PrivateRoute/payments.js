@@ -48,6 +48,7 @@ const CheckoutForm = ({ clientSecret }) => {
     );
 };
 
+
 const Return = () => {
     const [status, setStatus] = useState(null);
     const [customerEmail, setCustomerEmail] = useState('');
@@ -58,7 +59,7 @@ const Return = () => {
         const urlParams = new URLSearchParams(queryString);
         const sessionId = urlParams.get('payment_intent');
 
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/session-status?payment_intent=${sessionId}`)
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/payments/session-status?payment_intent=${sessionId}`)
             .then((res) => {
                 setStatus(res.data.status);
                 setCustomerEmail(res.data.customer_email);
@@ -89,6 +90,7 @@ const Return = () => {
         </Container>
     );
 };
+
 
 const Payments = () => {
     const [clientSecret, setClientSecret] = useState('');
@@ -136,7 +138,7 @@ const Payments = () => {
                     try {
                         const recaptchaToken = await grecaptcha.enterprise.execute(process.env.REACT_APP_RECAPTCHA_SITE_KEY, { action: 'purchase' });
 
-                        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/create-payment-intent`, {
+                        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/payments/create-payment-intent`, {
                             quantidade: Number(quantidade),
                             valor: Number(valor),
                             userId: currentUser.uid,
@@ -218,3 +220,4 @@ const Payments = () => {
 };
 
 export default Payments;
+

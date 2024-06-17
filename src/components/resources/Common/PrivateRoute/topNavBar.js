@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  AppBar, Box, Toolbar, Button, Container, MenuItem, Drawer, IconButton, Avatar, Badge, Menu, Tooltip, Divider
+  AppBar, Box, Toolbar, Button, Container, MenuItem, Drawer, IconButton, Avatar, Menu, Tooltip, Divider
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import useNotification from './hooks/useNotification';
 import CustomLinkContainer from '../../../customLinkContainer';
 import { IoPersonOutline, IoPersonCircleOutline, IoSettingsOutline, IoExitOutline, IoNotificationsOutline } from "react-icons/io5";
 import { FaSun, FaMoon } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import './topNavBar.css';
 
 const placeholder = process.env.REACT_APP_PLACE_HOLDER_IMG;
@@ -94,11 +95,17 @@ const TopNavBar = ({ mode, toggleColorMode }) => {
   };
 
   const handleLogout = async () => {
+    if (!currentUser) {
+      return;
+    }
+
     try {
-      await logout();
-      navigate('/Login');
+      await logout(currentUser);
+      navigate('/');
+      toast.success('Logout realizado com sucesso!');
     } catch (error) {
       console.error('Erro ao tentar deslogar:', error);
+      toast.error('Erro ao tentar deslogar!');
     }
   };
 

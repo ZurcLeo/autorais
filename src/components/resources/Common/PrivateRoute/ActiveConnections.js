@@ -17,8 +17,9 @@ const ActiveConnections = () => {
         window.location.href = `/perfil/${uid}`;
     };
 
-    const isAuthorized = (uid) => currentUser.amigosAutorizados.includes(uid);
-
+    const isAuthorized = (uid) => {
+        return currentUser && Array.isArray(currentUser.amigosAutorizados) && currentUser.amigosAutorizados.includes(uid);
+    };
     return (
         <Box sx={{ mt: 4, p: 2 }}>
             <Typography variant="h6" gutterBottom>Conexões Ativas</Typography>

@@ -29,6 +29,7 @@ root.render(
             <UserProvider>
               <ConnectionProvider>
                 <PhotosProvider>
+                  <ToastContainer />
                   <App />
                 </PhotosProvider>
               </ConnectionProvider>

@@ -6,6 +6,7 @@ import GridPublicUsers from "./gridPublicUsers";
 import Hero from "./Hero";
 import Background from '../imgs/background.webp';  // Correção ortográfica
 import { Navbar, Container, Button, Row, Col, Card } from 'react-bootstrap';
+import Pricing from "./pricing";
 
 const HomePage = () => {
 
@@ -52,6 +53,7 @@ const HomePage = () => {
             <Hero />
             <CTA />
             <ComoFunciona />
+            <Pricing />
         </div>
     );
 }
