@@ -1,0 +1,11 @@
+.stripe-form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.stripe-card-element {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}

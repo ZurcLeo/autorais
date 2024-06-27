@@ -1,0 +1,19 @@
+[debug] [2024-06-13T19:11:34.145Z] ----------------------------------------------------------------------
+[debug] [2024-06-13T19:11:34.146Z] Command:       /Users/leocruz/.nvm/versions/node/v18.20.3/bin/node /Users/leocruz/.nvm/versions/node/v18.20.3/bin/firebase deploy
+[debug] [2024-06-13T19:11:34.146Z] CLI Version:   13.11.2
+[debug] [2024-06-13T19:11:34.146Z] Platform:      darwin
+[debug] [2024-06-13T19:11:34.146Z] Node Version:  v18.20.3
+[debug] [2024-06-13T19:11:34.147Z] Time:          Thu Jun 13 2024 21:11:34 GMT+0200 (Central European Summer Time)
+[debug] [2024-06-13T19:11:34.147Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-06-13T19:11:34.180Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-06-13T19:11:34.181Z] > authorizing via signed-in user (leonardocruz.di@gmail.com)
+[debug] [2024-06-13T19:11:34.181Z] [iam] checking project elossolucoescloud-1804e for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update",null]
+[debug] [2024-06-13T19:11:34.181Z] > refreshing access token with scopes: []
+[debug] [2024-06-13T19:11:34.182Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-06-13T19:11:34.182Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-06-13T19:11:34.328Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2024-06-13T19:11:34.328Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-06-13T19:11:34.342Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/elossolucoescloud-1804e:testIamPermissions [none]
+[debug] [2024-06-13T19:11:34.342Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/elossolucoescloud-1804e:testIamPermissions x-goog-quota-user=projects/elossolucoescloud-1804e
+[debug] [2024-06-13T19:11:34.342Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/elossolucoescloud-1804e:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update",null]}

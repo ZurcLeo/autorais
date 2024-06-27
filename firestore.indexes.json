@@ -1,0 +1,31 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "usuario",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "perfilPublico", "order": "ASCENDING" },
+        { "fieldPath": "nome", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "usuario",
+      "fieldPath": "perfilPublico",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "usuario",
+      "fieldPath": "nome",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" },
+        { "order": "DESCENDING", "queryScope": "COLLECTION" }
+      ]
+    }
+  ]
+}
+
+

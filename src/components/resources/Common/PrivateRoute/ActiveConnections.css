@@ -1,0 +1,38 @@
+.clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.clickable-card:hover {
+    transform: scale(1.05);
+}
+
+.best-friend-marker {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background-color: #ff5000;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.text-muted {
+    font-size: 0.8rem !important;
+    color: #484444;
+}
+
+.text-name {
+    font-size: 1rem !important;
+    color: #484444;
+}
+
+.text-white {
+    color: antiquewhite !important;
+    font-size: 0.8rem !important;
+}
+
+.icon-white {
+    color: #484444;
+}

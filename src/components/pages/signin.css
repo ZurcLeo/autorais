@@ -1,0 +1,10 @@
+.tips {
+    height: 40px;
+}
+
+.formulario {
+    background-color: rgb(229, 227, 238);
+    border-radius: 5px;
+    padding: 25px;
+    width: 90%;
+}

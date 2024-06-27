@@ -39,4 +39,7 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+const lightTheme = createTheme(getDesignTokens('light'));
+const darkTheme = createTheme(getDesignTokens('dark'));
+
+export { lightTheme, darkTheme };
