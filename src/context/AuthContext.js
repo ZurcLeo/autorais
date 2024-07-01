@@ -1,8 +1,8 @@
 // src/context/AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getCurrentUser as fetchCurrentUser, register, login, logout, loginWithProvider, registerWithProvider, resendVerificationEmail } from '../services/authService';
+import { register, login, logout, loginWithProvider, registerWithProvider, resendVerificationEmail } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -13,22 +13,6 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await fetchCurrentUser();
-        setCurrentUser(user);
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-        navigate('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [navigate]);
-
   const registerWithEmail = async (email, password, inviteCode) => {
     try {
       const response = await register(email, password, inviteCode);
@@ -36,6 +20,7 @@ const AuthProvider = ({ children }) => {
       toast.success('Muito bem! Sua conta foi criada.');
       setCurrentUser(response.user);
       navigate('/dashboard');
+      setLoading(false)
     } catch (error) {
       toast.error('Erro ao criar conta.');
       console.error(error);
@@ -49,6 +34,7 @@ const AuthProvider = ({ children }) => {
       toast.success('Login bem-sucedido.');
       setCurrentUser(response.user);
       navigate('/dashboard');
+      setLoading(false)
     } catch (error) {
       toast.error('Erro ao fazer login.');
       console.error(error);
@@ -66,6 +52,7 @@ const AuthProvider = ({ children }) => {
       toast.success('Login com provedor bem-sucedido.');
       setCurrentUser(response.user);
       navigate('/dashboard');
+      setLoading(false)
     } catch (error) {
       console.error('Erro ao fazer login com provedor:', error);
       if (error.response) {
@@ -85,6 +72,7 @@ const AuthProvider = ({ children }) => {
       toast.success('Registro com provedor bem-sucedido.');
       setCurrentUser(response.user);
       navigate('/dashboard');
+      setLoading(false)
     } catch (error) {
       toast.error('Erro no registro com provedor.');
       console.error(error);
@@ -95,6 +83,7 @@ const AuthProvider = ({ children }) => {
     try {
       await resendVerificationEmail(email);
       toast.success('E-mail de verificação reenviado.');
+      setLoading(false)
     } catch (error) {
       toast.error('Erro ao reenviar e-mail de verificação.');
       console.error(error);
@@ -108,6 +97,7 @@ const AuthProvider = ({ children }) => {
       localStorage.removeItem('authToken');
       toast.success('Logout realizado com sucesso!');
       navigate('/login');
+      setLoading(false)
     } catch (error) {
       console.error('Erro ao tentar deslogar:', error);
       toast.error('Erro ao tentar deslogar!');
