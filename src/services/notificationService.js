@@ -1,23 +1,12 @@
-// src/services/notificationService.js
-import { db } from '../firebaseConfig';
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const fetchNotifications = async (userId) => {
-  const notificationsRef = collection(db, 'notificacoes');
-  const q = query(notificationsRef, where('userId', '==', userId), where('lida', '==', false));
-  const querySnapshot = await getDocs(q);
-
-  const notifications = [];
-  querySnapshot.forEach((doc) => {
-    notifications.push({ id: doc.id, ...doc.data() });
-  });
-
-  return notifications;
+  const response = await axios.get(`${API_URL}/notifications/${userId}`);
+  return response.data;
 };
 
-export const markAsRead = async (notificationId) => {
-  const notificationRef = doc(db, 'notificacoes', notificationId);
-  await updateDoc(notificationRef, {
-    lida: true,
-  });
+export const markAsRead = async (userId, notificationId) => {
+  await axios.post(`${API_URL}/notifications/${userId}/markAsRead`, { notificationId });
 };

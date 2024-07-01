@@ -3,13 +3,20 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL; 
 
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 export const getDashboardData = async () => {
   try {
     const [caixinhas, notifications, messages, connections] = await Promise.all([
-      axios.get(`${API_URL}/api/caixinha`),
-      axios.get(`${API_URL}/api/notifications`),
-      axios.get(`${API_URL}/api/messages`),
-      axios.get(`${API_URL}/api/connections`)
+      api.get('/api/caixinha'),
+      api.get('/api/notifications'),
+      api.get('/api/messages'),
+      api.get('/api/connections')
     ]);
 
     return {

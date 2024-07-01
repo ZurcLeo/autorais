@@ -1,23 +1,20 @@
-//src/components/Auth/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, signInWithPopup } from 'firebase/auth';
 import { toast } from 'react-toastify';
 import { Button, Container, TextField, Typography } from '@mui/material';
-import { login, loginWithProvider } from '../../services/authService';
-import { auth } from '../../firebaseConfig';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { signInWithEmail, signInWithProvider } = useAuth();
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(email, password);
+      await signInWithEmail(email, password);
       toast.success('Login bem-sucedido!');
-      localStorage.setItem('token', response.token);
       navigate('/dashboard');
     } catch (error) {
       toast.error(`Erro ao fazer login: ${error.response?.data?.message || error.message}`);
@@ -25,26 +22,14 @@ const Login = () => {
   };
 
   const handleProviderLogin = async (provider) => {
-    let providerInstance;
-
-    if (provider === 'google') {
-      providerInstance = new GoogleAuthProvider();
-    } else if (provider === 'facebook') {
-      providerInstance = new FacebookAuthProvider();
-    } else if (provider === 'microsoft') {
-      providerInstance = new OAuthProvider('microsoft.com');
-    }
-
     try {
-      const result = await signInWithPopup(auth, providerInstance);
-      const idToken = await result.user.getIdToken();
-      const response = await loginWithProvider(idToken, provider);
-
-      toast.success('Login bem-sucedido!');
-      localStorage.setItem('token', response.token);
+      const response = await signInWithProvider(provider);
+      localStorage.setItem('authToken', response.token);
+      toast.success('Login com provedor bem-sucedido.');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(`Erro ao fazer login com ${provider}: ${error.response?.data?.message || error.message}`);
+      console.error('Erro ao fazer login com provedor:', error);
+      toast.error(`Erro no login com provedor: ${error.response?.data?.message || error.message}`);
     }
   };
 

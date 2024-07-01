@@ -3,26 +3,20 @@ import React, { useEffect, useState } from 'react';
 import { Container, Typography, Grid, Card, CardContent, CircularProgress } from '@mui/material';
 import { toast } from 'react-toastify';
 import { getDashboardData } from '../../services/dashboardService';
-import { getCurrentUser } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        if (!currentUser) {
-          navigate('/login');
-        }
-      } catch (error) {
-        toast.error('Failed to verify user authentication');
-        navigate('/login');
-      }
-    };
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
 
     const fetchData = async () => {
       try {
@@ -36,9 +30,8 @@ const Dashboard = () => {
       }
     };
 
-    checkUser();
     fetchData();
-  }, [navigate]);
+  }, [currentUser, navigate]);
 
   if (loading) {
     return (

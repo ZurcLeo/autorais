@@ -1,14 +1,15 @@
 // src/components/Notifications/NotificationHistory.js
 import React, { useEffect, useState } from 'react';
 import { fetchNotifications } from '../../services/notificationService';
-import { auth } from '../../firebaseConfig';
+import { useAuth } from '../../context/AuthContext';
 
 const NotificationHistory = () => {
+  const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchUserNotifications = async () => {
-      const userId = auth.currentUser?.uid;
+      const userId = currentUser?.uid;
       if (userId) {
         const userNotifications = await fetchNotifications(userId);
         setNotifications(userNotifications);
@@ -16,7 +17,7 @@ const NotificationHistory = () => {
     };
 
     fetchUserNotifications();
-  }, []);
+  }, [currentUser]);
 
   return (
     <div>

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
-=======
 # Getting Started with Elos Cloud App
->>>>>>> 32002ad873e06bf830f0911114da6691651fdf77
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
