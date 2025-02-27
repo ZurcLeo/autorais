@@ -1,21 +1,108 @@
-// src/utils/toastUtils.js
 import { toast } from 'react-toastify';
+import CustomToast from '../components/Common/CustomToast';
 
-const messages = [
-  "Encontrando dados do seu amigo...",
-  "Enviando a informação de Aprovação...",
-  "Garantindo que vocês estejam conectados...",
-  "Criando vínculos para envio de mensagens...",
-  "Agora sim! Vocês estão conectados!"
-];
+export const showToast = (message, options = {}) => {
+  return toast(
+    ({ closeToast }) => (
+      <CustomToast
+        closeToast={closeToast}
+        toastProps={{ message, ...options }}
+      />
+    ),
+    {
+      position: "bottom-right",
+      autoClose: 5000, // 5 segundos para fechar automaticamente
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      ...options, 
+    }
+  );
+};
 
-export const showPromiseToast = (promise) => {
-  const id = toast.loading("Processando...");
+export const showPromiseToast = async (promise, messages) => {
+  const stages = {
+    initial: {
+      progress: 0,
+      message: messages.loading || "Iniciando...",
+    },
+    progress: {
+      progress: 40,
+      message: messages.progress || "Processando...",
+    },
+    almostDone: {
+      progress: 80,
+      message: messages.almostDone || "Quase lá...",
+    }
+  };
 
-  promise.then(() => {
-    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    toast.update(id, { render: randomMessage, type: "success", isLoading: false, autoClose: 3000 });
-  }).catch((error) => {
-    toast.update(id, { render: `Erro: ${error.message}`, type: "error", isLoading: false, autoClose: 3000 });
+  const id = showToast(stages.initial.message, {
+    isLoading: true,
+    progress: stages.initial.progress,
+    duration: null // Não fecha automaticamente
   });
+
+  // Atualiza o progresso periodicamente
+  const progressInterval = setInterval(() => {
+    const currentProgress = toast.getToast(id)?.progress || 0;
+    if (currentProgress < 80) {
+      toast.update(id, {
+        progress: currentProgress + 10
+      });
+    }
+  }, 1000);
+
+  try {
+    const result = await promise;
+    clearInterval(progressInterval);
+    
+    // Animação de sucesso
+    toast.update(id, {
+      render: ({ closeToast }) => (
+        <CustomToast
+          closeToast={closeToast}
+          toastProps={{
+            type: "success",
+            message: messages.success || "Concluído com sucesso!",
+            animation: "success"
+          }}
+        />
+      ),
+      type: "success",
+      isLoading: false,
+      autoClose: 5000,
+      transition: 'Bounce'
+    });
+
+    return result;
+  } catch (error) {
+    clearInterval(progressInterval);
+    
+    // Animação de erro
+    toast.update(id, {
+      render: ({ closeToast }) => (
+        <CustomToast
+          closeToast={closeToast}
+          toastProps={{
+            type: "error",
+            message: error.message,
+            animation: "error",
+            action: {
+              label: "Tentar novamente",
+              onClick: () => {
+                closeToast();
+                return showPromiseToast(promise, messages);
+              }
+            }
+          }}
+        />
+      ),
+      type: "error",
+      isLoading: false,
+      autoClose: 8000
+    });
+
+    throw error;
+  }
 };

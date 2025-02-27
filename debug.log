@@ -1,0 +1,609 @@
+Navigated to https://localhost:3000/
+ [INIT] App (Session: 0335)
+ Message: RetryManager initialized
+ Data: {env: 'development', criticalRetries: 3, normalRetries: 2, baseDelay: 1000, maxDelay: 30000}
+ [INIT] App (Session: 0335)
+ Message: ServiceInitializer created
+ Data: {}
+ [CacheManager] CacheManager initialized
+ ErrorBoundary {timestamp: '2025-02-23T01:22:10.444Z', props: Array(1)}
+ ErrorBoundary {timestamp: '2025-02-23T01:22:10.444Z', props: Array(1)}
+ [WARNING] AuthProvider (Session: 0335)
+ Message: Auth service not ready yet
+ Data: {servicesState: {…}}
+ Metadata: {severity: 3, timestamp: 1740273730446, sessionAge: 111, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+ [WARNING] App (Session: 0335)
+ Message: Auth service not ready yet
+ Data: {servicesState: {…}}
+ [WARNING] AuthProvider (Session: 0335)
+ Message: Auth service not ready yet
+ Data: {servicesState: {…}}
+ Metadata: {severity: 3, timestamp: 1740273730446, sessionAge: 111, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+ [WARNING] App (Session: 0335)
+ Message: Auth service not ready yet
+ Data: {servicesState: {…}}
+ [WARNING] AuthProvider (Session: 0335)
+ Message: Auth service not ready yet
+ Data: {servicesState: {…}}
+ Metadata: {severity: 3, timestamp: 1740273730457, sessionAge: 122, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+ [WARNING] App (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+deprecations.ts:9 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. Error Component Stack
+    at BrowserRouter (index.tsx:789:1)
+    at DefaultPropsProvider (DefaultPropsProvider.js:9:1)
+    at RtlProvider (index.js:10:1)
+    at ThemeProvider (ThemeProvider.js:31:1)
+    at ThemeProvider (ThemeProvider.js:44:1)
+    at ThemeProvider (ThemeProvider.js:13:1)
+    at ThemeContextProvider (themeContext.js:20:1)
+    at ServiceInitializationProvider (ServiceInitializationProvider.js:9:1)
+    at BootstrapProvider (BootstrapContext.js:65:1)
+    at CoreLoggerProvider (CoreLoggerContext.js:7:1)
+    at ErrorBoundaryProvider (ErrorBoundaryProvider.js:9:1)
+overrideMethod @ hook.js:608
+warnOnce @ deprecations.ts:9
+logDeprecation @ deprecations.ts:13
+logV6DeprecationWarnings @ deprecations.ts:26
+(anonymous) @ index.tsx:816
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533Understand this warningAI
+deprecations.ts:9 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. Error Component Stack
+    at BrowserRouter (index.tsx:789:1)
+    at DefaultPropsProvider (DefaultPropsProvider.js:9:1)
+    at RtlProvider (index.js:10:1)
+    at ThemeProvider (ThemeProvider.js:31:1)
+    at ThemeProvider (ThemeProvider.js:44:1)
+    at ThemeProvider (ThemeProvider.js:13:1)
+    at ThemeContextProvider (themeContext.js:20:1)
+    at ServiceInitializationProvider (ServiceInitializationProvider.js:9:1)
+    at BootstrapProvider (BootstrapContext.js:65:1)
+    at CoreLoggerProvider (CoreLoggerContext.js:7:1)
+    at ErrorBoundaryProvider (ErrorBoundaryProvider.js:9:1)
+overrideMethod @ hook.js:608
+warnOnce @ deprecations.ts:9
+logDeprecation @ deprecations.ts:13
+logV6DeprecationWarnings @ deprecations.ts:37
+(anonymous) @ index.tsx:816
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533Understand this warningAI
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: auth
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: auth
+CoreLogger.js:109 Data: {service: 'auth', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:10.462Z'}
+RetryManager.js:151 [RetryManager] Starting service: auth
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: auth
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:10.462Z', options: '{"maxRetries":5,"baseDelay":1000,"maxDelay":15000,…l","serviceCategory":"general","dependencies":[]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273730462, sessionAge: 127, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: auth
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:10.462Z', options: '{"maxRetries":5,"baseDelay":1000,"maxDelay":15000,…l","serviceCategory":"general","dependencies":[]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/5 for service: auth
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for auth
+metadataReducer.js:10 Initializing AuthService...
+CoreLogger.js:107 [INIT] App (Session: 0335)
+CoreLogger.js:108 Message: CoreLogger initialized
+CoreLogger.js:109 Data: {enabled: true, env: 'development'}
+CoreLogger.js:107 [INIT] App (Session: 0335)
+CoreLogger.js:108 Message: Environment check
+CoreLogger.js:109 Data: {nodeEnv: 'development', debug: true, timestamp: '2025-02-23T01:22:10.463Z'}
+CoreLogger.js:107 [WARNING] AuthProvider (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273730464, sessionAge: 129, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [WARNING] App (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:107 [INIT] App (Session: 0335)
+CoreLogger.js:108 Message: CoreLogger initialized
+CoreLogger.js:109 Data: {enabled: true, env: 'development'}
+CoreLogger.js:107 [INIT] App (Session: 0335)
+CoreLogger.js:108 Message: Environment check
+CoreLogger.js:109 Data: {nodeEnv: 'development', debug: true, timestamp: '2025-02-23T01:22:10.464Z'}
+CoreLogger.js:107 [INIT] BootstrapCore (Session: 0335)
+CoreLogger.js:108 Message: Core systems initialized
+CoreLogger.js:109 Data: {startTime: null, timestamp: '2025-02-23T01:22:10.464Z'}
+CoreLogger.js:110 Metadata: {severity: 1, timestamp: 1740273730464, sessionAge: 129, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INIT] App (Session: 0335)
+CoreLogger.js:108 Message: Core systems initialized
+CoreLogger.js:109 Data: {startTime: null, timestamp: '2025-02-23T01:22:10.464Z'}
+CoreLogger.js:107 [INIT] BootstrapCore (Session: 0335)
+CoreLogger.js:108 Message: Core systems initialized
+CoreLogger.js:109 Data: {startTime: null, timestamp: '2025-02-23T01:22:10.465Z'}
+CoreLogger.js:110 Metadata: {severity: 1, timestamp: 1740273730465, sessionAge: 130, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INIT] App (Session: 0335)
+CoreLogger.js:108 Message: Core systems initialized
+CoreLogger.js:109 Data: {startTime: null, timestamp: '2025-02-23T01:22:10.465Z'}
+CoreLogger.js:107 [WARNING] AuthProvider (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273730469, sessionAge: 134, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [WARNING] App (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:107 [WARNING] AuthProvider (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273730469, sessionAge: 134, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [WARNING] App (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+[Violation] Forced reflow while executing JavaScript took 41ms
+v2:1 XHR finished loading: POST "https://api.mercadopago.com/v1/devices/widgets?public_key=TEST-cb5ef4be-9267-4bb8-966e-dc6f061c4eb0&locale=en&js_version=2.47.1&referer=https%3A%2F%2Flocalhost%3A3000".
+(anonymous) @ v2:1
+Be @ v2:1
+(anonymous) @ v2:1
+Mn @ v2:1
+Cn @ v2:1
+fetch @ v2:1
+(anonymous) @ v2:1
+(anonymous) @ v2:1
+window.MercadoPago @ v2:1
+(anonymous) @ BankingManagement.js:34
+await in (anonymous)
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/BankingManagement.js @ BankAccountModal.js:473
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaList.js:56
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaOverview.js @ CaixinhaList.js:56
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaOverview.js:93
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaPage.js @ CaixinhaOverview.js:93
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ notificationReducer.js:87
+__webpack_require__.a @ async module:49
+./src/routes.js @ notificationReducer.js:87
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ log.js:78
+__webpack_require__.a @ async module:49
+./src/App.js @ log.js:78
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ useNotifications.js:12
+__webpack_require__.a @ async module:49
+./src/index.js @ useNotifications.js:12
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+(anonymous) @ startup:7
+(anonymous) @ startup:7
+v2:1 XHR finished loading: GET "https://api.mercadopago.com/v1/payment_methods/search?public_key=TEST-cb5ef4be-9267-4bb8-966e-dc6f061c4eb0&locale=en&js_version=2.47.1&referer=https%3A%2F%2Flocalhost%3A3000&marketplace=NONE&status=active&product_id=BTR2N61O1F60OR8RLSGG&limit=1&public_key=TEST-cb5ef4be-9267-4bb8-966e-dc6f061c4eb0".
+(anonymous) @ v2:1
+Be @ v2:1
+(anonymous) @ v2:1
+Mn @ v2:1
+Cn @ v2:1
+fetch @ v2:1
+(anonymous) @ v2:1
+getPaymentMethods @ v2:1
+(anonymous) @ v2:1
+(anonymous) @ v2:1
+window.MercadoPago @ v2:1
+(anonymous) @ BankingManagement.js:34
+await in (anonymous)
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/BankingManagement.js @ BankAccountModal.js:473
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaList.js:56
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaOverview.js @ CaixinhaList.js:56
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaOverview.js:93
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaPage.js @ CaixinhaOverview.js:93
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ notificationReducer.js:87
+__webpack_require__.a @ async module:49
+./src/routes.js @ notificationReducer.js:87
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ log.js:78
+__webpack_require__.a @ async module:49
+./src/App.js @ log.js:78
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ useNotifications.js:12
+__webpack_require__.a @ async module:49
+./src/index.js @ useNotifications.js:12
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+(anonymous) @ startup:7
+(anonymous) @ startup:7
+VM52:14 XHR finished loading: GET "https://www.mercadolibre.com/jms/lgz/background/etid".
+(anonymous) @ VM52:14
+getEtag @ VM52:14
+(anonymous) @ VM52:16
+(anonymous) @ v2:1
+await in (anonymous)
+(anonymous) @ v2:1
+window.MercadoPago @ v2:1
+(anonymous) @ BankingManagement.js:34
+await in (anonymous)
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/BankingManagement.js @ BankAccountModal.js:473
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaList.js:56
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaOverview.js @ CaixinhaList.js:56
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaOverview.js:93
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaPage.js @ CaixinhaOverview.js:93
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ notificationReducer.js:87
+__webpack_require__.a @ async module:49
+./src/routes.js @ notificationReducer.js:87
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ log.js:78
+__webpack_require__.a @ async module:49
+./src/App.js @ log.js:78
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ useNotifications.js:12
+__webpack_require__.a @ async module:49
+./src/index.js @ useNotifications.js:12
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+(anonymous) @ startup:7
+(anonymous) @ startup:7
+20Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+metadataReducer.js:12 AuthService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: auth
+CoreLogger.js:109 Data: {service: 'auth', operation: 'initialization', duration: 1002, metadata: {…}, timestamp: '2025-02-23T01:22:11.465Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: auth (1002.60ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service auth initialized successfully in 1003.70ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: auth
+CoreLogger.js:109 Data: {service: 'auth', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:11.465Z'}
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: user
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: user
+CoreLogger.js:109 Data: {service: 'user', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:11.466Z'}
+RetryManager.js:151 [RetryManager] Starting service: user
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: user
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:11.466Z', options: '{"maxRetries":5,"baseDelay":1000,"maxDelay":15000,…rviceCategory":"general","dependencies":["auth"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273731466, sessionAge: 1131, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: user
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:11.466Z', options: '{"maxRetries":5,"baseDelay":1000,"maxDelay":15000,…rviceCategory":"general","dependencies":["auth"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/5 for service: user
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for user
+metadataReducer.js:22 Initializing UserService...
+js:1 XHR finished loading: POST "https://api.mercadolibre.com/tracks".
+XMLHttpRequest.send @ js:1
+(anonymous) @ v2:1
+Be @ v2:1
+postEvent @ v2:1
+send @ v2:1
+(anonymous) @ v2:1
+(anonymous) @ v2:1
+await in (anonymous)
+window.MercadoPago @ v2:1
+(anonymous) @ BankingManagement.js:34
+await in (anonymous)
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/BankingManagement.js @ BankAccountModal.js:473
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaList.js:56
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaOverview.js @ CaixinhaList.js:56
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaOverview.js:93
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaPage.js @ CaixinhaOverview.js:93
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ notificationReducer.js:87
+__webpack_require__.a @ async module:49
+./src/routes.js @ notificationReducer.js:87
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ log.js:78
+__webpack_require__.a @ async module:49
+./src/App.js @ log.js:78
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ useNotifications.js:12
+__webpack_require__.a @ async module:49
+./src/index.js @ useNotifications.js:12
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+(anonymous) @ startup:7
+(anonymous) @ startup:7
+background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:18 XHR finished loading: GET "https://www.mercadolibre.com/jms/lgz/background/jsuuid?current=f84e082e-1978-34f5-bb52-fae92d7d2f55-1740271904738".
+(anonymous) @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:18
+getNextJsuuid @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:18
+(anonymous) @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:17
+setJsuuid @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:17
+(anonymous) @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:26
+doProfile @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:26
+js:1 XHR finished loading: POST "https://events.mercadopago.com/v2/traffic-light".
+r @ js:1
+o @ js:1
+(anonymous) @ js:1
+t @ js:1
+(anonymous) @ js:1
+t @ js:1
+(anonymous) @ js:1
+(anonymous) @ js:1
+js:1 XHR finished loading: POST "https://events.mercadopago.com/v2/traffic-light".
+XMLHttpRequest.send @ js:1
+r @ js:1
+o @ js:1
+XMLHttpRequest.open @ js:1
+(anonymous) @ v2:1
+Be @ v2:1
+postEvent @ v2:1
+send @ v2:1
+(anonymous) @ v2:1
+(anonymous) @ v2:1
+await in (anonymous)
+window.MercadoPago @ v2:1
+(anonymous) @ BankingManagement.js:34
+await in (anonymous)
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/BankingManagement.js @ BankAccountModal.js:473
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaList.js:56
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaOverview.js @ CaixinhaList.js:56
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ CaixinhaOverview.js:93
+__webpack_require__.a @ async module:49
+./src/components/Caixinhas/CaixinhaPage.js @ CaixinhaOverview.js:93
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ notificationReducer.js:87
+__webpack_require__.a @ async module:49
+./src/routes.js @ notificationReducer.js:87
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ log.js:78
+__webpack_require__.a @ async module:49
+./src/App.js @ log.js:78
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+fn @ hot module replacement:61
+(anonymous) @ useNotifications.js:12
+__webpack_require__.a @ async module:49
+./src/index.js @ useNotifications.js:12
+options.factory @ react refresh:6
+__webpack_require__ @ bootstrap:22
+(anonymous) @ startup:7
+(anonymous) @ startup:7
+background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:15 XHR finished loading: GET "https://www.mercadolibre.com/jms/lgz/background/session/armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a/cross_domain/jsonp?_method=PUT&_body=%7B%22msg%22%3A%22eyJqc3V1aWQiOiJlZTg3M2JlZS1kYjUzLTM2MzktYjNiOC1mNDcxMWNhNTRiMDAtMTc0MDI3MzczMTUwNyIsInN1cHBvcnRfaWRiIjp0cnVlLCJpZGJ1dWlkIjoiZGUyMjk3YmItYjFkMy00NjNkLWEwMTctMDA5MWYzMGI3YWJkLTE3Mzk4MTA0OTExMDEiLCJ0aW1lIjp7ImpzdXVpZCI6MTYzLCJpZGJ1dWlkIjoxMX19%22%7D".
+xhr @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:15
+(anonymous) @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:26
+Promise.then
+doProfile @ background?dps=armor.54aff626a8a58fcb357ee76061ab51d7f92793216b3a4aa3267a835dbf2bfe0d95b58f1b783065ce72f05d59af404286350ebe7512b744af8cdb73827e2071aad162e5e21351b753b8e1ed32abd338e3bf3d34b8e5002a6fc57bf7b4eb697ccf.dfce282712e49feff01db3544486958a:26
+metadataReducer.js:24 UserService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: user
+CoreLogger.js:109 Data: {service: 'user', operation: 'initialization', duration: 1501.8999999761581, metadata: {…}, timestamp: '2025-02-23T01:22:12.968Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: user (1502.70ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service user initialized successfully in 1503.10ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: user
+CoreLogger.js:109 Data: {service: 'user', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:12.969Z'}
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: notifications
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: notifications
+CoreLogger.js:109 Data: {service: 'notifications', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:12.969Z'}
+RetryManager.js:151 [RetryManager] Starting service: notifications
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: notifications
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:12.969Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…tegory":"general","dependencies":["auth","user"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273732969, sessionAge: 2634, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: notifications
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:12.969Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…tegory":"general","dependencies":["auth","user"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/3 for service: notifications
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for notifications
+metadataReducer.js:34 Initializing NotificationService...
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: connections
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: connections
+CoreLogger.js:109 Data: {service: 'connections', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:12.971Z'}
+RetryManager.js:151 [RetryManager] Starting service: connections
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: connections
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:12.971Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…tegory":"general","dependencies":["auth","user"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273732971, sessionAge: 2636, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: connections
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:12.971Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…tegory":"general","dependencies":["auth","user"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/3 for service: connections
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for connections
+metadataReducer.js:46 Initializing ConnectionsService...
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: messages
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: messages
+CoreLogger.js:109 Data: {service: 'messages', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:12.972Z'}
+RetryManager.js:151 [RetryManager] Starting service: messages
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: messages
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:12.972Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…tegory":"general","dependencies":["auth","user"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273732972, sessionAge: 2637, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: messages
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:12.972Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…tegory":"general","dependencies":["auth","user"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/3 for service: messages
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for messages
+metadataReducer.js:58 Initializing MessagesService...
+metadataReducer.js:36 NotificationService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: notifications
+CoreLogger.js:109 Data: {service: 'notifications', operation: 'initialization', duration: 1201.5, metadata: {…}, timestamp: '2025-02-23T01:22:14.172Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: notifications (1201.90ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service notifications initialized successfully in 1203.40ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: notifications
+CoreLogger.js:109 Data: {service: 'notifications', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:14.173Z'}
+metadataReducer.js:48 ConnectionsService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: connections
+CoreLogger.js:109 Data: {service: 'connections', operation: 'initialization', duration: 1302.1000000238419, metadata: {…}, timestamp: '2025-02-23T01:22:14.274Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: connections (1302.40ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service connections initialized successfully in 1303.50ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: connections
+CoreLogger.js:109 Data: {service: 'connections', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:14.274Z'}
+metadataReducer.js:60 MessagesService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: messages
+CoreLogger.js:109 Data: {service: 'messages', operation: 'initialization', duration: 1401.7999999523163, metadata: {…}, timestamp: '2025-02-23T01:22:14.375Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: messages (1402.20ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service messages initialized successfully in 1403.20ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: messages
+CoreLogger.js:109 Data: {service: 'messages', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:14.375Z'}
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: interests
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: interests
+CoreLogger.js:109 Data: {service: 'interests', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:14.375Z'}
+RetryManager.js:151 [RetryManager] Starting service: interests
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: interests
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:14.376Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…al","dependencies":["auth","user","connections"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273734376, sessionAge: 4041, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: interests
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:14.376Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…al","dependencies":["auth","user","connections"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/3 for service: interests
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for interests
+metadataReducer.js:70 Initializing InterestsService...
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: caixinhas
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: caixinhas
+CoreLogger.js:109 Data: {service: 'caixinhas', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:14.376Z'}
+RetryManager.js:151 [RetryManager] Starting service: caixinhas
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: caixinhas
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:14.377Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…encies":["auth","user","connections","messages"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273734377, sessionAge: 4042, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: caixinhas
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:14.377Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…encies":["auth","user","connections","messages"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/3 for service: caixinhas
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for caixinhas
+metadataReducer.js:82 Initializing CaixinhasService...
+metadataReducer.js:72 InterestsService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: interests
+CoreLogger.js:109 Data: {service: 'interests', operation: 'initialization', duration: 1101.300000011921, metadata: {…}, timestamp: '2025-02-23T01:22:15.477Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: interests (1101.60ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service interests initialized successfully in 1102.40ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: interests
+CoreLogger.js:109 Data: {service: 'interests', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:15.478Z'}
+metadataReducer.js:84 CaixinhasService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: caixinhas
+CoreLogger.js:109 Data: {service: 'caixinhas', operation: 'initialization', duration: 1252.300000011921, metadata: {…}, timestamp: '2025-02-23T01:22:15.630Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: caixinhas (1252.90ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service caixinhas initialized successfully in 1253.70ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: caixinhas
+CoreLogger.js:109 Data: {service: 'caixinhas', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:15.630Z'}
+ServiceInitializer.js:84 [ServiceInitializer] Starting initialization of service: dashboard
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: dashboard
+CoreLogger.js:109 Data: {service: 'dashboard', state: 'initializing', metadata: {…}, timestamp: '2025-02-23T01:22:15.630Z'}
+RetryManager.js:151 [RetryManager] Starting service: dashboard
+CoreLogger.js:107 [INFO] RetryManager (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: dashboard
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:15.631Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…connections","messages","interests","caixinhas"]}'}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273735631, sessionAge: 5296, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [INFO] App (Session: 0335)
+CoreLogger.js:108 Message: Starting retry sequence for service: dashboard
+CoreLogger.js:109 Data: {timestamp: '2025-02-23T01:22:15.631Z', options: '{"maxRetries":3,"baseDelay":1000,"maxDelay":15000,…connections","messages","interests","caixinhas"]}'}
+RetryManager.js:191 [RetryManager] Attempt 1/3 for service: dashboard
+ServiceInitializer.js:98 [ServiceInitializer] Executing initialization function for dashboard
+metadataReducer.js:94 Initializing DashboardService...
+metadataReducer.js:96 DashboardService Ready.
+CoreLogger.js:107 [PERF] App (Session: 0335)
+CoreLogger.js:108 Message: Service performance: dashboard
+CoreLogger.js:109 Data: {service: 'dashboard', operation: 'initialization', duration: 1351.800000011921, metadata: {…}, timestamp: '2025-02-23T01:22:16.983Z'}
+RetryManager.js:210 [RetryManager] Operation successful for service: dashboard (1352.20ms)
+ServiceInitializer.js:138 [ServiceInitializer] Service dashboard initialized successfully in 1353.20ms
+CoreLogger.js:107 [STATE] App (Session: 0335)
+CoreLogger.js:108 Message: Service state update: dashboard
+CoreLogger.js:109 Data: {service: 'dashboard', state: 'ready', metadata: {…}, timestamp: '2025-02-23T01:22:16.983Z'}
+CoreLogger.js:107 [INITIALIZATION] App (Session: 0335)
+CoreLogger.js:108 Message: Services initialization complete
+CoreLogger.js:109 Data: {duration: 6522.300000011921, results: {…}}
+CoreLogger.js:107 [WARNING] AuthProvider (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273736985, sessionAge: 6650, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [WARNING] App (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:107 [WARNING] AuthProvider (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}
+CoreLogger.js:110 Metadata: {severity: 3, timestamp: 1740273736986, sessionAge: 6651, userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'}
+CoreLogger.js:107 [WARNING] App (Session: 0335)
+CoreLogger.js:108 Message: Auth service not ready yet
+CoreLogger.js:109 Data: {servicesState: {…}}

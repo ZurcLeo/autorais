@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 700">
+  <rect width="400" height="700" fill="#f8f9fa"/>
+
+  <!-- Cabeçalho -->
+  <rect width="400" height="100" fill="#007bff"/>
+  
+  <!-- Texto no Cabeçalho -->
+  <text x="100" y="55" font-family="Arial" font-size="28" fill="white" font-weight="bold">Pagamento PIX</text>
+
+  <!-- Informações principais com espaçamento ajustado -->
+  <text x="20" y="130" font-family="Arial" font-size="18" fill="#343a40">Nome do Cliente</text>
+  <text x="20" y="160" font-family="Arial" font-size="16" fill="#6c757d">LEANDRO MARINHO</text>
+
+  <text x="220" y="130" font-family="Arial" font-size="18" fill="#343a40">CPF do Cliente</text>
+  <text x="220" y="160" font-family="Arial" font-size="16" fill="#6c757d">407.808.008-18</text>
+
+  <text x="20" y="200" font-family="Arial" font-size="18" fill="#343a40">Vencimento</text>
+  <text x="20" y="230" font-family="Arial" font-size="16" fill="#6c757d">23/09/2024</text>
+
+  <text x="220" y="200" font-family="Arial" font-size="18" fill="#343a40">Valor</text>
+  <text x="220" y="230" font-family="Arial" font-size="24" fill="#28a745" font-weight="bold">R$ 1.360,00</text>
+
+  <!-- QR Code -->
+  <rect x="130" y="280" width="140" height="140" fill="#e9ecef" rx="10"/>
+  <text x="200" y="360" font-family="Arial" font-size="14" text-anchor="middle" fill="#6c757d">QR Code PIX</text>
+
+  <!-- Chave PIX com botão de ação -->
+  <text x="20" y="440" font-family="Arial" font-size="18" fill="#343a40" font-weight="bold">Chave PIX:</text>
+  <rect x="20" y="450" width="360" height="40" fill="#e9ecef" rx="5"/>
+  <text x="30" y="475" font-family="Arial" font-size="16" fill="#6c757d">(15) 9 9673-7679</text>
+
+  <!-- Botão para copiar a chave -->
+  <rect x="290" y="460" width="80" height="25" fill="#007bff" rx="5"/>
+  <text x="330" y="478" font-family="Arial" font-size="14" text-anchor="middle" fill="white">Copiar</text>
+
+  <!-- Instruções com cor secundária -->
+  <text x="20" y="520" font-family="Arial" font-size="16" fill="#343a40" font-weight="bold">Como pagar:</text>
+  <text x="20" y="550" font-family="Arial" font-size="14" fill="#6c757d">1. Abra seu app de Pagamentos</text>
+  <text x="20" y="575" font-family="Arial" font-size="14" fill="#6c757d">2. Escaneie o QR Code ou use a chave PIX</text>
+  <text x="20" y="600" font-family="Arial" font-size="14" fill="#6c757d">3. Confirme as informações e pague</text>
+
+  <!-- Rodapé com contato e mais espaçamento -->
+  <rect y="640" width="400" height="60" fill="#e9ecef"/>
+  <text x="200" y="665" font-family="Arial" font-size="12" text-anchor="middle" fill="#6c757d">Dúvidas? Contate-nos: odilonmessias@crecisp.org.br | 15 9 9673 - 7679</text>
+  <text x="200" y="685" font-family="Arial" font-size="10" text-anchor="middle" fill="#6c757d">Odilon Luís Messias - Corretor de Imóveis - CRECI-SP: 196815-F</text>
+</svg>

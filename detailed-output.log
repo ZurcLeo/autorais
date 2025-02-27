@@ -1,0 +1,40 @@
+Starting the development server...
+
+Compiled successfully!
+
+You can now view frontend in the browser.
+
+  Local:            https://localhost:3000
+  On Your Network:  https://192.168.15.15:3000
+
+Note that the development build is not optimized.
+To create a production build, use yarn build.
+
+assets by path static/js/*.js 11.8 MiB
+  assets by chunk 114 KiB (id hint: vendors)
+    asset static/js/vendors-node_modules_mui_icons-material_esm_AccountCircle_js-node_modules_mui_icons-material_-fedf11.chunk.js 41.9 KiB [emitted] (id hint: vendors) 1 related asset
+    asset static/js/vendors-node_modules_mui_icons-material_esm_AccessTime_js-node_modules_mui_material_Chip_Chip_js.chunk.js 39.5 KiB [emitted] (id hint: vendors) 1 related asset
+    asset static/js/vendors-node_modules_mui_material_Card_Card_js-node_modules_mui_material_CardContent_CardCont-235b14.chunk.js 32.7 KiB [emitted] (id hint: vendors) 1 related asset
+  asset static/js/bundle.js 11.6 MiB [emitted] (name: main) 1 related asset
+  asset static/js/src_components_Pages_Terms_js.chunk.js 40.5 KiB [emitted] 1 related asset
+  asset static/js/src_components_Pages_Privacy_js.chunk.js 37.1 KiB [emitted] 1 related asset
+  asset static/js/src_components_Pages_HomePage_js.chunk.js 36.5 KiB [emitted] 1 related asset
+asset asset-manifest.json 2.29 KiB [emitted]
+asset index.html 618 bytes [emitted]
+cached modules 17.4 MiB (javascript) 33.2 KiB (runtime) [cached] 11824 modules
+webpack 5.98.0 compiled successfully in 1990 ms
+Compiling...
+Compiled successfully!
+assets by status 229 KiB [cached] 7 assets
+assets by status 11.6 MiB [emitted]
+  assets by chunk 11.6 MiB (name: main)
+    asset static/js/bundle.js 11.6 MiB [emitted] (name: main) 1 related asset
+    asset main.356e8e80cee1b14c062b.hot-update.js 3.34 KiB [emitted] [immutable] [hmr] (name: main) 1 related asset
+  assets by path *.json 2.44 KiB
+    asset asset-manifest.json 2.41 KiB [emitted]
+    asset main.356e8e80cee1b14c062b.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 11.6 MiB (10.6 MiB) = static/js/bundle.js 11.6 MiB main.356e8e80cee1b14c062b.hot-update.js 3.34 KiB 2 auxiliary assets
+cached modules 17.4 MiB [cached] 11805 modules
+runtime modules 33.2 KiB 18 modules
+./src/index.js 1.63 KiB [built] [code generated]
+webpack 5.98.0 compiled successfully in 973 ms

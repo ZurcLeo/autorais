@@ -1,0 +1,634 @@
+{
+  "common": {
+    "language": "Taal",
+    "english": "Engels",
+    "portuguese": "Portugees",
+    "dutch": "Nederlands",
+    "login_button": "Inloggen",
+    "or": "of",
+    "footer_text": "&copy; {{year}} ElosCloud. Alle rechten voorbehouden.",
+    "loading": "Laden",
+    "languageChangedSuccess": "Taal succesvol gewijzigd!",
+    "languageChangedError": "Fout bij wijzigen van taal.",
+    "error_invalid_email": "Voer een geldig e-mailadres in.",
+    "error_submit": "Het verzenden van de e-mail is mislukt. Probeer het opnieuw.",
+    "terms_and_conditions": "Algemene Voorwaarden",
+    "privacy_policy": "Privacybeleid",
+    "previous": "Vorig",
+    "next": "Volgende",
+    "notification_history": "Meldingen Geschiedenis",
+    "filter_by": "Filteren op:",
+    "all": "Alle",
+    "invites": "Uitnodigingen",
+    "load_more": "Meer laden",
+    "sort_desc": "Nieuwste eerst",
+    "sort_asc": "Oudste eerst",
+    "error_server_communication": "Fout bij communicatie met de server",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "edit": "Bewerken",
+    "description": "Beschrijving",
+    "submit": "Verzenden"
+  },
+  "newCaixinha": "Nieuwe Spaar Groep",
+  "dialogTitle": "Nieuwe Spaar Groep Aanmaken",
+  "basicInfo": "Basisinformatie",
+  "settings": "Instellingen",
+  "review": "Overzicht",
+  "currency": "€",
+  "reviewMessage": "Controleer de informatie voordat u de spaar groep aanmaakt:",
+  "yes": "Ja",
+  "no": "Nee",
+  "months": "maanden",
+  "successMessage": "Spaar groep succesvol aangemaakt!",
+  "errorMessage": "Fout bij het aanmaken van de spaar groep",
+  "cancel": "Annuleren",
+  "back": "Terug",
+  "next": "Volgende",
+  "create": "Aanmaken",
+  "noActivities": "Nog geen activiteiten geregistreerd.",
+  "activeGroups": "Actieve Groepen",
+  "unnamedGroup": "Naamloze Groep",
+  "totalBalance": "Totale Saldo",
+  "makeContribution": "Bijdrage Leveren",
+  "activity": "Activiteit",
+  "members": "Leden",
+  "loans": "Leningen",
+  "reports": "Rapporten",
+    "myCaixinhas": "Mijn DoosGroepen",
+  "selectCaixinha": "Selecteer een doosgroep om details te bekijken",
+  "totalBalanceDescription": "Totaal verzameld in alle groepen",
+  "activeMembers": "Actieve Leden",
+  "activeMembersDescription": "Totaal aantal deelnemers in alle groepen",
+  "activeGroupsDescription": "{{total}} groepen in totaal",
+  "avgContribution": "Gemiddelde Bijdrage",
+  "avgContributionDescription": "Gemiddelde maandelijkse bijdrage",
+  "fields": {
+    "name": "Naam van de Spaar Groep",
+    "paymentDay": "Dag van de betaling",
+    "description": "Beschrijving",
+    "monthlyContribution": "Maandelijkse Bijdrage",
+    "duration": "Duur",
+    "12Months": "12 maanden",
+    "24Months": "24 maanden",
+    "distributionType": "Distributietype",
+    "lottery": "Loterij",
+    "definedOrder": "Gedefinieerde Volgorde",
+    "allowLoans": "Leningen Toestaan"
+  },
+  "stats": {
+"totalBalance": "Totaal Saldo",
+"totalMembers": "Totaal Aantal Leden",
+"totalContributions": "Totaal Aantal Bijdragen",
+"participationRate": "Participatiegraad",
+"activeCaixinhas": "Actieve Doosje", 
+"averagePerGroup": "Gemiddeld per Groep",
+"monthlyAverage": "Maandelijks Gemiddelde",
+"participationTrend": "Participatietrend"
+},
+  "loanManagement": {
+    "title": "Leningen",
+    "requestLoan": "Lening Aanvragen",
+    "availableAmount": "Beschikbaar bedrag voor leningen: {{amount}}",
+    "member": "Lid",
+    "value": "Waarde",
+    "installments": "Termijnen",
+    "remainingBalance": "Restantbedrag",
+    "status": "Status",
+    "actions": "Acties",
+    "noActiveLoans": "Momenteel geen actieve leningen.",
+    "newLoan": "Nieuwe Lening Aanvragen",
+    "maxAvailableAmount": "Maximaal beschikbaar bedrag: {{amount}}",
+    "limitInfo": "Beschikbare limiet: {{amount}}",
+    "installmentInfo": "Maximaal 12 termijnen",
+    "reason": "Reden",
+    "reasonHelper": "Beschrijf de reden voor de leningaanvraag",
+    "submit": "Indienen"
+  },
+  "statuses": {
+    "approved": "Goedgekeurd",
+    "pending": "In Afwachting",
+    "denied": "Afgewezen"
+  },
+  "errors": {
+    "requiredFields": "Vul alle verplichte velden in",
+    "exceedsLimit": "Aangevraagd bedrag overschrijdt de beschikbare limiet",
+    "loanError": "Fout bij het aanmaken van de lening",
+    "paymentError": "Fout bij het verwerken van de betaling",
+    "cancelError": "Fout bij het annuleren van de lening"
+  },
+  "membersList": {
+    "members": "Leden ({{count}})",
+    "addMember": "Lid toevoegen",
+    "editMember": "Lid bewerken",
+    "addNewMember": "Nieuw lid toevoegen",
+    "admin": "Beheerder",
+    "memberUpdated": "Lid succesvol bijgewerkt",
+    "memberAdded": "Lid succesvol toegevoegd",
+    "memberRemoved": "Lid succesvol verwijderd",
+    "errorManagingMember": "Fout bij het beheren van lid",
+    "errorRemovingMember": "Fout bij het verwijderen van lid"
+  },
+  "reportsPage": {
+    "period": "Periode",
+    "type": "Type", 
+    "monthly": "Maandelijks",
+    "quarterly": "Kwartaal",
+    "yearly": "Jaarlijks",
+    "financial": "Financieel",
+    "members": "Leden",
+    "loans": "Leningen",
+    "downloadReport": "Download Rapport",
+    "financialOverview": "Financieel Overzicht",
+    "contributions": "Bijdragen",
+    "balance": "Saldo",
+    "memberParticipation": "Ledenparticipatie",
+    "loanStatistics": "Leningstatistieken",
+    "totalLoans": "Totaal aantal leningen",
+    "activeLoans": "Actieve leningen",
+    "totalLoanAmount": "Totaal leenbedrag",
+    "averageLoanAmount": "Gemiddeld leenbedrag",
+    "defaultRate": "Instandhoudingspercentage" 
+  },
+  "financial": {
+"title": "Financieel Beheer",
+"description": "Volg verkoopcijfers en cashflow."
+},
+"orderManagement": {
+"title": "Orderbeheer",
+"description": "Volg bestellingen en serviceverzoeken."
+},
+"ProductManagement": {
+"title": "Productbeheer",
+"description": "Voeg nieuwe producten toe en wijzig bestaande."
+},
+"StoreOverview": {
+"title": "Winkeloverzicht",
+"description": "Monitor de winkelstatus en controleer tips en openstaande taken."
+},
+"seller.title": "Verkopersprofiel",
+  "seller.fields.name": "Naam",
+  "seller.help.name": "Vul uw volledige naam in",
+  "seller.fields.phone": "Telefoon",
+  "seller.help.phone": "Vul uw telefoonnummer in",
+  "seller.tooltips.phone": "Telefoonnotatie kan verschillen per land.",
+  "seller.fields.useCNPJ": "Gebruik CNPJ",
+  "seller.fields.cpf": "CPF",
+  "seller.fields.cnpj": "CNPJ",
+  "seller.help.document": "Voer een geldig CPF of CNPJ in",
+  "seller.fields.businessName": "Bedrijfsnaam",
+  "seller.help.businessName": "Voer uw bedrijfsnaam in",
+  "seller.fields.tradingName": "Handelsnaam",
+  "seller.help.tradingName": "Voer uw handelsnaam in (optioneel)",
+  "seller.fields.description": "Beschrijving",
+  "seller.help.description": "Schrijf een korte beschrijving van uw bedrijf",
+  "seller.bankInfo.title": "Bankinformatie",
+  "seller.bankInfo.bankName": "Naam Bank",
+  "seller.bankInfo.agency": "Agentschap",
+  "seller.bankInfo.accountNumber": "Rekeningnummer",
+  "seller.errors.invalidDocument": "Ongeldig documentnummer",
+  "seller.errors.registrationFailed": "Registratie verkopersprofiel mislukt",
+  "seller.success.title": "Registratie Succesvol",
+  "seller.success.message": "Uw verkopersprofiel is succesvol aangemaakt. Afhankelijk van uw documenten kan goedkeuring nodig zijn.",
+  "seller.info.documentPending": "Uw documenten wachten op goedkeuring. U wordt op de hoogte gesteld zodra uw profiel actief is.",
+  "common.back": "Terug",
+  "common.next": "Volgende",
+  "common.finish": "Voltooien",
+  "seller.steps.basicInfo": "Basisinformatie",
+  "seller.steps.documentVerification": "Documentverificatie",
+  "seller.steps.businessDetails": "Bedrijfsgegevens",
+  "seller.steps.paymentInfo": "Betalingsinformatie",
+  "address": {
+    "fields": {
+      "zipCode": "Postcode",
+      "street": "Straat",
+      "number": "Huisnummer",
+      "complement": "Toevoeging",
+      "neighborhood": "Wijk",
+      "city": "Plaats",
+      "state": "Provincie"
+    },
+    "help": {
+      "zipCode": "Voer postcode in voor automatisch invullen"
+    },
+    "errors": {
+      "cepNotFound": "Postcode niet gevonden",
+      "cepSearchFailed": "Fout bij zoeken postcode"
+    },
+    "search": "Zoek adres op postcode"
+  },
+  "activityPage": {
+    "contribuicao": {
+      "title": "Bijdrage",
+      "description": "Een nieuwe bijdrage is gedaan door {{usuario}}."
+    },
+    "emprestimo": {
+      "title": "Lening",
+      "description": "Een nieuw leenverzoek is gedaan door {{usuario}}."
+    },
+    "novo_membro": {
+      "title": "Nieuw Lid",
+      "description": "{{usuario}} is een nieuw lid geworden."
+    },
+    "default": {
+      "title": "Activiteit",
+      "description": "Een nieuwe activiteit is geregistreerd."
+    }
+  },
+  "interestsContext": {
+    "personalInterests": {
+      "groupTrips": {
+        "label": "Groepsreizen",
+        "description": "Mensen die geld willen verzamelen voor groepsreizen naar specifieke bestemmingen."
+      },
+      "sustainability": {
+        "label": "Duurzaamheidsprojecten",
+        "description": "Gebruikers geïnteresseerd in het financieren van ecologische projecten, zoals gemeenschapstuinen of recycling-initiatieven."
+      }
+    },
+    "businessInterests": {
+      "services": {
+        "label": "Dienstverlening",
+        "description": "Gebruikers die diensten willen aanbieden of inhuren van micro-ondernemers, zoals loodgieters, elektriciens, schilders, enz."
+      },
+      "consulting": {
+        "label": "Advies en Mentoring",
+        "description": "Interesses gericht op het verbinden van adviseurs en mentoren met kleine ondernemers die begeleiding zoeken op gebieden zoals marketing, financiën en management."
+      }
+    }
+  },
+  "interestsSection": {
+    "personalInterests": "Persoonlijke Interesses",
+    "businessInterests": "Zakelijke Interesses",
+    "addRemove": "Interesses Toevoegen/Verwijderen",
+    "noInterests": "Geen interesses toegevoegd",
+    "success": "Interesses succesvol opgeslagen!",
+    "error": "Fout bij opslaan interesses, probeer opnieuw.",
+    "errorSaving": "Fout bij opslaan interesses:"
+  },
+  
+  "register": {
+    "register": "Registreren",
+    "email": "E-mail",
+    "password": "Wachtwoord",
+    "confirm_password": "Bevestig Wachtwoord",
+    "register_button": "Registreren",
+    "passwords_dont_match": "Wachtwoorden komen niet overeen.",
+    "register_success": "Registratie succesvol!",
+    "register_error": "Fout bij registreren: {{message}}",
+    "provider_register_error": "Fout bij registreren met provider: {{message}}",
+    "register_with_google": "Registreren met Google",
+    "register_with_facebook": "Registreren met Facebook",
+    "register_with_microsoft": "Registreren met Microsoft",
+    "invite_only": "Deze pagina is alleen voor uitgenodigde gebruikers."
+  },
+  "login": {
+    "login": "Inloggen",
+    "email": "E-mail",
+    "password": "Wachtwoord",
+    "login_button": "Toegang",
+    "login_with_google": "Inloggen met Google",
+    "login_with_facebook": "Inloggen met Facebook",
+    "login_with_microsoft": "Inloggen met Microsoft",
+    "invite_only": "Alleen uitgenodigde gebruikers kunnen zich registreren",
+    "how_to_get_invite": "Hoe krijg ik mijn uitnodiging?",
+    "modal_title": "Hoe krijg ik mijn uitnodiging",
+    "modal_step1": "Stap 1",
+    "modal_step1_text": "Vraag een uitnodiging aan via ons contact.",
+    "modal_step2": "Stap 2",
+    "modal_step2_text": "Wacht op e-mailbevestiging.",
+    "modal_step3": "Stap 3",
+    "modal_step3_text": "Valideer uw e-mail, naam en uitnodigingscode.",
+    "modal_step4": "Stap 4",
+    "modal_step4_text": "Maak uw account aan op Elos.",
+    "interest_email_label": "Uw E-mail",
+    "interest_button": "Doe mee aan de interesselijst",
+    "privacy_agreement": "Lees onze ",
+    "and": "en",
+    "modal_instructions": "Instructies voor het verkrijgen van een uitnodiging"
+  },
+  "home": {
+    "welcome_message": "Welkom bij ElosCloud",
+    "intro_text": "Een exclusief sociaal netwerk voor genodigden",
+    "enter_now": "Nu inloggen",
+    "features_title": "Ontdek wat u kunt doen op ElosCloud",
+    "feature1_title": "Maak uw account aan en registreer uw gegevens",
+    "feature2_title": "Koop ElosCoin, de virtuele valuta van het platform",
+    "feature3_title": "Handel in producten en diensten met andere gebruikers",
+    "feature4_title": "Maak berichten en ontvang reacties en reacties",
+    "feature5_title": "Ontvang cadeaus van uw vrienden en connecties",
+    "feature6_title": "Maak en neem deel aan live video- en stemuitzendingen",
+    "feature7_title": "Verzend privéberichten naar uw contacten",
+    "feature8_title": "Verdien ElosCoin door taken en missies te voltooien",
+    "call_to_action": "Log in met uw account"
+  },
+  "banking": {
+    "holderDetailsTitle": "Vul de gegevens van de rekeninghouder in",
+    "pixDetailsTitle": "Vul de PIX-gegevens in",
+    "pixInfoTooltip": "De PIX-sleutel moet worden ingevuld om uw account te valideren",
+    "toggleVisibility": "Bekijk",
+    "accountTypes": "Type Rekening",
+    "selectBank": "Selecteer een Bank",
+    "travaBancaria": "Bank Blokkering",
+    "active": "Actief",
+    "pending": "In Afwachting",
+    "registerAccount": "Rekening Registreren",
+    "validateAccount": "Rekening Valideren",
+    "history": "Rekening Geschiedenis",
+    "account": "Rekening",
+    "bank": "Bank",
+    "holder": "Houder",
+    "pix": "PIX",
+    "accounts": "Rekeningen",
+    "validate": "Valideren",
+    "accountNumber": "Rekeningnummer",
+    "createdAt": "Aangemaakt op",
+    "notAvailable": "Niet Beschikbaar",
+    "accountHolder": "Rekeninghouder",
+    "agency": "Bankagentschap",
+    "accountType": "Rekeningtype",
+    "pixKeyType": "PIX-sleuteltype",
+    "pixKey": "PIX Sleutel"
+  },
+  "topnavbar": {
+    "home": "Home",
+    "notifications": "Meldingen",
+    "messages": "Berichten",
+    "boxes": "Kistjes",
+    "friends": "Vrienden",
+    "shop": "Winkel",
+    "login": "Inloggen"
+  },
+  "notification_card": {
+    "mark_as_read": "Markeren als gelezen",
+    "accept_invite": "Accepteren",
+    "decline_invite": "Afwijzen",
+    "view_details": "Bekijk details",
+    "open_event": "Evenement openen"
+  },
+    "userprofiledropdown": {
+      "profile": "Profiel",
+      "notifications": "Meldingen",
+      "dashboard": "Dashboard",
+      "logout": "Uitloggen"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "dataLoaded": "Gegevens succesvol geladen!",
+      "noCaixinhas": "Geen caixinha-gegevens beschikbaar",
+      "failedToLoadData": "Kan gegevens niet laden",
+      "noData": "Geen gegevens gevonden.",
+      "caixinhas": {
+      "saldoTotal": "Totaal Saldo",
+      "contribuicaoMensal": "Maandelijkse Bijdrage",
+      "diaVencimento": "Vervaldag",
+      "valorJuros": "Rentepercentage",
+      "valorMulta": "Boete",
+      "distribuicaoTipo": "Type Distributie",
+      "dataCriacao": "Aanmaakdatum",
+      "verDetalhes": "Bekijk Details",
+      "noCaixinhas": "Je hebt geen geregistreerde caixinhas"
+    },
+      "notifications": {
+        "newNotifications": "Je hebt {{count}} nieuwe meldingen",
+        "noNewNotifications": "Geen nieuwe meldingen",
+        "markAsRead": "Markeren als gelezen",
+        "markAsUnread": "Markeren als ongelezen",
+        "viewEvent": "Bekijk evenement",
+        "viewCalendar": "Bekijk agenda",
+        "viewAll": "Bekijk alle meldingen",
+        "viewHistory": "Bekijk meldingsgeschiedenis",
+        "none": "Geen meldingen"
+      },
+      "messages": {
+        "from": "Bericht van",
+        "noMessages": "Geen berichten beschikbaar"
+      },
+      "friends": {
+        "title": "Vrienden",
+        "connected": "Verbonden voor {{duration}}"
+      },
+      "bestFriends": {
+        "title": "Beste Vriend",
+        "noBestFriends": "Geen beste vrienden beschikbaar"
+      }
+    },
+    "profile": {
+  "errorCheckingUpdates": "Fout bij het controleren op updates",
+  "errorUserIdNotFound": "Fout: userId niet gevonden",
+  "failedToSaveImage": "Kon de afbeelding niet opslaan",
+  "failedToSave": "Kon niet opslaan"
+},
+"conversations": {
+  "unreadConversationsTitle": "Ongelezen Gesprekken",
+  "unreadConversationsCount": "Ongelezen Gesprekken"
+},
+"elosCoins": {
+  "balanceTitle": "ElosCoins Saldo",
+  "buyButton": "Kopen",
+  "currency": "ElosCoins",
+  "recentTransactions": "Recente Transacties",
+  "value": "Waarde"
+},
+"friends": {
+  "title": "Vrienden",
+  "friendCount": "Vrienden"
+},
+"interests": {
+  "personal": "Persoonlijke interesses",
+  "business": "Zakelijke interesses",
+  "addRemove": "Interesses Toevoegen/Verwijderen",
+  "noInterests": "Geen interesses toegevoegd",
+  "success": "Interesses succesvol opgeslagen!",
+  "error": "Fout bij het opslaan van interesses, probeer het opnieuw.",
+  "errorSaving": "Fout bij het opslaan van interesses:"
+},
+"profileHeader": {
+  "editProfileImage": "Profielfoto bewerken"
+},
+"profileInfo": {
+  "name": "Naam",
+  "description": "Beschrijving",
+  "notProvided": "Niet opgegeven",
+  "saveError": "Fout bij het opslaan van de beschrijving."
+},
+"interestsLists": {
+  "pessoais": {
+    "groupTrips": {
+      "label": "Groepsreizen",
+      "description": "Mensen die geld willen inzamelen voor een groepsreis naar specifieke bestemmingen."
+    },
+    "sustainability": {
+      "label": "Duurzaamheidsprojecten",
+      "description": "Gebruikers die geïnteresseerd zijn in het financieren van ecologische projecten, zoals gemeenschappelijke tuinen of recyclinginitiatieven."
+    },
+    "weddings": {
+      "label": "Bruiloften en Evenementen",
+      "description": "Groepen die samenkomen om te sparen en bruiloften, verjaardagsfeestjes of andere sociale evenementen te plannen."
+    },
+    "education": {
+      "label": "Onderwijs en Groepscursussen",
+      "description": "Mensen die samenkomen om online of persoonlijke cursussen, workshops en beroepsopleidingen te financieren."
+    },
+    "sports": {
+      "label": "Sport en Avontuur",
+      "description": "Gebruikers die geld willen inzamelen voor deelname aan groepssportactiviteiten, zoals wandelen, races of kampioenschappen."
+    },
+    "socialCauses": {
+      "label": "Ondersteuning voor Sociale Doelen",
+      "description": "Mensen die zich organiseren om geld in te zamelen voor sociale doelen, zoals steun aan NGO's, inclusieprojecten of humanitaire hulp."
+    },
+    "hobbies": {
+      "label": "Verzamelen en Hobby's",
+      "description": "Groepen die samenkomen om aankopen of evenementen te financieren die verband houden met hobby's zoals verzamelen, fotografie, muziek, enz."
+    },
+    "technology": {
+      "label": "Technologie en Gadgets",
+      "description": "Interesses gericht op het inzamelen van geld om nieuwe technische apparaten in groepsverband te kopen."
+    },
+    "wellbeing": {
+      "label": "Welzijnsinitiatieven",
+      "description": "Groepen die samenkomen om activiteiten te financieren die gericht zijn op welzijn, zoals meditatie-retraites, yoga of spa."
+    },
+    "localCommunities": {
+      "label": "Lokale Gemeenschappen",
+      "description": "Mensen die geld willen inzamelen om hun gemeenschap te verbeteren, of het nu gaat om het bouwen van parken, het organiseren van evenementen of lokale infrastructuurprojecten."
+    }
+  },
+  "negocios": {
+    "services": {
+      "label": "Dienstverlening",
+      "description": "Gebruikers die diensten van micro-ondernemers willen aanbieden of inhuren, zoals loodgieters, elektriciens, schilders, enz."
+    },
+    "consulting": {
+      "label": "Consultancy en Mentorschap",
+      "description": "Interesses gericht op het verbinden van consultants en mentoren met kleine ondernemers die begeleiding zoeken op gebieden zoals marketing, financiën en management."
+    },
+    "crafts": {
+      "label": "Verkoop van Handgemaakte Producten",
+      "description": "Micro-ondernemers die handgemaakte producten willen verkopen, zoals kleding, accessoires of decoratieartikelen."
+    },
+    "delivery": {
+      "label": "Lokale Bezorging en Logistiek",
+      "description": "Lokale bezorgdiensten voor micro-ondernemers die hun producten moeten verspreiden."
+    },
+    "digitalMarketing": {
+      "label": "Digitale Marketing voor Kleine Bedrijven",
+      "description": "Micro-ondernemers die geïnteresseerd zijn in het inhuren van digitale marketingdiensten, zoals social media beheer, websitecreatie en online advertenties."
+    },
+    "foodServices": {
+      "label": "Voedselvoorziening",
+      "description": "Het verbinden van micro-ondernemers die voedselvoorziening aanbieden, zoals catering, foodtrucks of zelfgemaakte maaltijden, met consumenten of bedrijven."
+    },
+    "softwareDevelopment": {
+      "label": "Technologie en Softwareontwikkeling",
+      "description": "Ontwikkelaars en IT-professionals die diensten aanbieden voor het maken van websites, apps of technologische oplossingen voor kleine bedrijven."
+    },
+    "education": {
+      "label": "Bedrijfstraining en Opleidingen",
+      "description": "Aanbiedingen van cursussen en trainingen gericht op het opleiden van micro-ondernemers in verschillende gebieden, zoals bedrijfsbeheer, verkoop en klantenservice."
+    },
+    "design": {
+      "label": "Ontwerp en Merkcreatie",
+      "description": "Grafische ontwerpdiensten, logocreatie, verpakking en branding voor kleine bedrijven."
+    },
+    "coworking": {
+      "label": "Coworking en Gedeelde Werkruimtes",
+      "description": "Interesse in het delen of huren van coworking-ruimtes, ideaal voor micro-ondernemers die een flexibele werkruimte nodig hebben."
+    }
+  }
+},
+"invitationList": {
+  "searchByEmail": "Zoeken op e-mail",
+  "status": "Status",
+  "all": "Alle",
+  "pending": "In afwachting",
+  "used": "Geaccepteerd",
+  "canceled": "Geannuleerd",
+  "expired": "Verlopen",
+  "sortBy": "Sorteren op",
+  "mostRecentFirst": "Nieuwste eerst",
+  "oldestFirst": "Oudste eerst"
+},
+"friendCard": {
+  "viewFriendship": "Bekijk Vriendschap",
+  "addFriend": "Vriend Toevoegen",
+  "deleteFriendship": "Vriendschap Verwijderen",
+  "startConversation": "Gesprek Starten",
+  "sendGift": "Cadeau Sturen",
+  "removeBestFriend": "Beste Vriend Verwijderen",
+  "addBestFriend": "Beste Vriend Toevoegen",
+  "personalInterests": "Persoonlijke Interesses",
+  "businessInterests": "Zakelijke Interesses",
+  "seeLess": "Minder Zien",
+  "seeMore": "Meer Zien",
+  "viewProfile": "Profiel Bekijken"
+},
+"friendSearch": {
+  "placeholder": "Zoek vrienden..."
+},
+"friendsPage": {
+  "instructions": "Beheer uw contacten, vind nieuwe vrienden en houd uw relaties actief.",
+  "myFriends": "Mijn Vrienden",
+  "all": "Alle",
+  "active": "Actief",
+  "inactive": "Inactief",
+  "invited": "Uitgenodigd",
+  "name": "Naam",
+  "interests": "Interesses",
+  "inviteFriend": "Vriend Uitnodigen",
+  "searchResults": "Zoekresultaten",
+  "noFriendsFound": "Geen vrienden gevonden. Wil je er enkele uitnodigen?",
+  "sentInvitations": "Verstuurde Uitnodigingen",
+  "noResults": "Geen resultaten gevonden. Probeer een andere zoekopdracht."
+},
+"invitationCard": {
+  "status": {
+    "pending": "PENDING",
+    "used": "GEACCEPTEERD",
+    "canceled": "GEANNULEERD",
+    "expired": "VERLOPEN"
+  },
+  "sentAt": "Verzonden op: {{date}}",
+  "inviteCode": "Uitnodigingscode",
+  "showCode": "Code Tonen",
+  "hideCode": "Code Verbergen",
+  "resendInvite": "Uitnodiging Opnieuw Verzenden",
+  "cancelInvite": "Uitnodiging Annuleren",
+  "inviteAccepted": "Uitnodiging Geaccepteerd",
+  "statusMessage": {
+    "pending": "Wacht op antwoord.",
+    "used": "Geaccepteerd op {{date}}.",
+    "canceled": "Geannuleerd op {{date}}.",
+    "expired": "Verlopen. Nodig {{email}} opnieuw uit."
+  },
+  "options": "Uitnodigingsopties"
+},
+"invitationSendModal": {
+  "sending": "Uitnodiging verzenden...",
+  "success": "Uitnodiging succesvol verzonden!",
+  "error": "Fout bij het verzenden van de uitnodiging.",
+  "problem": "Er is een probleem opgetreden bij het aanmaken van de uitnodiging, probeer het over een paar minuten opnieuw.",
+  "termsError": "Ga akkoord met de voorwaarden en sta het delen van je profiel toe.",
+  "title": "Uitnodiging Verzenden",
+  "rules": "Door een uitnodiging te verzenden, ga je akkoord met de volgende regels:",
+  "rule1": "De uitnodiging kan pas 1 uur na de eerste verzending opnieuw worden verzonden.",
+  "rule2": "De uitgenodigde heeft 5 dagen vanaf de datum van ontvangst om de uitnodiging te valideren. Anders verloopt de uitnodiging.",
+  "rule3": "Er worden geen gegevens over de reeds geregistreerde gebruiker onthuld totdat deze bevestigt dat hij wil verbinden.",
+  "friendName": "Naam van Vriend",
+  "friendEmail": "Email van Vriend",
+  "agreeTerms": "Door een uitnodiging te verzenden, ga je akkoord met de gebruiksvoorwaarden en het privacybeleid van Elos.",
+  "shareProfile": "De vriend die de uitnodiging ontvangt, heeft toegang tot je naam en profielfoto.",
+  "sendInvite": "Uitnodiging Verzenden",
+  "cancel": "Annuleren",
+  "viewTerms": "Bekijk Gebruiksvoorwaarden",
+  "viewPrivacy": "Bekijk Privacybeleid",
+  "allRightsReserved": "Alle rechten voorbehouden."
+},
+"chatWindow": {
+  "conversationWith": "Gesprek met",
+  "loadingConversation": "Gesprek laden met",
+  "typeYourMessage": "Typ je bericht",
+  "send": "Verzenden"
+}
+}

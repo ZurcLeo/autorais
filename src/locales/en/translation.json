@@ -1,0 +1,605 @@
+{
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "portuguese": "Portuguese",
+    "dutch": "Dutch",
+    "login_button": "Login",
+    "or": "or",
+    "footer_text": "&copy; {{year}} ElosCloud. All rights reserved.",
+    "loading": "Loading",
+    "languageChangedSuccess": "Such a great success!",
+    "languageChangedError": "I'm afraid I'm going to be a fool.",
+    "error_invalid_email": "Please enter a valid email address.",
+    "error_submit": "Failed to submit the email. Please try again.",
+    "terms_and_conditions": "Terms and Conditions",
+    "privacy_policy": "Privacy Policy",
+    "previous": "Previous",
+    "next": "Next",
+    "notification_history": "Notification History",
+    "filter_by": "Filter by:",
+    "all": "All",
+    "invites": "Invitations",
+    "load_more": "Load more",
+    "sort_desc": "Newest first",
+    "sort_asc": "Oldest first",
+    "error_server_communication": "Error communicating with the server",
+     "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "description": "Description",
+    "submit": "Submit"
+  },
+  "newCaixinha": "New Savings Group",
+  "dialogTitle": "Create New Savings Group",
+  "basicInfo": "Basic Information",
+  "settings": "Settings",
+  "review": "Review",
+  "currency": "$",
+  "reviewMessage": "Review the information before creating the savings group:",
+  "yes": "Yes",
+  "no": "No",
+  "months": "months",
+  "successMessage": "Savings group successfully created!",
+  "errorMessage": "Error creating savings group",
+  "cancel": "Cancel",
+  "back": "Back",
+  "next": "Next",
+  "create": "Create",
+  "noActivities": "No activities recorded yet.",
+  "activeGroups": "Active Groups",
+  "unnamedGroup": "Unnamed Group",
+  "totalBalance": "Total Balance",
+  "makeContribution": "Make Contribution",
+  "activity": "Activity",
+  "members": "Members",
+  "loans": "Loans",
+  "Page": "Reports",
+  "myCaixinhas": "My BoxGroups",
+  "selectCaixinha": "Select a boxgroup to view details",
+  "totalBalanceDescription": "Total accumulated across all groups",
+  "activeMembers": "Active Members",
+  "activeMembersDescription": "Total participants in all groups",
+  "activeGroupsDescription": "{{total}} groups in total",
+  "avgContribution": "Average Contribution",
+  "avgContributionDescription": "Average monthly contribution value",
+  "fields": {
+    "name": "Savings Group Name",
+    "paymentDay": "Pay Day",
+    "description": "Description",
+    "monthlyContribution": "Monthly Contribution",
+    "duration": "Duration",
+    "12Months": "12 months",
+    "24Months": "24 months",
+    "distributionType": "Distribution Type",
+    "lottery": "Lottery",
+    "definedOrder": "Defined Order",
+    "allowLoans": "Allow Loans"
+  },
+  "stats": {
+"totalBalance": "Total Balance",
+"totalMembers": "Total Members",
+"totalContributions": "Total Contributions",
+"participationRate": "Participation Rate",
+"activeCaixinhas": "Active Boxes",
+"averagePerGroup": "Average per Group",
+"monthlyAverage": "Monthly Average",
+"participationTrend": "Participation Trend"
+},
+  "loanManagement": {
+    "title": "Loans",
+    "requestLoan": "Request Loan",
+    "availableAmount": "Available amount for loans: {{amount}}",
+    "member": "Member",
+    "value": "Value",
+    "installments": "Installments",
+    "remainingBalance": "Remaining Balance",
+    "status": "Status",
+    "actions": "Actions",
+    "noActiveLoans": "No active loans at the moment.",
+    "newLoan": "Request New Loan",
+    "maxAvailableAmount": "Maximum available amount: {{amount}}",
+    "limitInfo": "Available limit: {{amount}}",
+    "installmentInfo": "Maximum of 12 installments",
+    "reason": "Reason",
+    "reasonHelper": "Describe the reason for the loan request",
+    "submit": "Submit"
+  },
+  "statuses": {
+    "approved": "Approved",
+    "pending": "Pending",
+    "denied": "Denied"
+  },
+  "errors": {
+    "requiredFields": "Please fill out all required fields",
+    "exceedsLimit": "Requested amount exceeds available limit",
+    "loanError": "Error creating loan",
+    "paymentError": "Error processing payment",
+    "cancelError": "Error canceling loan"
+  },
+  "membersList": {
+    "members": "Members ({{count}})",
+    "addMember": "Add Member",
+    "editMember": "Edit Member",
+    "addNewMember": "Add New Member",
+    "admin": "Admin",
+    "memberUpdated": "Member updated successfully",
+    "memberAdded": "Member added successfully",
+    "memberRemoved": "Member removed successfully",
+    "errorManagingMember": "Error managing member",
+    "errorRemovingMember": "Error removing member"
+  },
+  "reportsPage": {
+    "period": "Period",
+    "type": "Type",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly", 
+    "yearly": "Yearly",
+    "financial": "Financial",
+    "members": "Members",
+    "loans": "Loans",
+    "downloadReport": "Download Report",
+    "financialOverview": "Financial Overview",
+    "contributions": "Contributions",
+    "balance": "Balance",
+    "memberParticipation": "Member Participation",
+    "loanStatistics": "Loan Statistics",
+    "totalLoans": "Total Loans",
+    "activeLoans": "Active Loans", 
+    "totalLoanAmount": "Total Loan Amount",
+    "averageLoanAmount": "Average Loan Amount",
+    "defaultRate": "Default Rate"
+  },
+  "financial": {
+"title": "Financial Manager",
+"description": "Track sales metrics and cash flow."
+},
+"orderManagement": {
+"title": "Order Management",
+"description": "Track orders and service requests."
+},
+"ProductManagement": {
+"title": "Product Management",
+"description": "Add new products and modify existing ones."
+},
+"StoreOverview": {
+"title": "Store Overview",
+"description": "Monitor store status and check tips and pending tasks."
+},
+"seller.title": "Seller Profile",
+  "seller.fields.name": "Name",
+  "seller.help.name": "Enter your full name",
+  "seller.fields.phone": "Phone",
+  "seller.help.phone": "Enter your phone number",
+  "seller.tooltips.phone": "Phone number format may vary depending on your country.",
+  "seller.fields.useCNPJ": "Use CNPJ",
+  "seller.fields.cpf": "CPF",
+  "seller.fields.cnpj": "CNPJ",
+  "seller.help.document": "Please enter a valid CPF or CNPJ",
+  "seller.fields.businessName": "Business Name",
+  "seller.help.businessName": "Enter your business name",
+  "seller.fields.tradingName": "Trading Name",
+  "seller.help.tradingName": "Enter your trading name (optional)",
+  "seller.fields.description": "Description",
+  "seller.help.description": "Write a brief description of your business",
+  "seller.bankInfo.title": "Bank Information",
+  "seller.bankInfo.bankName": "Bank Name",
+  "seller.bankInfo.agency": "Agency",
+  "seller.bankInfo.accountNumber": "Account Number",
+  "seller.errors.invalidDocument": "Invalid document number",
+  "seller.errors.registrationFailed": "Seller profile registration failed",
+  "seller.success.title": "Registration Successful",
+  "seller.success.message": "Your seller profile has been successfully created. You may need to wait for approval depending on your documents.",
+  "seller.info.documentPending": "Your documents are pending approval. You will be notified once your profile is active.",
+  "common.back": "Back",
+  "common.next": "Next",
+  "common.finish": "Finish",
+  "seller.steps.basicInfo": "Basic Information",
+  "seller.steps.documentVerification": "Document Verification",
+  "seller.steps.businessDetails": "Business Details",
+  "seller.steps.paymentInfo": "Payment Information",
+  "address": {
+    "fields": {
+      "zipCode": "ZIP Code",
+      "street": "Street",
+      "number": "Number",
+      "complement": "Complement",
+      "neighborhood": "Neighborhood",
+      "city": "City",
+      "state": "State"
+    },
+    "help": {
+      "zipCode": "Enter your ZIP code to auto-fill address"
+    },
+    "errors": {
+      "cepNotFound": "ZIP code not found",
+      "cepSearchFailed": "Failed to search ZIP code"
+    },
+    "search": "Search address by ZIP code"
+  },
+  "activityPage": {
+    "contribuicao": {
+      "title": "Contribution",
+      "description": "A new contribution was made by {{usuario}}."
+    },
+    "emprestimo": {
+      "title": "Loan",
+      "description": "A new loan request was made by {{usuario}}."
+    },
+    "novo_membro": {
+      "title": "New Member",
+      "description": "{{usuario}} became a new member."
+    },
+    "default": {
+      "title": "Activity",
+      "description": "A new activity was recorded."
+    }
+  },
+  "interestsContext": {
+    "personalInterests": {
+      "groupTrips": {
+        "label": "Group Trips",
+        "description": "People who want to pool money for group trips to specific destinations."
+      },
+      "sustainability": {
+        "label": "Sustainability Projects",
+        "description": "Users interested in funding ecological projects, such as community gardens or recycling initiatives."
+      }
+    },
+    "businessInterests": {
+      "services": {
+        "label": "Service Provision",
+        "description": "Users who want to offer or hire services from microentrepreneurs, such as plumbers, electricians, painters, etc."
+      },
+      "consulting": {
+        "label": "Consulting and Mentoring",
+        "description": "Interests focused on connecting consultants and mentors with small entrepreneurs seeking guidance in areas like marketing, finance, and management."
+      }
+    }
+  },
+  "interestsSection": {
+    "personalInterests": "Personal Interests",
+    "businessInterests": "Business Interests",
+    "addRemove": "Add/Remove Interests",
+    "noInterests": "No interests added",
+    "success": "Interests saved successfully!",
+    "error": "Error saving interests, try again.",
+    "errorSaving": "Error saving interests:"
+  },
+  "register": {
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "register_button": "Register",
+    "passwords_dont_match": "Passwords don't match.",
+    "register_success": "Registration successful!",
+    "register_error": "Error registering: {{message}}",
+    "provider_register_error": "Error registering with provider: {{message}}",
+    "register_with_google": "Register with Google",
+    "register_with_facebook": "Register with Facebook",
+    "register_with_microsoft": "Register with Microsoft",
+    "invite_only": "This page is for invited users only."
+  },
+  "login": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "login_button": "Login",
+    "login_with_google": "Login with Google",
+    "login_with_facebook": "Login with Facebook",
+    "login_with_microsoft": "Login with Microsoft",
+    "invite_only": "Only invited users can register",
+    "how_to_get_invite": "How to get an invitation?",
+    "modal_title": "How to get an invitation",
+    "modal_step1": "Step 1",
+    "modal_step1_text": "Request an invitation through our contact.",
+    "modal_step2": "Step 2",
+    "modal_step2_text": "Wait for email confirmation.",
+    "modal_step3": "Step 3",
+    "modal_step3_text": "Validate your email, name, and invitation code.",
+    "modal_step4": "Step 4",
+    "modal_step4_text": "Create your account on Elos.",
+    "interest_email_label": "Your Email",
+    "interest_button": "Join the interest list",
+    "privacy_agreement": "Read our ",
+    "and": "and",
+    "modal_instructions": "Instructions for obtaining an invitation"
+  },
+  "home": {
+    "welcome_message": "Welcome to ElosCloud",
+    "intro_text": "An exclusive social network for invitees",
+    "enter_now": "Login now",
+    "features_title": "Discover what you can do on ElosCloud",
+    "feature1_title": "Create your account and register your details",
+    "feature2_title": "Buy ElosCoin, the platform's virtual currency",
+    "feature3_title": "Trade products and services with other users",
+    "feature4_title": "Create posts and receive reactions and comments",
+    "feature5_title": "Receive gifts from your friends and connections",
+    "feature6_title": "Create and participate in live video and audio broadcasts",
+    "feature7_title": "Send private messages to your contacts",
+    "feature8_title": "Earn ElosCoin by completing tasks and missions",
+    "call_to_action": "Log in with your account"
+  },
+  "topnavbar": {
+    "home": "Home",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "boxes": "Boxes",
+    "friends": "Friends",
+    "shop": "Shop",
+    "login": "Login"
+  },
+  "notification_card": {
+    "mark_as_read": "Mark as read",
+    "accept_invite": "Accept",
+    "decline_invite": "Decline",
+    "view_details": "View details",
+    "open_event": "Open event"
+  },
+  "userprofiledropdown": {
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "dataLoaded": "Data loaded successfully!",
+    "noCaixinhas": "No caixinhas data available",
+    "failedToLoadData": "Failed to load data",
+    "noData": "No data found.",
+    "caixinhas": {
+      "saldoTotal": "Total Balance",
+      "contribuicaoMensal": "Monthly Contribution",
+      "diaVencimento": "Due Day",
+      "valorJuros": "Interest Rate",
+      "valorMulta": "Penalty Fee",
+      "distribuicaoTipo": "Distribution Type",
+      "dataCriacao": "Creation Date",
+      "verDetalhes": "View Details",
+      "noCaixinhas": "You don't have any registered caixinhas"
+    },
+    "notifications": {
+      "newNotifications": "You have {{count}} new notifications",
+      "noNewNotifications": "No new notifications",
+      "markAsRead": "Mark as read",
+      "markAsUnread": "Mark as unread",
+      "viewEvent": "View Event",
+      "viewCalendar": "View Calendar",
+      "viewAll": "View all notifications",
+      "viewHistory": "View notification history",
+      "none": "No notifications"
+    },
+    "messages": {
+      "from": "Message from",
+      "noMessages": "No messages data available"
+    },
+    "friends": {
+      "title": "Friends",
+      "connected": "Connected for {{duration}}"
+    },
+    "bestFriends": {
+      "title": "Best Friend",
+      "noBestFriends": "No best friends data available"
+    }
+  },
+  "profile": {
+    "errorCheckingUpdates": "Error checking for updates",
+    "errorUserIdNotFound": "Error: userId not found",
+    "failedToSaveImage": "Failed to save image",
+    "failedToSave": "Failed to save"
+  },
+    "conversations": {
+      "unreadConversationsTitle": "Unread Conversations",
+      "unreadConversationsCount": "Unread Conversations"
+    },
+    "elosCoins": {
+      "balanceTitle": "ElosCoins Balance",
+      "buyButton": "Buy",
+      "currency": "ElosCoins",
+      "recentTransactions": "Recent Transactions",
+      "value": "Value"
+    },
+    "friends": {
+      "title": "Friends",
+      "friendCount": "Friends"
+    },
+    "interests": {
+      "personal": "Personal Interests",
+      "business": "Business Interests",
+      "addRemove": "Add/Remove Interests",
+      "noInterests": "No interests added",
+      "success": "Interests saved successfully!",
+      "error": "Error saving interests, please try again.",
+      "errorSaving": "Error saving interests:"
+    },
+    "profileHeader": {
+      "editProfileImage": "Edit profile image"
+    },
+    "profileInfo": {
+      "name": "Name",
+      "description": "Description",
+      "notProvided": "Not provided",
+      "saveError": "Error saving the description."
+    },
+    "interestsLists": {
+      "pessoais": {
+        "groupTrips": {
+          "label": "Group Trips",
+          "description": "People who want to pool money for a group trip to specific destinations."
+        },
+        "sustainability": {
+          "label": "Sustainability Projects",
+          "description": "Users interested in funding ecological projects, such as community gardens or recycling initiatives."
+        },
+        "weddings": {
+          "label": "Weddings and Events",
+          "description": "Groups that come together to save and plan weddings, birthday parties, or other social events."
+        },
+        "education": {
+          "label": "Education and Group Courses",
+          "description": "People who gather to fund online or in-person courses, workshops, and professional training."
+        },
+        "sports": {
+          "label": "Sports and Adventure",
+          "description": "Users interested in pooling money to participate in group sports activities, such as hiking, races, or championships."
+        },
+        "socialCauses": {
+          "label": "Support for Social Causes",
+          "description": "People who organize to raise funds for social causes, such as supporting NGOs, inclusion projects, or humanitarian aid."
+        },
+        "hobbies": {
+          "label": "Collecting and Hobbies",
+          "description": "Groups that gather to fund purchases or events related to hobbies such as collecting, photography, music, etc."
+        },
+        "technology": {
+          "label": "Technology and Gadgets",
+          "description": "Interests focused on raising funds to buy new tech devices as a group."
+        },
+        "wellbeing": {
+          "label": "Wellness Initiatives",
+          "description": "Groups that come together to fund wellness-related activities, such as meditation retreats, yoga, or spa."
+        },
+        "localCommunities": {
+          "label": "Local Communities",
+          "description": "People who want to pool money to improve their community, whether building parks, organizing events, or local infrastructure projects."
+        }
+      },
+      "negocios": {
+        "services": {
+          "label": "Service Provision",
+          "description": "Users who want to offer or hire services from micro-entrepreneurs, such as plumbers, electricians, painters, etc."
+        },
+        "consulting": {
+          "label": "Consulting and Mentorship",
+          "description": "Interests aimed at connecting consultants and mentors with small entrepreneurs seeking guidance in areas such as marketing, finance, and management."
+        },
+        "crafts": {
+          "label": "Handmade Products Sales",
+          "description": "Micro-entrepreneurs who want to sell handmade products, such as clothing, accessories, or decor items."
+        },
+        "delivery": {
+          "label": "Local Delivery and Logistics",
+          "description": "Local delivery services for micro-entrepreneurs who need to distribute their products."
+        },
+        "digitalMarketing": {
+          "label": "Digital Marketing for Small Businesses",
+          "description": "Micro-entrepreneurs interested in hiring digital marketing services, such as social media management, website creation, and online ads."
+        },
+        "foodServices": {
+          "label": "Food Services",
+          "description": "Connecting micro-entrepreneurs who offer food services, such as catering, food trucks, or homemade meals, with consumers or companies."
+        },
+        "softwareDevelopment": {
+          "label": "Technology and Software Development",
+          "description": "Developers and IT professionals offering services to create websites, apps, or tech solutions for small businesses."
+        },
+        "education": {
+          "label": "Corporate Education and Training",
+          "description": "Courses and training aimed at equipping micro-entrepreneurs in areas like business management, sales, and customer service."
+        },
+        "design": {
+          "label": "Design and Branding",
+          "description": "Graphic design services, logo creation, packaging, and branding for small businesses."
+        },
+        "coworking": {
+          "label": "Coworking and Shared Workspaces",
+          "description": "Interest in sharing or renting coworking spaces, ideal for micro-entrepreneurs who need a flexible workspace."
+        }
+      }
+    },
+    "invitationList": {
+      "searchByEmail": "Search by email",
+      "status": "Status",
+      "all": "All",
+      "pending": "Pending",
+      "used": "Accepted",
+      "canceled": "Canceled",
+      "expired": "Expired",
+      "sortBy": "Sort by",
+      "mostRecentFirst": "Most recent first",
+      "oldestFirst": "Oldest first"
+    },
+    "friendCard": {
+      "viewFriendship": "View Friendship",
+      "addFriend": "Add Friend",
+      "deleteFriendship": "Delete Friendship",
+      "startConversation": "Start Conversation",
+      "sendGift": "Send Gift",
+      "removeBestFriend": "Remove Best Friend",
+      "addBestFriend": "Add Best Friend",
+      "personalInterests": "Personal Interests",
+      "businessInterests": "Business Interests",
+      "seeLess": "See Less",
+      "seeMore": "See More",
+      "viewProfile": "View Profile"
+    },
+    "friendSearch": {
+      "placeholder": "Search friends..."
+    },
+    "friendsPage": {
+      "instructions": "Manage your connections, find new friends, and keep your relationships active.",
+      "myFriends": "My Friends",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "invited": "Invited",
+      "name": "Name",
+      "interests": "Interests",
+      "inviteFriend": "Invite Friend",
+      "searchResults": "Search Results",
+      "noFriendsFound": "No friends found. How about inviting some?",
+      "sentInvitations": "Sent Invitations",
+      "noResults": "No results found. Try a different search."
+    },
+    "invitationCard": {
+      "status": {
+        "pending": "PENDING",
+        "used": "ACCEPTED",
+        "canceled": "CANCELED",
+        "expired": "EXPIRED"
+      },
+      "sentAt": "Sent on: {{date}}",
+      "inviteCode": "Invite Code",
+      "showCode": "Show Code",
+      "hideCode": "Hide Code",
+      "resendInvite": "Resend Invite",
+      "cancelInvite": "Cancel Invite",
+      "inviteAccepted": "Invite Accepted",
+      "statusMessage": {
+        "pending": "Awaiting response.",
+        "used": "Accepted on {{date}}.",
+        "canceled": "Canceled on {{date}}.",
+        "expired": "Expired. Invite {{email}} again."
+      },
+      "options": "Invite options"
+    },
+    "invitationSendModal": {
+      "sending": "Sending invite...",
+      "success": "Invite sent successfully!",
+      "error": "Error sending invite.",
+      "problem": "We encountered a problem creating the invite, please try again in a few minutes.",
+      "termsError": "Please agree to the terms and allow profile sharing.",
+      "title": "Send Invitation",
+      "rules": "By sending an invitation, you agree to the following rules:",
+      "rule1": "The invite can only be resent 1 hour after the first send.",
+      "rule2": "The invitee will have 5 days from the date of receiving the invite to validate it. Otherwise, the invite will expire.",
+      "rule3": "No information about the already registered user will be revealed until they confirm they want to connect.",
+      "friendName": "Friend's Name",
+      "friendEmail": "Friend's Email",
+      "agreeTerms": "By sending an invite, you agree to Elos' terms of use and privacy policy.",
+      "shareProfile": "The friend receiving the invite will have access to your name and profile picture.",
+      "sendInvite": "Send Invite",
+      "cancel": "Cancel",
+      "viewTerms": "View Terms of Use",
+      "viewPrivacy": "View Privacy Policy",
+      "allRightsReserved": "All rights reserved."
+    },
+    "chatWindow": {
+      "conversationWith": "Conversation with",
+      "loadingConversation": "Loading conversation with",
+      "typeYourMessage": "Type your message",
+      "send": "Send"
+    }
+}

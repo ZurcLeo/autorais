@@ -1,0 +1,529 @@
+yarn run v1.22.22
+$ react-scripts start
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "x-powered-by" to true
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "etag" to 'weak'
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "etag fn" to [Function: generateETag]
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "env" to 'development'
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "query parser" to 'extended'
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "query parser fn" to [Function: parseExtendedQueryString]
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "subdomain offset" to 2
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "trust proxy" to false
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "trust proxy fn" to [Function: trustNone]
+Sun, 16 Feb 2025 15:20:44 GMT express:application booting in development mode
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "view" to [Function: View]
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "views" to '/Users/leocruz/Documents/Projects/eloscloud/frontend/views'
+Sun, 16 Feb 2025 15:20:44 GMT express:application set "jsonp callback name" to 'callback'
+Sun, 16 Feb 2025 15:20:44 GMT express:router use '/' query
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router use '/' expressInit
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route new '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route acl '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route bind '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route checkout '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route connect '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route copy '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route delete '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route get '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route head '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route link '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route lock '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route m-search '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route merge '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route mkactivity '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route mkcalendar '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route mkcol '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route move '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route notify '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route options '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route patch '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route post '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route propfind '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route proppatch '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route purge '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route put '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route query '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route rebind '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route report '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route search '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route source '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route subscribe '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route trace '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route unbind '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route unlink '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route unlock '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route unsubscribe '*'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route new '/__webpack_dev_server__/sockjs.bundle.js'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/__webpack_dev_server__/sockjs.bundle.js'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route get '/__webpack_dev_server__/sockjs.bundle.js'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route new '/webpack-dev-server/invalidate'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/webpack-dev-server/invalidate'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route get '/webpack-dev-server/invalidate'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route new '/webpack-dev-server/open-editor'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/webpack-dev-server/open-editor'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route get '/webpack-dev-server/open-editor'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route new '/webpack-dev-server'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/webpack-dev-server'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:route get '/webpack-dev-server'
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Sun, 16 Feb 2025 15:20:44 GMT express:router use '/' handleWebpackInternalMiddleware
+Sun, 16 Feb 2025 15:20:44 GMT express:router:layer new '/'
+Starting the development server...
+
+(node:5871) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:5871) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Compiled with warnings.
+
+[eslint] 
+src/components/Auth/InterestModal.js
+  Line 15:3:     'IconButton' is defined but never used                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  Line 202:42:   The href attribute requires a valid value to be accessible. Provide a valid, navigable address as the href value. If you cannot provide a valid href, but still need the element to resemble a link, use a button and change it with appropriate styles. Learn more: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/anchor-is-valid.md  jsx-a11y/anchor-is-valid
+  Line 202:110:  The href attribute requires a valid value to be accessible. Provide a valid, navigable address as the href value. If you cannot provide a valid href, but still need the element to resemble a link, use a button and change it with appropriate styles. Learn more: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/anchor-is-valid.md  jsx-a11y/anchor-is-valid
+
+src/components/Auth/PrivateRoute.js
+  Line 8:10:  'backendAuth' is assigned a value but never used  no-unused-vars
+
+src/components/Auth/Register.js
+  Line 2:27:   'useEffect' is defined but never used          no-unused-vars
+  Line 21:8:   'FacebookIcon' is defined but never used       no-unused-vars
+  Line 22:10:  'Camera' is defined but never used             no-unused-vars
+  Line 96:13:  'idToken' is assigned a value but never used   no-unused-vars
+  Line 99:13:  'response' is assigned a value but never used  no-unused-vars
+
+src/components/Caixinhas/ActivityTimelineItem.js
+  Line 2:10:  'Paper' is defined but never used  no-unused-vars
+
+src/components/Caixinhas/BankAccountModal.js
+  Line 25:3:   'Zoom' is defined but never used  no-unused-vars
+  Line 31:3:   'Help' is defined but never used  no-unused-vars
+  Line 278:5:  Expected a default case           default-case
+
+src/components/Caixinhas/BankingManagement.js
+  Line 34:7:   'mp' is assigned a value but never used                                                                                                          no-unused-vars
+  Line 78:9:   'toggleSensitiveInfo' is assigned a value but never used                                                                                         no-unused-vars
+  Line 83:9:   'handleValidation' is assigned a value but never used                                                                                            no-unused-vars
+  Line 240:6:  React Hook useEffect has missing dependencies: 'fetchBankingHistory' and 'fetchBankingInfo'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Caixinhas/CaixinhaPage.js
+  Line 13:11:  'currentUser' is assigned a value but never used  no-unused-vars
+
+src/components/Caixinhas/CreateCaixinhaButton.js
+  Line 22:3:   'Tooltip' is defined but never used     no-unused-vars
+  Line 24:3:   'IconButton' is defined but never used  no-unused-vars
+  Line 26:34:  'InfoIcon' is defined but never used    no-unused-vars
+
+src/components/Caixinhas/Reports.js
+  Line 19:3:   'MenuItem' is defined but never used                                                                                no-unused-vars
+  Line 24:16:  'DateRangeIcon' is defined but never used                                                                           no-unused-vars
+  Line 103:6:  React Hook useEffect has a missing dependency: 'fetchReportData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Common/PixPayment.js
+  Line 3:10:   'Timer' is defined but never used                                                                                                       no-unused-vars
+  Line 16:5:   'timeLeft' is assigned a value but never used                                                                                           no-unused-vars
+  Line 50:4:   React Hook useEffect has missing dependencies: 'paymentData' and 'startPixPayment'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 101:9:  'formatTimeLeft' is assigned a value but never used                                                                                     no-unused-vars
+
+src/components/Connections/FriendCard.js
+  Line 4:89:  'Grid' is defined but never used  no-unused-vars
+
+src/components/Dashboard/SellerDashboard.js
+  Line 1:27:   'useEffect' is defined but never used                       no-unused-vars
+  Line 2:26:   'Typography' is defined but never used                      no-unused-vars
+  Line 12:9:   'theme' is assigned a value but never used                  no-unused-vars
+  Line 15:30:  'setPendingCommissions' is assigned a value but never used  no-unused-vars
+
+src/components/Dashboard/sections/MessagesSection.js
+  Line 2:16:  'CardContent' is defined but never used  no-unused-vars
+
+src/components/Dashboard/sections/NotificationsSection.js
+  Line 2:16:  'CardContent' is defined but never used  no-unused-vars
+
+src/components/Invites/InvitationCard.js
+  Line 3:22:  'Tooltip' is defined but never used  no-unused-vars
+
+src/components/Layout/TopNavBar.js
+  Line 73:6:  React Hook useMemo has a missing dependency: 't'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Messages/ChatWindow.js
+  Line 120:4:  React Hook useCallback has a missing dependency: 'handleSendMessage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Notification/NotificationHistory.js
+  Line 100:10:  'filter' is assigned a value but never used  no-unused-vars
+
+src/components/Pages/HomePage.js
+  Line 5:78:  'AppBar' is defined but never used   no-unused-vars
+  Line 5:86:  'Toolbar' is defined but never used  no-unused-vars
+  Line 5:95:  'Box' is defined but never used      no-unused-vars
+
+src/components/Profiles/Profile.js
+  Line 33:8:  React Hook useEffect has a missing dependency: 'getUserById'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Profiles/ProfileInfo.js
+  Line 2:10:  'useParams' is defined but never used  no-unused-vars
+
+src/components/Profiles/ProfileView.js
+  Line 30:9:   'interests' is assigned a value but never used    no-unused-vars
+  Line 31:10:  'user' is assigned a value but never used         no-unused-vars
+  Line 67:13:  'updatedUser' is assigned a value but never used  no-unused-vars
+
+src/components/Profiles/SellerProfileManagement.js
+  Line 1:27:   'useEffect' is defined but never used  no-unused-vars
+  Line 19:46:  'BankIcon' is defined but never used   no-unused-vars
+  Line 19:70:  'CardIcon' is defined but never used   no-unused-vars
+
+src/context/AuthContext.js
+  Line 115:11:  'initializeService' is assigned a value but never used                                                                               no-unused-vars
+  Line 115:30:  'CRITICAL_SERVICES' is assigned a value but never used                                                                               no-unused-vars
+  Line 241:15:  'firebaseToken' is assigned a value but never used                                                                                   no-unused-vars
+  Line 273:6:   React Hook useCallback has an unnecessary dependency: 'invalidateDependentStates'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 335:4:   React Hook useCallback has a missing dependency: 'dispatchWithLogging'. Either include it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 401:4:   React Hook useCallback has a missing dependency: 'dispatchWithLogging'. Either include it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/context/BankingContext.js
+  Line 4:29:  'globalCache' is defined but never used  no-unused-vars
+
+src/context/CaixinhaContext.js
+  Line 6:10:   'globalCache' is defined but never used                                                                                              no-unused-vars
+  Line 161:6:  React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.CAIXINHA'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/ConnectionContext.js
+  Line 7:10:   'useCachedResource' is defined but never used                                                                                           no-unused-vars
+  Line 128:9:  'cacheKey' is assigned a value but never used                                                                                           no-unused-vars
+  Line 167:6:  React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.CONNECTIONS'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/DashboardContext.js
+  Line 169:6:  React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.DASHBOARD'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/InterestsContext.js
+  Line 119:28:  'invalidateCache' is assigned a value but never used                                                                                  no-unused-vars
+  Line 181:6:   React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.INTERESTS'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/MessageContext.js
+  Line 8:8:    'loggerSystem' is defined but never used              no-unused-vars
+  Line 11:7:   'MODULE_NAME' is assigned a value but never used      no-unused-vars
+  Line 15:28:  'invalidateCache' is assigned a value but never used  no-unused-vars
+
+src/context/NotificationContext.js
+  Line 6:10:    'globalCache' is defined but never used                                                                                                   no-unused-vars
+  Line 112:28:  'invalidateCache' is assigned a value but never used                                                                                      no-unused-vars
+  Line 155:6:   React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.NOTIFICATIONS'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/PaymentContext.js
+  Line 6:10:  'useCachedResource' is defined but never used                                                                                            no-unused-vars
+  Line 6:29:  'globalCache' is defined but never used                                                                                                  no-unused-vars
+  Line 7:10:  'formatDocument' is defined but never used                                                                                               no-unused-vars
+  Line 76:9:  'cacheKey' is assigned a value but never used                                                                                            no-unused-vars
+  Line 98:6:  React Hook useEffect has missing dependencies: 'clearPaymentData' and 'setTimeLeft'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/RootStateProvider.js
+  Line 108:23:  'setInitialized' is assigned a value but never used                                                                      no-unused-vars
+  Line 121:10:  'initializationTimestamps' is assigned a value but never used                                                            no-unused-vars
+  Line 274:6:   React Hook useEffect has a missing dependency: 'initializationErrors'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/ServiceInitializationProvider.js
+  Line 82:6:   React Hook useEffect has a missing dependency: 'initializationService.serviceStates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 104:6:  React Hook useEffect has a missing dependency: 'initializationService'. Either include it or remove the dependency array                react-hooks/exhaustive-deps
+
+src/context/UserContext.js
+  Line 157:6:  React Hook useEffect has a missing dependency: 'CRITICAL_SERVICES.USER'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/hooks/messages/useMessageOperations.js
+  Line 5:10:  'showPromiseToast' is defined but never used                                                                                                                                                                                       no-unused-vars
+  Line 77:6:  React Hook useCallback has a missing dependency: 'dispatch'. Either include it or remove the dependency array. If 'dispatch' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+
+src/hooks/useProviderReady.js
+  Line 22:6:   React Hook useEffect has a missing dependency: 'dependencies'. Either include it or remove the dependency array                                          react-hooks/exhaustive-deps
+  Line 22:45:  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies  react-hooks/exhaustive-deps
+
+src/services/apiService.js
+  Line 8:7:    'API_URL' is assigned a value but never used                    no-unused-vars
+  Line 181:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/authService.js
+  Line 82:13:  'firebaseToken' is assigned a value but never used  no-unused-vars
+
+src/services/messageService.js
+  Line 161:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/notificationService.js
+  Line 39:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/paymentService.js
+  Line 25:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/userService.js
+  Line 96:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/utils/ImageUploadAndCrop.js
+  Line 4:10:  'Button' is defined but never used  no-unused-vars
+
+src/utils/cacheManager.js
+  Line 36:9:   'cacheTime' is constant                                                                                                    no-const-assign
+  Line 41:9:   'staleTime' is constant                                                                                                    no-const-assign
+  Line 219:5:  React Hook useCallback has missing dependencies: 'data' and 'options'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 240:6:  React Hook useEffect has a missing dependency: 'data'. Either include it or remove the dependency array                    react-hooks/exhaustive-deps
+
+src/utils/formatters.js
+  Line 72:3:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/utils/loggerSystem.js
+  Line 46:11:  'logData' is assigned a value but never used  no-unused-vars
+
+src/utils/validation.js
+  Line 241:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+asset static/js/bundle.js 17.7 MiB [emitted] (name: main) 1 related asset
+asset index.html 618 bytes [emitted]
+asset asset-manifest.json 190 bytes [emitted]
+orphan modules 10.3 MiB [orphan] 13971 modules
+runtime modules 31.7 KiB 17 modules
+cacheable modules 14.7 MiB
+  modules by path ./node_modules/ 13.8 MiB
+    javascript modules 13.8 MiB 1645 modules
+    json modules 18.1 KiB
+      ./node_modules/bottleneck/lib/version.json 30 bytes [built] [code generated]
+      ./node_modules/bottleneck/lib/lua.json 18.1 KiB [built] [code generated]
+  modules by path ./src/ 880 KiB 110 modules
+
+WARNING in [eslint] 
+src/components/Auth/InterestModal.js
+  Line 15:3:     'IconButton' is defined but never used                                                                                                                                                                                                                                                                                                                             no-unused-vars
+  Line 202:42:   The href attribute requires a valid value to be accessible. Provide a valid, navigable address as the href value. If you cannot provide a valid href, but still need the element to resemble a link, use a button and change it with appropriate styles. Learn more: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/anchor-is-valid.md  jsx-a11y/anchor-is-valid
+  Line 202:110:  The href attribute requires a valid value to be accessible. Provide a valid, navigable address as the href value. If you cannot provide a valid href, but still need the element to resemble a link, use a button and change it with appropriate styles. Learn more: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/anchor-is-valid.md  jsx-a11y/anchor-is-valid
+
+src/components/Auth/PrivateRoute.js
+  Line 8:10:  'backendAuth' is assigned a value but never used  no-unused-vars
+
+src/components/Auth/Register.js
+  Line 2:27:   'useEffect' is defined but never used          no-unused-vars
+  Line 21:8:   'FacebookIcon' is defined but never used       no-unused-vars
+  Line 22:10:  'Camera' is defined but never used             no-unused-vars
+  Line 96:13:  'idToken' is assigned a value but never used   no-unused-vars
+  Line 99:13:  'response' is assigned a value but never used  no-unused-vars
+
+src/components/Caixinhas/ActivityTimelineItem.js
+  Line 2:10:  'Paper' is defined but never used  no-unused-vars
+
+src/components/Caixinhas/BankAccountModal.js
+  Line 25:3:   'Zoom' is defined but never used  no-unused-vars
+  Line 31:3:   'Help' is defined but never used  no-unused-vars
+  Line 278:5:  Expected a default case           default-case
+
+src/components/Caixinhas/BankingManagement.js
+  Line 34:7:   'mp' is assigned a value but never used                                                                                                          no-unused-vars
+  Line 78:9:   'toggleSensitiveInfo' is assigned a value but never used                                                                                         no-unused-vars
+  Line 83:9:   'handleValidation' is assigned a value but never used                                                                                            no-unused-vars
+  Line 240:6:  React Hook useEffect has missing dependencies: 'fetchBankingHistory' and 'fetchBankingInfo'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Caixinhas/CaixinhaPage.js
+  Line 13:11:  'currentUser' is assigned a value but never used  no-unused-vars
+
+src/components/Caixinhas/CreateCaixinhaButton.js
+  Line 22:3:   'Tooltip' is defined but never used     no-unused-vars
+  Line 24:3:   'IconButton' is defined but never used  no-unused-vars
+  Line 26:34:  'InfoIcon' is defined but never used    no-unused-vars
+
+src/components/Caixinhas/Reports.js
+  Line 19:3:   'MenuItem' is defined but never used                                                                                no-unused-vars
+  Line 24:16:  'DateRangeIcon' is defined but never used                                                                           no-unused-vars
+  Line 103:6:  React Hook useEffect has a missing dependency: 'fetchReportData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Common/PixPayment.js
+  Line 3:10:   'Timer' is defined but never used                                                                                                       no-unused-vars
+  Line 16:5:   'timeLeft' is assigned a value but never used                                                                                           no-unused-vars
+  Line 50:4:   React Hook useEffect has missing dependencies: 'paymentData' and 'startPixPayment'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 101:9:  'formatTimeLeft' is assigned a value but never used                                                                                     no-unused-vars
+
+src/components/Connections/FriendCard.js
+  Line 4:89:  'Grid' is defined but never used  no-unused-vars
+
+src/components/Dashboard/SellerDashboard.js
+  Line 1:27:   'useEffect' is defined but never used                       no-unused-vars
+  Line 2:26:   'Typography' is defined but never used                      no-unused-vars
+  Line 12:9:   'theme' is assigned a value but never used                  no-unused-vars
+  Line 15:30:  'setPendingCommissions' is assigned a value but never used  no-unused-vars
+
+src/components/Dashboard/sections/MessagesSection.js
+  Line 2:16:  'CardContent' is defined but never used  no-unused-vars
+
+src/components/Dashboard/sections/NotificationsSection.js
+  Line 2:16:  'CardContent' is defined but never used  no-unused-vars
+
+src/components/Invites/InvitationCard.js
+  Line 3:22:  'Tooltip' is defined but never used  no-unused-vars
+
+src/components/Layout/TopNavBar.js
+  Line 73:6:  React Hook useMemo has a missing dependency: 't'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Messages/ChatWindow.js
+  Line 120:4:  React Hook useCallback has a missing dependency: 'handleSendMessage'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Notification/NotificationHistory.js
+  Line 100:10:  'filter' is assigned a value but never used  no-unused-vars
+
+src/components/Pages/HomePage.js
+  Line 5:78:  'AppBar' is defined but never used   no-unused-vars
+  Line 5:86:  'Toolbar' is defined but never used  no-unused-vars
+  Line 5:95:  'Box' is defined but never used      no-unused-vars
+
+src/components/Profiles/Profile.js
+  Line 33:8:  React Hook useEffect has a missing dependency: 'getUserById'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/Profiles/ProfileInfo.js
+  Line 2:10:  'useParams' is defined but never used  no-unused-vars
+
+src/components/Profiles/ProfileView.js
+  Line 30:9:   'interests' is assigned a value but never used    no-unused-vars
+  Line 31:10:  'user' is assigned a value but never used         no-unused-vars
+  Line 67:13:  'updatedUser' is assigned a value but never used  no-unused-vars
+
+src/components/Profiles/SellerProfileManagement.js
+  Line 1:27:   'useEffect' is defined but never used  no-unused-vars
+  Line 19:46:  'BankIcon' is defined but never used   no-unused-vars
+  Line 19:70:  'CardIcon' is defined but never used   no-unused-vars
+
+src/context/AuthContext.js
+  Line 115:11:  'initializeService' is assigned a value but never used                                                                               no-unused-vars
+  Line 115:30:  'CRITICAL_SERVICES' is assigned a value but never used                                                                               no-unused-vars
+  Line 241:15:  'firebaseToken' is assigned a value but never used                                                                                   no-unused-vars
+  Line 273:6:   React Hook useCallback has an unnecessary dependency: 'invalidateDependentStates'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 335:4:   React Hook useCallback has a missing dependency: 'dispatchWithLogging'. Either include it or remove the dependency array             react-hooks/exhaustive-deps
+  Line 401:4:   React Hook useCallback has a missing dependency: 'dispatchWithLogging'. Either include it or remove the dependency array             react-hooks/exhaustive-deps
+
+src/context/BankingContext.js
+  Line 4:29:  'globalCache' is defined but never used  no-unused-vars
+
+src/context/CaixinhaContext.js
+  Line 6:10:   'globalCache' is defined but never used                                                                                              no-unused-vars
+  Line 161:6:  React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.CAIXINHA'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/ConnectionContext.js
+  Line 7:10:   'useCachedResource' is defined but never used                                                                                           no-unused-vars
+  Line 128:9:  'cacheKey' is assigned a value but never used                                                                                           no-unused-vars
+  Line 167:6:  React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.CONNECTIONS'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/DashboardContext.js
+  Line 169:6:  React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.DASHBOARD'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/InterestsContext.js
+  Line 119:28:  'invalidateCache' is assigned a value but never used                                                                                  no-unused-vars
+  Line 181:6:   React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.INTERESTS'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/MessageContext.js
+  Line 8:8:    'loggerSystem' is defined but never used              no-unused-vars
+  Line 11:7:   'MODULE_NAME' is assigned a value but never used      no-unused-vars
+  Line 15:28:  'invalidateCache' is assigned a value but never used  no-unused-vars
+
+src/context/NotificationContext.js
+  Line 6:10:    'globalCache' is defined but never used                                                                                                   no-unused-vars
+  Line 112:28:  'invalidateCache' is assigned a value but never used                                                                                      no-unused-vars
+  Line 155:6:   React Hook React.useEffect has a missing dependency: 'CRITICAL_SERVICES.NOTIFICATIONS'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/PaymentContext.js
+  Line 6:10:  'useCachedResource' is defined but never used                                                                                            no-unused-vars
+  Line 6:29:  'globalCache' is defined but never used                                                                                                  no-unused-vars
+  Line 7:10:  'formatDocument' is defined but never used                                                                                               no-unused-vars
+  Line 76:9:  'cacheKey' is assigned a value but never used                                                                                            no-unused-vars
+  Line 98:6:  React Hook useEffect has missing dependencies: 'clearPaymentData' and 'setTimeLeft'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/RootStateProvider.js
+  Line 108:23:  'setInitialized' is assigned a value but never used                                                                      no-unused-vars
+  Line 121:10:  'initializationTimestamps' is assigned a value but never used                                                            no-unused-vars
+  Line 274:6:   React Hook useEffect has a missing dependency: 'initializationErrors'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/context/ServiceInitializationProvider.js
+  Line 82:6:   React Hook useEffect has a missing dependency: 'initializationService.serviceStates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 104:6:  React Hook useEffect has a missing dependency: 'initializationService'. Either include it or remove the dependency array                react-hooks/exhaustive-deps
+
+src/context/UserContext.js
+  Line 157:6:  React Hook useEffect has a missing dependency: 'CRITICAL_SERVICES.USER'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/hooks/messages/useMessageOperations.js
+  Line 5:10:  'showPromiseToast' is defined but never used                                                                                                                                                                                       no-unused-vars
+  Line 77:6:  React Hook useCallback has a missing dependency: 'dispatch'. Either include it or remove the dependency array. If 'dispatch' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+
+src/hooks/useProviderReady.js
+  Line 22:6:   React Hook useEffect has a missing dependency: 'dependencies'. Either include it or remove the dependency array                                          react-hooks/exhaustive-deps
+  Line 22:45:  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies  react-hooks/exhaustive-deps
+
+src/services/apiService.js
+  Line 8:7:    'API_URL' is assigned a value but never used                    no-unused-vars
+  Line 181:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/authService.js
+  Line 82:13:  'firebaseToken' is assigned a value but never used  no-unused-vars
+
+src/services/messageService.js
+  Line 161:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/notificationService.js
+  Line 39:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/paymentService.js
+  Line 25:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/services/userService.js
+  Line 96:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/utils/ImageUploadAndCrop.js
+  Line 4:10:  'Button' is defined but never used  no-unused-vars
+
+src/utils/cacheManager.js
+  Line 36:9:   'cacheTime' is constant                                                                                                    no-const-assign
+  Line 41:9:   'staleTime' is constant                                                                                                    no-const-assign
+  Line 219:5:  React Hook useCallback has missing dependencies: 'data' and 'options'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 240:6:  React Hook useEffect has a missing dependency: 'data'. Either include it or remove the dependency array                    react-hooks/exhaustive-deps
+
+src/utils/formatters.js
+  Line 72:3:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+src/utils/loggerSystem.js
+  Line 46:11:  'logData' is assigned a value but never used  no-unused-vars
+
+src/utils/validation.js
+  Line 241:1:  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+webpack 5.98.0 compiled with 1 warning in 21769 ms

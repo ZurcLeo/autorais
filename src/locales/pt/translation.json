@@ -1,0 +1,838 @@
+{
+  "common": {
+    "language": "Idioma",
+    "english": "Inglês",
+    "portuguese": "Português",
+    "dutch": "Holandês",
+    "login_button": "Entrar",
+    "email": "E-mail",
+    "add": "Adicionar",
+    "or": "ou",
+    "footer_text": "© {{year}} ElosCloud. Todos os direitos reservados.",
+    "loading": "Carregando",
+    "languageChangedSuccess": "Idioma alterado com sucesso!",
+    "languageChangedError": "Erro ao alterar o idioma.",
+    "error_invalid_email": "Por favor, insira um endereço de e-mail válido.",
+    "error_submit": "Falha ao enviar o e-mail. Por favor, tente novamente.",
+    "terms_and_conditions": "Termos e Condições",
+    "privacy_policy": "Política de Privacidade",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "notification_history": "Histórico de Notificações",
+    "filter_by": "Filtrar por:",
+    "all": "Todas",
+    "invites": "Convites",
+    "load_more": "Carregar mais",
+    "sort_desc": "Mais recentes primeiro",
+    "sort_asc": "Mais antigas primeiro",
+    "error_server_communication": "Erro na comunicação com o servidor",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "edit": "Editar",
+    "description": "Descrição",
+    "submit": "Enviar"
+  },
+  "privacyPolicy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização:",
+    "intro": "Na Elos Soluções Cloud, valorizamos sua privacidade e estamos comprometidos em proteger seus dados pessoais. Esta política explica como coletamos, usamos e protegemos suas informações ao utilizar nossos serviços.",
+    "contact": "Para quaisquer dúvidas ou preocupações relacionadas à privacidade, entre em contato:",
+    "dataCollection": {
+      "title": "Coleta de Dados",
+      "description": "Coletamos os seguintes tipos de informações para fornecer e melhorar nossos serviços:",
+      "accountInfo": {
+        "title": "Informações da Conta",
+        "description": "Nome, e-mail, foto de perfil e dados de autenticação."
+      },
+      "usageData": {
+        "title": "Dados de Uso",
+        "description": "Interações com nossa plataforma, recursos utilizados e métricas de desempenho."
+      },
+      "technicalData": {
+        "title": "Dados Técnicos",
+        "description": "Informações do dispositivo, endereço IP, tipo de navegador e cookies."
+      }
+    },
+    "dataUsage": {
+      "title": "Uso dos Dados",
+      "description": "Seus dados são usados para:",
+      "coreServices": {
+        "title": "Fornecer Serviços Essenciais",
+        "description": "Habilitar funcionalidades da plataforma, processar transações e manter contas."
+      },
+      "userExperience": {
+        "title": "Melhorar a Experiência do Usuário",
+        "description": "Analisar padrões de uso e otimizar recursos."
+      },
+      "security": {
+        "title": "Garantir Segurança",
+        "description": "Proteger contra fraudes e acessos não autorizados."
+      }
+    },
+    "dataSharing": {
+      "title": "Compartilhamento de Dados",
+      "description": "Compartilhamos dados apenas nas seguintes circunstâncias:",
+      "consent": {
+        "title": "Com Seu Consentimento",
+        "description": "Quando você autoriza explicitamente o compartilhamento."
+      },
+      "providers": {
+        "title": "Provedores de Serviços",
+        "description": "Com parceiros confiáveis que auxiliam nas operações da plataforma."
+      },
+      "legal": {
+        "title": "Requisitos Legais",
+        "description": "Quando exigido por lei ou para proteger direitos."
+      }
+    },
+    "securityMeasures": {
+      "title": "Medidas de Segurança",
+      "description": "Implementamos medidas de segurança robustas, incluindo:",
+      "encryption": {
+        "title": "Criptografia",
+        "description": "Criptografia de dados em trânsito e em repouso."
+      },
+      "accessControls": {
+        "title": "Controles de Acesso",
+        "description": "Políticas rigorosas de acesso e autenticação."
+      },
+      "audits": {
+        "title": "Auditorias Regulares",
+        "description": "Avaliações de segurança e testes de vulnerabilidade."
+      }
+    },
+    "internationalData": {
+      "title": "Dados Internacionais",
+      "description": "Para transferências de dados internacionais, garantimos:",
+      "gdpr": {
+        "title": "Conformidade com LGPD/GDPR",
+        "description": "Adesão às regulamentações de proteção de dados do Brasil e da UE."
+      },
+      "safeguards": {
+        "title": "Acordos de Transferência de Dados",
+        "description": "Garantias apropriadas para transferências internacionais."
+      },
+      "compliance": {
+        "title": "Conformidade Regional",
+        "description": "Cumprimento das leis locais de proteção de dados."
+      }
+    }
+  },
+  "newCaixinha": "Nova Caixinha",
+  "dialogTitle": "Criar Nova Caixinha",
+  "basicInfo": "Informações Básicas",
+  "settings": "Configurações",
+  "review": "Revisão",
+  "currency": "R$",
+  "reviewMessage": "Revise as informações antes de criar a caixinha:",
+  "yes": "Sim",
+  "no": "Não",
+  "months": "meses",
+  "successMessage": "Caixinha criada com sucesso!",
+  "errorMessage": "Erro ao criar caixinha",
+  "cancel": "Cancelar",
+  "back": "Voltar",
+  "next": "Próximo",
+  "create": "Criar",
+  "noActivities": "Nenhuma atividade registrada ainda.",
+  "activeGroups": "Grupos Ativos",
+  "unnamedGroup": "Grupo Sem Nome",
+  "totalBalance": "Saldo Total",
+  "makeContribution": "Fazer Contribuição",
+  "activity": "Atividade",
+  "members": "Membros",
+  "loans": "Empréstimos",
+  "reports": "Relatórios",
+  "myCaixinhas": "Minhas Caixinhas",
+  "selectCaixinha": "Selecione uma caixinha para ver os detalhes",
+  "totalBalanceDescription": "Total acumulado em todas as caixinhas",
+  "activeMembers": "Membros Ativos",
+  "activeMembersDescription": "Total de participantes em todas as caixinhas",
+  "activeGroupsDescription": "{{total}} caixinhas no total",
+  "avgContribution": "Contribuição Média",
+  "avgContributionDescription": "Valor médio de contribuição mensal",
+  "fields": {
+    "name": "Nome da Caixinha",
+    "paymentDay": "Dia do vencimento",
+    "description": "Descrição",
+    "monthlyContribution": "Contribuição Mensal",
+    "duration": "Duração",
+    "12Months": "12 meses",
+    "24Months": "24 meses",
+    "distributionType": "Tipo de Distribuição",
+    "lottery": "Sorteio",
+    "definedOrder": "Ordem definida",
+    "allowLoans": "Permitir Empréstimos"
+  },
+  
+    "banking": {
+      "holderDetailsTitle": "Informe os dados do Titular da conta",
+      "pixDetailsTitle": "Informe os dados do PIX",
+      "pixInfoTooltip": "A chave PIX deve ser informada para validar sua conta",
+      "toggleVisibility": "Visualizar",
+      "accountTypes": "Tipo de Conta",
+      "selectBank": "Selecione o Banco",
+      "travaBancaria": "Trava Bancária",
+      "active": "Ativa",
+      "pending": "Pendente",
+      "registerAccount": "Registrar Conta Bancária",
+      "validateAccount": "Validar Conta",
+      "history": "Histórico de Contas",
+      "account": "Conta",
+      "bank": "Banco",
+      "holder": "Titular",
+      "pix": "PIX",
+      "bankSelectionTitle": "Escolha o seu banco preferido",
+      "accountDetailsTitle": "Informe os detalhes da sua conta",
+      "accounts": "Contas",
+      "validate": "Validar",
+      "accountNumber": "Numero da Conta",
+      "createdAt": "Criado em",
+      "notAvailable": "Indisponivel",
+      "accountHolder": "Titular da Conta",
+      "agency": "Agencia da Conta",
+      "accountType": "Tipo da Conta",
+      "pixKeyType": "Tipo de Chave PIX",
+      "pixKey": "Chave PIX",
+      "savings": "Conta Poupanca",
+      "checking": "Conta Corrente",
+      "salary": "Conta Salario",
+      "payment": "Conta de Pagamento",
+      "digital": "Conta Digital",
+      "cpf": "CPF",
+      "cnpj": "CNPJ",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "random": "Chave Aleatoria"
+    },
+    "termsOfUse": {
+      "title": "Termos de Uso",
+      "lastUpdated": "Última atualização:",
+      "intro": "Bem-vindo à Elos Soluções Cloud. Ao utilizar nossos serviços, você concorda com estes termos.",
+      "contact": "Para dúvidas sobre estes termos, entre em contato:",
+      "account": {
+        "title": "Responsabilidades da Conta",
+        "description": "Os usuários são responsáveis por manter a segurança de suas contas e devem:",
+        "creation": {
+          "title": "Criação de Conta",
+          "description": "Fornecer informações precisas e completas ao criar uma conta."
+        },
+        "security": {
+          "title": "Segurança da Conta",
+          "description": "Manter a confidencialidade da senha e nos notificar sobre acessos não autorizados."
+        },
+        "updates": {
+          "title": "Atualizações da Conta",
+          "description": "Manter as informações da conta atualizadas e corretas."
+        }
+      },
+      "services": {
+        "title": "Uso dos Serviços",
+        "description": "Diretrizes para o uso dos serviços da Elos Soluções Cloud:",
+        "acceptableUse": {
+          "title": "Uso Aceitável",
+          "description": "Os serviços devem ser usados de acordo com todas as leis e regulamentações aplicáveis."
+        },
+        "availability": {
+          "title": "Disponibilidade do Serviço",
+          "description": "Nos esforçamos para garantir alta disponibilidade, mas não garantimos serviço ininterrupto."
+        },
+        "api": {
+          "title": "Uso de APIs",
+          "description": "Respeitar os limites de uso e as diretrizes das APIs."
+        }
+      },
+      "payment": {
+        "title": "Termos de Pagamento",
+        "description": "Políticas de pagamento e cobrança:",
+        "billing": {
+          "title": "Ciclos de Cobrança",
+          "description": "Os serviços são cobrados mensal ou anualmente, dependendo do plano escolhido."
+        },
+        "methods": {
+          "title": "Métodos de Pagamento",
+          "description": "Aceitamos os principais cartões de crédito e métodos de pagamento corporativos aprovados."
+        },
+        "refunds": {
+          "title": "Reembolsos",
+          "description": "As políticas de reembolso variam de acordo com o tipo de serviço e as circunstâncias."
+        }
+      },
+      "prohibited": {
+        "title": "Atividades Proibidas",
+        "description": "As seguintes atividades são estritamente proibidas:",
+        "illegal": {
+          "title": "Atividades Ilegais",
+          "description": "Usar os serviços para qualquer propósito ilegal ou violar leis."
+        },
+        "abuse": {
+          "title": "Abuso de Serviços",
+          "description": "Tentar interferir ou interromper os serviços."
+        },
+        "access": {
+          "title": "Acesso Não Autorizado",
+          "description": "Tentar obter acesso não autorizado a sistemas ou dados."
+        }
+      },
+      "liability": {
+        "title": "Responsabilidade e Garantias",
+        "description": "Termos legais sobre responsabilidade e garantias:",
+        "warranty": {
+          "title": "Garantia do Serviço",
+          "description": "Os serviços são fornecidos 'como estão', sem garantias de qualquer tipo."
+        },
+        "limitation": {
+          "title": "Limitação de Responsabilidade",
+          "description": "Limitamos nossa responsabilidade na medida permitida por lei."
+        },
+        "indemnification": {
+          "title": "Indenização",
+          "description": "Os usuários concordam em nos indenizar por reclamações decorrentes do uso dos serviços."
+        }
+      },
+      "intellectual": {
+        "title": "Propriedade Intelectual",
+        "description": "Direitos e propriedade intelectual relacionados aos serviços:",
+        "ownership": {
+          "title": "Propriedade",
+          "description": "Toda a propriedade intelectual relacionada aos serviços pertence à Elos Soluções Cloud."
+        },
+        "content": {
+          "title": "Conteúdo do Usuário",
+          "description": "Os usuários mantêm os direitos sobre seu conteúdo, concedendo-nos as licenças necessárias."
+        },
+        "feedback": {
+          "title": "Feedback",
+          "description": "Podemos usar o feedback dos usuários sem qualquer obrigação."
+        }
+      }
+    },
+  "loanManagement": {
+    "title": "Empréstimos",
+    "requestLoan": "Solicitar Empréstimo",
+    "availableAmount": "Valor disponível para empréstimos: {{amount}}",
+    "member": "Membro",
+    "value": "Valor",
+    "installments": "Parcelas",
+    "remainingBalance": "Saldo Devedor",
+    "status": "Status",
+    "actions": "Ações",
+    "noActiveLoans": "Nenhum empréstimo ativo no momento.",
+    "newLoan": "Solicitar Novo Empréstimo",
+    "maxAvailableAmount": "Valor máximo disponível: {{amount}}",
+    "limitInfo": "Limite disponível: {{amount}}",
+    "installmentInfo": "Máximo de 12 parcelas",
+    "reason": "Motivo",
+    "reasonHelper": "Descreva o motivo da solicitação do empréstimo",
+    "submit": "Solicitar"
+  },
+  "statuses": {
+    "approved": "Aprovado",
+    "pending": "Pendente",
+    "denied": "Negado"
+  },
+  "errors": {
+    "requiredFields": "Preencha todos os campos obrigatórios",
+    "exceedsLimit": "Valor solicitado excede o limite disponível",
+    "loanError": "Erro ao criar empréstimo",
+    "paymentError": "Erro ao processar pagamento",
+    "cancelError": "Erro ao cancelar empréstimo"
+  },
+  "membersList": {
+    "members": "Membros ({{count}})",
+    "addMember": "Adicionar Membro",
+    "editMember": "Editar Membro",
+    "addNewMember": "Adicionar Novo Membro",
+    "admin": "Admin",
+    "memberUpdated": "Membro atualizado com sucesso",
+    "memberAdded": "Membro adicionado com sucesso",
+    "memberRemoved": "Membro removido com sucesso",
+    "errorManagingMember": "Erro ao gerenciar membro",
+    "errorRemovingMember": "Erro ao remover membro"
+  },
+  "reportsPage": {
+    "period": "Período",
+    "type": "Tipo",
+    "monthly": "Mensal",
+    "quarterly": "Trimestral",
+    "yearly": "Anual",
+    "financial": "Financeiro",
+    "members": "Membros",
+    "loans": "Empréstimos",
+    "downloadReport": "Baixar Relatório",
+    "financialOverview": "Visão Geral Financeira",
+    "contributions": "Contribuições",
+    "balance": "Saldo",
+    "memberParticipation": "Participação dos Membros",
+    "loanStatistics": "Estatísticas de Empréstimos",
+    "totalLoans": "Total de Empréstimos",
+    "activeLoans": "Empréstimos Ativos",
+    "totalLoanAmount": "Valor Total dos Empréstimos",
+    "averageLoanAmount": "Valor Médio dos Empréstimos",
+    "defaultRate": "Taxa de Inadimplência"
+  },
+  "financial": {
+"title": "Gerenciador Financeiro",
+"description": "Acompanhe índices e métricas de vendas e fluxo financeiro."
+  },
+  "orderManagement": {
+"title": "Gerenciador de Pedidos",
+"description": "Acompanhe pedidos e ordens de serviços."
+  },
+  "ProductManagement": {
+"title": "Gerenciador de Produtos",
+"description": "Adicione novos produtos e altere produtos cadastrados."
+  },
+  "StoreOverview": {
+"title": "Visão Geral da Loja",
+"description": "Acompanhe status da loja e verifique dicas e pendências."
+  },
+  "seller.title": "Gestão de Perfil de Vendedor",
+  "seller.fields.name": "Nome",
+  "seller.help.name": "Digite seu nome completo",
+  "seller.fields.phone": "Telefone",
+  "seller.help.phone": "Digite o seu número de telefone",
+  "seller.tooltips.phone": "O formato do número de telefone pode variar dependendo do seu país.",
+  "seller.fields.useCNPJ": "Usar CNPJ",
+  "seller.fields.cpf": "CPF",
+  "seller.fields.cnpj": "CNPJ",
+  "seller.help.document": "Por favor insira um CPF ou CNPJ válido",
+  "seller.fields.businessName": "Razão Social",
+  "seller.help.businessName": "Digite a razão social da sua empresa",
+  "seller.fields.tradingName": "Nome Fantasia",
+  "seller.help.tradingName": "Digite o seu nome fantasia (opcional)",
+  "seller.fields.description": "Descrição",
+  "seller.help.description": "Escreva uma breve descrição do seu negócio",
+  "seller.bankInfo.title": "Informações Bancárias",
+  "seller.bankInfo.bankName": "Nome do Banco",
+  "seller.bankInfo.agency": "Agência",
+  "seller.bankInfo.accountNumber": "Conta Corrente",
+  "seller.errors.invalidDocument": "Número de documento inválido",
+  "seller.errors.registrationFailed": "Falha ao registrar perfil de vendedor",
+  "seller.success.title": "Cadastro Realizado com Sucesso",
+  "seller.success.message": "Seu perfil de vendedor foi criado com sucesso. Pode ser necessário aguardar a aprovação dependendo dos seus documentos.",
+  "seller.info.documentPending": "Seus documentos estão pendentes de aprovação. Você será notificado assim que seu perfil estiver ativo.",
+  "common.back": "Voltar",
+  "common.next": "Próximo",
+  "common.finish": "Finalizar",
+  "seller.steps.basicInfo": "Informações Básicas",
+  "seller.steps.documentVerification": "Verificação de Documentos", 
+  "seller.steps.businessDetails": "Detalhes do Negócio",
+  "seller.steps.paymentInfo": "Informações de Pagamento",
+  "address": {
+    "fields": {
+      "zipCode": "CEP",
+      "street": "Logradouro",
+      "number": "Número",
+      "complement": "Complemento",
+      "neighborhood": "Bairro", 
+      "city": "Cidade",
+      "state": "Estado"
+    },
+    "help": {
+      "zipCode": "Digite o CEP para preencher o endereço automaticamente"
+    },
+    "errors": {
+      "cepNotFound": "CEP não encontrado",
+      "cepSearchFailed": "Falha ao buscar CEP"
+    },
+    "search": "Buscar endereço pelo CEP"
+  },
+  "activityPage": {
+    "contribuicao": {
+      "title": "Contribuição",
+      "description": "Uma nova contribuição foi registrada por {{usuario}}."
+    },
+    "emprestimo": {
+      "title": "Empréstimo",
+      "description": "Um novo empréstimo foi solicitado por {{usuario}}."
+    },
+    "novo_membro": {
+      "title": "Novo Membro",
+      "description": "{{usuario}} se tornou um novo membro."
+    },
+    "default": {
+      "title": "Atividade",
+      "description": "Uma nova atividade foi registrada."
+    }
+  },
+  "interestsContext": {
+    "personalInterests": {
+      "groupTrips": {
+        "label": "Viagens em Grupo",
+        "description": "Pessoas que querem juntar dinheiro para uma viagem em grupo para destinos específicos."
+      },
+      "sustainability": {
+        "label": "Projetos de Sustentabilidade",
+        "description": "Usuários interessados em financiar projetos ecológicos, como hortas comunitárias ou iniciativas de reciclagem."
+      }
+    },
+    "businessInterests": {
+      "services": {
+        "label": "Prestação de Serviços",
+        "description": "Usuários que desejam oferecer ou contratar serviços de microempreendedores, como encanadores, eletricistas, pintores, etc."
+      },
+      "consulting": {
+        "label": "Consultoria e Mentoria",
+        "description": "Interesses voltados a conectar consultores e mentores com pequenos empreendedores que buscam orientação em áreas como marketing, finanças, e gestão."
+      }
+    }
+  },
+    "login": {
+      "login": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "login_button": "Entrar",
+      "login_with_google": "Entrar com Google",
+      "login_with_facebook": "Entrar com Facebook",
+      "login_with_microsoft": "Entrar com Microsoft",
+      "invite_only": "Somente usuários convidados podem se registrar",
+      "how_to_get_invite": "Como obter um convite?",
+      "modal_title": "Como obter um convite",
+      "modal_step1": "Passo 1",
+      "modal_step1_text": "Solicite um convite através do nosso contato.",
+      "modal_step2": "Passo 2",
+      "modal_step2_text": "Aguarde a confirmação por e-mail.",
+      "modal_step3": "Passo 3",
+      "modal_step3_text": "Valide seu e-mail, nome e código de convite.",
+      "modal_step4": "Passo 4",
+      "modal_step4_text": "Crie sua conta no Elos.",
+      "interest_email_label": "Seu E-mail",
+      "interest_button": "Participar da lista de interesse",
+      "privacy_agreement": "Leia nossos ",
+      "and": "e",
+      "modal_instructions": "Instruções Para Obter um Convite"
+    },  
+    "home": {
+      "welcome_message": "Bem-vindo ao ElosCloud",
+      "intro_text": "Uma rede social exclusiva para convidados",
+      "enter_now": "Entrar agora",
+      "features_title": "Descubra o que você pode fazer no ElosCloud",
+      "feature1_title": "Crie sua conta e registre seus dados",
+      "feature2_title": "Compre ElosCoin, a moeda virtual da plataforma",
+      "feature3_title": "Compre e venda produtos e serviços com outros usuários",
+      "feature4_title": "Crie posts e receba reações e comentários",
+      "feature5_title": "Receba presentes de seus amigos e conexões",
+      "feature6_title": "Crie e participe de transmissões ao vivo de vídeo e áudio",
+      "feature7_title": "Envie mensagens privadas para seus contatos",
+      "feature8_title": "Ganhe ElosCoin completando tarefas e missões",
+      "call_to_action": "Faça login com sua conta"
+    },
+    "topnavbar": {
+      "home": "Home",
+      "notifications": "Notificações",
+      "messages": "Conversas",
+      "boxes": "Caixinhas",
+      "friends": "Amigos",
+      "shop": "Loja",
+      "login": "Entrar"
+    },
+    "notification_card": {
+      "mark_as_read": "Marcar como Lida",
+      "accept_invite": "Aceitar",
+      "decline_invite": "Rejeitar",
+      "view_details": "Ver Detalhes",
+      "open_event": "Abrir Evento"
+    },
+   "userprofiledropdown": {
+        "profile": "Perfil",
+        "notifications": "Notificações",
+        "dashboard": "Dashboard",
+        "logout": "Sair"
+      },
+        "register": {
+          "register": "Registrar",
+          "email": "Email",
+          "password": "Senha",
+          "confirm_password": "Confirmar Senha",
+          "register_button": "Registrar",
+          "passwords_dont_match": "As senhas não conferem.",
+          "register_success": "Registro realizado com sucesso!",
+          "register_error": "Erro ao registrar: {{message}}",
+          "provider_register_error": "Erro ao registrar com provedor: {{message}}",
+          "register_with_google": "Registrar com Google",
+          "register_with_facebook": "Registrar com Facebook",
+          "register_with_microsoft": "Registrar com Microsoft",
+          "invite_only": "Esta página é exclusiva para usuários convidados."
+        },
+        "stats": {
+"totalBalance": "Saldo Total",
+"totalMembers": "Total de Membros",
+"totalContributions": "Total de Contribuições",
+"participationRate": "Taxa de Participação",
+"activeCaixinhas": "Caixinhas Ativas",
+"averagePerGroup": "Média por Grupo",
+"monthlyAverage": "Média por Mês",
+"participationTrend": "Tendência de Participação"
+        },
+      "dashboard": {
+        "title": "Dashboard",
+        "dataLoaded": "Dados carregados com sucesso!",
+        "noCaixinhas": "Nenhuma caixinha disponível",
+        "failedToLoadData": "Falha ao carregar dados",
+        "readAt": "Lida em",
+        "noData": "Nenhum dado encontrado.",
+        "caixinhas": {
+          "saldoTotal": "Saldo Total",
+          "contribuicaoMensal": "Contribuição Mensal",
+          "diaVencimento": "Dia de Vencimento",
+          "valorJuros": "Valor de Juros",
+          "valorMulta": "Valor da Multa",
+          "distribuicaoTipo": "Tipo de Distribuição",
+          "dataCriacao": "Data de Criação",
+          "verDetalhes": "Ver Detalhes",
+          "noCaixinhas": "Você ainda não possui caixinhas registradas"
+        },
+        "notifications": {
+          "newNotifications": "Você tem {{count}} novas notificações",
+          "noNewNotifications": "Nenhuma nova notificação",
+          "markAsRead": "Marcar como lido",
+          "markAsUnread": "Desmarcar como lido",
+          "viewEvent": "Ver Evento",
+          "viewCalendar": "Ver Calendário",
+          "viewAll": "Ver todas as notificações",
+          "viewHistory": "Ver histórico de notificações",
+          "none": "Nenhuma notificação"
+        },
+        "messages": {
+          "from": "Mensagem de",
+          "noMessages": "Nenhuma mensagem disponível"
+        },
+        "friends": {
+          "title": "Amigos",
+          "connected": "Conectado há {{duration}}"
+        },
+        "bestFriends": {
+          "title": "Melhor Amigo",
+          "noBestFriends": "Nenhum melhor amigo disponível"
+        }
+      },
+      "profile": {
+  "errorCheckingUpdates": "Erro ao verificar atualizações",
+  "errorUserIdNotFound": "Erro: userId não encontrado",
+  "failedToSaveImage": "Falha ao salvar a imagem",
+  "failedToSave": "Falha ao salvar"
+},
+"conversations": {
+  "unreadConversationsTitle": "Conversas Não Lidas",
+  "unreadConversationsCount": "Conversas Não Lidas"
+},
+"elosCoins": {
+  "balanceTitle": "Saldo de ElosCoins",
+  "buyButton": "Comprar",
+  "currency": "ElosCoins",
+  "recentTransactions": "Últimas Transações",
+  "value": "Valor"
+},
+"friends": {
+  "title": "Amigos",
+  "friendCount": "Amigos"
+},
+"interests": {
+  "personal": "Interesses Pessoais",
+  "business": "Interesses de Negócios",
+  "addRemove": "Adicionar/Remover Interesses",
+  "noInterests": "Nenhum interesse adicionado",
+  "success": "Interesses salvos com sucesso!",
+  "error": "Erro ao salvar interesses, tente novamente.",
+  "errorSaving": "Erro ao salvar interesses:"
+},
+"profileHeader": {
+  "editProfileImage": "Editar imagem de perfil"
+},
+"profileInfo": {
+  "name": "Nome",
+  "description": "Descrição",
+  "notProvided": "Não informado",
+  "saveError": "Erro ao salvar a descrição.",
+  "tipoDePerfil": "Perfil"
+},
+"interestsSection": {
+  "personalInterests": "Interesses Pessoais",
+  "businessInterests": "Interesses de Negócios",
+  "addRemove": "Adicionar/Remover Interesses",
+  "noInterests": "Nenhum interesse adicionado",
+  "success": "Interesses salvos com sucesso!",
+  "error": "Erro ao salvar interesses, tente novamente.",
+  "errorSaving": "Erro ao salvar interesses:"
+},
+"interestsLists": {
+  "pessoais": {
+    "groupTrips": {
+      "label": "Viagens em Grupo",
+      "description": "Pessoas que querem juntar dinheiro para uma viagem em grupo para destinos específicos."
+    },
+    "sustainability": {
+      "label": "Projetos de Sustentabilidade",
+      "description": "Usuários interessados em financiar projetos ecológicos, como hortas comunitárias ou iniciativas de reciclagem."
+    },
+    "weddings": {
+      "label": "Casamentos e Eventos",
+      "description": "Grupos que se unem para economizar e planejar casamentos, festas de aniversário, ou outros eventos sociais."
+    },
+    "education": {
+      "label": "Educação e Cursos Coletivos",
+      "description": "Pessoas que se reúnem para financiar cursos online ou presenciais, workshops e formações profissionais."
+    },
+    "sports": {
+      "label": "Esportes e Aventura",
+      "description": "Usuários interessados em juntar dinheiro para realizar atividades esportivas em grupo, como trilhas, corridas ou campeonatos."
+    },
+    "socialCauses": {
+      "label": "Apoio a Causas Sociais",
+      "description": "Pessoas que se organizam para arrecadar fundos para causas sociais, como apoio a ONGs, projetos de inclusão social ou ajuda humanitária."
+    },
+    "hobbies": {
+      "label": "Colecionismo e Hobbies",
+      "description": "Grupos que se unem para financiar aquisições ou eventos relacionados a hobbies como colecionismo, fotografia, música, etc."
+    },
+    "technology": {
+      "label": "Tecnologia e Gadgets",
+      "description": "Interesses voltados a arrecadar fundos para comprar novos dispositivos tecnológicos em grupo."
+    },
+    "wellbeing": {
+      "label": "Iniciativas de Bem-Estar",
+      "description": "Grupos que se unem para financiar atividades voltadas ao bem-estar, como retiros de meditação, yoga ou spa."
+    },
+    "localCommunities": {
+      "label": "Comunidades Locais",
+      "description": "Pessoas que querem juntar dinheiro para melhorar sua comunidade, seja construindo parques, organizando eventos ou projetos de infraestrutura local."
+    }
+  },
+  "negocios": {
+    "services": {
+      "label": "Prestação de Serviços",
+      "description": "Usuários que desejam oferecer ou contratar serviços de microempreendedores, como encanadores, eletricistas, pintores, etc."
+    },
+    "consulting": {
+      "label": "Consultoria e Mentoria",
+      "description": "Interesses voltados a conectar consultores e mentores com pequenos empreendedores que buscam orientação em áreas como marketing, finanças, e gestão."
+    },
+    "crafts": {
+      "label": "Vendas de Produtos Artesanais",
+      "description": "Microempreendedores que desejam vender produtos artesanais, como roupas, acessórios, ou itens de decoração."
+    },
+    "delivery": {
+      "label": "Delivery e Logística Local",
+      "description": "Serviços de entrega local para microempreendedores que precisam distribuir seus produtos."
+    },
+    "digitalMarketing": {
+      "label": "Marketing Digital para Pequenos Negócios",
+      "description": "Microempreendedores interessados em contratar serviços de marketing digital, como gestão de redes sociais, criação de sites, e anúncios online."
+    },
+    "foodServices": {
+      "label": "Serviços de Alimentação",
+      "description": "Conexão entre microempreendedores que oferecem serviços de alimentação, como catering, food trucks, ou refeições caseiras, e consumidores ou empresas."
+    },
+    "softwareDevelopment": {
+      "label": "Tecnologia e Desenvolvimento de Software",
+      "description": "Desenvolvedores e profissionais de TI que oferecem serviços para criar sites, apps, ou soluções tecnológicas para microempresas."
+    },
+    "education": {
+      "label": "Educação e Treinamento Corporativo",
+      "description": "Ofertas de cursos e treinamentos voltados para capacitação de microempreendedores em diversas áreas, como gestão de negócios, vendas, e atendimento ao cliente."
+    },
+    "design": {
+      "label": "Design e Criação de Marca",
+      "description": "Serviços de design gráfico, criação de logotipos, embalagens, e identidade visual para microempresas."
+    },
+    "coworking": {
+      "label": "Coworking e Espaços de Trabalho Compartilhado",
+      "description": "Interesse em compartilhar ou contratar espaços de coworking, ideal para microempreendedores que precisam de um ambiente de trabalho flexível."
+    }
+  }
+},
+"invitationList": {
+  "searchByEmail": "Buscar por email",
+  "status": "Status",
+  "all": "Todos",
+  "pending": "Pendentes",
+  "used": "Aceitos",
+  "canceled": "Cancelados",
+  "expired": "Expirados",
+  "sortBy": "Ordenar por",
+  "mostRecentFirst": "Mais recentes primeiro",
+  "oldestFirst": "Mais antigos primeiro"
+},
+"friendCard": {
+  "viewFriendship": "Ver Amizade",
+  "addFriend": "Adicionar Amigo",
+  "deleteFriendship": "Excluir Amizade",
+  "startConversation": "Iniciar Conversa",
+  "sendGift": "Enviar Presente",
+  "removeBestFriend": "Remover Melhor Amigo",
+  "addBestFriend": "Adicionar Melhor Amigo",
+  "personalInterests": "Interesses Pessoais",
+  "businessInterests": "Interesses de Negócios",
+  "seeLess": "Ver Menos",
+  "seeMore": "Ver Mais",
+  "viewProfile": "Ver Perfil"
+},
+"friendSearch": {
+  "placeholder": "Buscar amigos..."
+},
+"friendsPage": {
+  "instructions": "Gerencie suas conexões, encontre novos amigos e mantenha seus relacionamentos ativos.",
+  "myFriends": "Meus Amigos",
+  "all": "Todos",
+  "active": "Ativos",
+  "inactive": "Inativos",
+  "invited": "Convidados",
+  "name": "Nome",
+  "interests": "Interesses",
+  "inviteFriend": "Convidar Amigo",
+  "searchResults": "Resultados da Busca",
+  "noFriendsFound": "Nenhum amigo encontrado. Que tal convidar alguns?",
+  "sentInvitations": "Convites Enviados",
+  "noResults": "Nenhum resultado encontrado. Tente uma busca diferente."
+},
+"invitationCard": {
+  "status": {
+    "pending": "PENDENTE",
+    "used": "ACEITO",
+    "canceled": "CANCELADO",
+    "expired": "EXPIRADO"
+  },
+  "sentAt": "Enviado em: {{date}}",
+  "inviteCode": "Código do Convite",
+  "showCode": "Mostrar Código",
+  "hideCode": "Esconder Código",
+  "resendInvite": "Reenviar Convite",
+  "cancelInvite": "Cancelar Convite",
+  "inviteAccepted": "Convite Aceito",
+  "statusMessage": {
+    "pending": "Aguardando resposta.",
+    "used": "Aceito em {{date}}.",
+    "canceled": "Cancelado em {{date}}.",
+    "expired": "Expirou. Convide {{email}} novamente."
+  },
+  "options": "Opções do convite"
+},
+"invitationSendModal": {
+  "sending": "Enviando convite...",
+  "success": "Convite enviado com sucesso!",
+  "error": "Erro ao enviar convite.",
+  "problem": "Tivemos um problema ao criar o convite, tente novamente em alguns minutos.",
+  "termsError": "Por favor, concorde com os termos e permita o compartilhamento do perfil.",
+  "title": "Enviar Convite",
+  "rules": "Ao enviar um convite, você concorda com as seguintes regras:",
+  "rule1": "O convite só pode ser reenviado 1 hora após o primeiro envio.",
+  "rule2": "O convidado terá 5 dias, a contar da data do recebimento do convite, para validá-lo. Caso contrário, o convite expirará.",
+  "rule3": "Nenhuma informação sobre o usuário já registrado será revelada até que ele confirme que deseja se conectar.",
+  "friendName": "Nome do Amigo",
+  "friendEmail": "Email do Amigo",
+  "agreeTerms": "Ao enviar um convite você concorda com os termos de uso e a política de privacidade da Elos.",
+  "shareProfile": "O amigo que receberá o convite terá acesso ao seu nome e foto de perfil.",
+  "sendInvite": "Enviar Convite",
+  "cancel": "Cancelar",
+  "viewTerms": "Ver Termos de Uso",
+  "viewPrivacy": "Ver Política de Privacidade",
+  "allRightsReserved": "Todos os direitos reservados."
+},
+"chatWindow": {
+  "conversationWith": "Conversa com",
+  "loadingConversation": "Carregando conversa com",
+  "typeYourMessage": "Digite sua mensagem",
+  "send": "Enviar"
+}
+  }  

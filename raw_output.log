@@ -1,0 +1,227 @@
+yarn run v1.22.22
+$ react-scripts start
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "x-powered-by" to true
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "etag" to 'weak'
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "etag fn" to [Function: generateETag]
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "env" to 'development'
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "query parser" to 'extended'
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "query parser fn" to [Function: parseExtendedQueryString]
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "subdomain offset" to 2
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "trust proxy" to false
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "trust proxy fn" to [Function: trustNone]
+Mon, 17 Feb 2025 13:38:57 GMT express:application booting in development mode
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "view" to [Function: View]
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "views" to '/Users/leocruz/Documents/Projects/eloscloud/frontend/views'
+Mon, 17 Feb 2025 13:38:57 GMT express:application set "jsonp callback name" to 'callback'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' query
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' expressInit
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route new '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route acl '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route bind '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route checkout '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route connect '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route copy '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route delete '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route get '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route head '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route link '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route lock '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route m-search '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route merge '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route mkactivity '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route mkcalendar '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route mkcol '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route move '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route notify '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route options '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route patch '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route post '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route propfind '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route proppatch '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route purge '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route put '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route query '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route rebind '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route report '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route search '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route source '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route subscribe '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route trace '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route unbind '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route unlink '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route unlock '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route unsubscribe '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route new '/__webpack_dev_server__/sockjs.bundle.js'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/__webpack_dev_server__/sockjs.bundle.js'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route get '/__webpack_dev_server__/sockjs.bundle.js'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route new '/webpack-dev-server/invalidate'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/webpack-dev-server/invalidate'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route get '/webpack-dev-server/invalidate'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route new '/webpack-dev-server/open-editor'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/webpack-dev-server/open-editor'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route get '/webpack-dev-server/open-editor'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route new '/webpack-dev-server'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/webpack-dev-server'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:route get '/webpack-dev-server'
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' handleWebpackInternalMiddleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' compression
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '*' bound setHeaders
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' middleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' handler
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' middleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' middleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' serveStatic
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' <anonymous>
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' middleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' serveStatic
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' middleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' bound serveMagicHtml
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '*' middleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '*'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' redirectServedPathMiddleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+Mon, 17 Feb 2025 13:38:57 GMT express:router use '/' noopServiceWorkerMiddleware
+Mon, 17 Feb 2025 13:38:57 GMT express:router:layer new '/'
+(node:30367) [DEP_WEBPACK_DEV_SERVER_HTTPS] DeprecationWarning: 'https' option is deprecated. Please use the 'server' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:30367) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:30367) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Mon, 17 Feb 2025 13:38:58 GMT express:router dispatching GET /
+Mon, 17 Feb 2025 13:38:58 GMT express:router query  : /
+Mon, 17 Feb 2025 13:38:58 GMT express:router expressInit  : /
+Mon, 17 Feb 2025 13:38:58 GMT express:router handleWebpackInternalMiddleware  : /
+Mon, 17 Feb 2025 13:38:58 GMT express:router compression  : /
+Mon, 17 Feb 2025 13:38:58 GMT express:router trim prefix (/) from url /
+Mon, 17 Feb 2025 13:38:58 GMT express:router bound setHeaders / : /
+Mon, 17 Feb 2025 13:38:58 GMT express:router middleware  : /
+Compiled successfully!
+
+You can now view frontend in the browser.
+
+  Local:            https://localhost:3000
+  On Your Network:  https://192.168.15.15:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+asset static/js/bundle.js 17.1 MiB [emitted] (name: main) 1 related asset
+asset index.html 618 bytes [emitted]
+asset asset-manifest.json 190 bytes [emitted]
+cached modules 23.6 MiB [cached] 15124 modules
+runtime modules 31.7 KiB 17 modules
+javascript modules 18.6 KiB
+  modules by path ./node_modules/debug/src/*.js 13.2 KiB
+    ./node_modules/debug/src/browser.js 5.94 KiB [built] [code generated]
+    ./node_modules/debug/src/common.js 7.22 KiB [built] [code generated]
+  ./src/index.js 2.54 KiB [built] [code generated]
+  ./node_modules/ms/index.js 2.93 KiB [built] [code generated]
+webpack 5.98.0 compiled successfully in 3973 ms
+Mon, 17 Feb 2025 13:39:02 GMT express:router dispatching GET /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router query  : /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router expressInit  : /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router handleWebpackInternalMiddleware  : /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router compression  : /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router trim prefix (/static/js/bundle.js) from url /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router bound setHeaders /static/js/bundle.js : /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /static/js/bundle.js
+Mon, 17 Feb 2025 13:39:02 GMT express:router dispatching GET /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router query  : /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router expressInit  : /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router handleWebpackInternalMiddleware  : /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router compression  : /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router trim prefix (/static/js/bundle.js.map) from url /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router bound setHeaders /static/js/bundle.js.map : /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /static/js/bundle.js.map
+Mon, 17 Feb 2025 13:39:02 GMT express:router dispatching GET /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router query  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router expressInit  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router handleWebpackInternalMiddleware  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router compression  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router trim prefix (/favicon.ico) from url /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router bound setHeaders /favicon.ico : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router handler  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router serveStatic  : /favicon.ico
+Mon, 17 Feb 2025 13:39:02 GMT express:router dispatching GET /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router query  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router expressInit  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router handleWebpackInternalMiddleware  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router compression  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router trim prefix (/manifest.json) from url /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router bound setHeaders /manifest.json : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router handler  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router serveStatic  : /manifest.json
+Mon, 17 Feb 2025 13:39:02 GMT express:router dispatching GET /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router query  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router expressInit  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router handleWebpackInternalMiddleware  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router compression  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router trim prefix (/logo192.png) from url /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router bound setHeaders /logo192.png : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router handler  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router middleware  : /logo192.png
+Mon, 17 Feb 2025 13:39:02 GMT express:router serveStatic  : /logo192.png

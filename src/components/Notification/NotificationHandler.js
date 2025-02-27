@@ -1,32 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { fetchNotifications, markAsRead } from '../../services/notificationService';
+import notificationService from '../../services/notificationService';
+import { useAuth } from '../../context/AuthContext';
 
 const NotificationHandler = () => {
+  const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchUserNotifications = async () => {
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        const userNotifications = await fetchNotifications(userId);
+      if (currentUser?.uid) {
+        const response = await notificationService.fetchNotifications(currentUser.uid);
+        const userNotifications = [...response.data.privateNotification, ...response.data.publicNotification];
+        
         setNotifications(userNotifications);
+
         userNotifications.forEach(notification => {
           toast.info(notification.conteudo, {
-            onClose: () => handleNotificationRead(userId, notification.id),
+            onClose: () => handleNotificationRead(currentUser.uid, notification.id, notification.tipo),
             autoClose: false,
             closeOnClick: true,
           });
         });
       }
     };
-
     fetchUserNotifications();
-  }, []);
+  }, [currentUser]);
 
-  const handleNotificationRead = async (userId, notificationId) => {
-    await markAsRead(userId, notificationId);
-    setNotifications(notifications.filter(n => n.id !== notificationId));
+  const handleNotificationRead = async (userId, notificationId, type) => {
+    await notificationService.markAsRead(userId, notificationId, type);
+    setNotifications(prevNotifications => prevNotifications.filter(n => n.id !== notificationId));
   };
 
   return null;
