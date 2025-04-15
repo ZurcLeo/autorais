@@ -1,3 +1,4 @@
+
 {
   "common": {
     "language": "Idioma",
@@ -30,7 +31,135 @@
     "save": "Salvar",
     "edit": "Editar",
     "description": "Descrição",
-    "submit": "Enviar"
+    "submit": "Enviar",
+    "settings": "Configurações",
+    "user": "Usuário",
+    "alerts": "Alertas",
+    "messages": "Mensagens",
+    "completed": "concluido"
+  },
+  "app": {
+"title": "ElosCloud"
+  },
+
+  "cookiePolicy": {
+    "title": "Política de Cookies",
+    "lastUpdated": "Última atualização:",
+    "intro": "Na Elos Soluções Cloud, utilizamos cookies e tecnologias similares para melhorar sua experiência em nossa plataforma. Esta política explica como e por que utilizamos cookies, quais tipos são empregados e como você pode gerenciar suas preferências.",
+    "contact": "Para dúvidas sobre nossa política de cookies, entre em contato:",
+    "whatAreCookies": {
+      "title": "O que são Cookies?",
+      "description": "Cookies são pequenos arquivos de texto armazenados no seu dispositivo (computador, tablet ou smartphone) quando você visita websites. Eles permitem que o site reconheça seu dispositivo e lembre-se de certas informações sobre sua visita."
+    },
+    "cookieTypes": {
+      "title": "Tipos de Cookies que Utilizamos",
+      "description": "Utilizamos diferentes tipos de cookies para proporcionar a melhor experiência:",
+      "essential": {
+        "title": "Cookies Essenciais",
+        "purpose": "Finalidade: Fundamentais para o funcionamento básico da plataforma.",
+        "details": "Permitem navegar pelo site e utilizar funcionalidades essenciais como áreas seguras e acesso à conta. Sem estes cookies, nossos serviços não podem ser fornecidos.",
+        "duration": "Duração: Principalmente cookies de sessão (expiram quando você fecha o navegador)."
+      },
+      "performance": {
+        "title": "Cookies de Desempenho",
+        "purpose": "Finalidade: Melhorar o desempenho e usabilidade do site.",
+        "details": "Coletam informações anônimas sobre como os visitantes utilizam nossa plataforma, incluindo páginas mais visitadas e possíveis mensagens de erro.",
+        "duration": "Duração: Persistentes (permanecem no dispositivo por um período específico)."
+      },
+      "functionality": {
+        "title": "Cookies de Funcionalidade",
+        "purpose": "Finalidade: Lembrar preferências e escolhas do usuário.",
+        "details": "Permitem que o site lembre de suas preferências (como idioma ou região) e forneça recursos aprimorados e mais personalizados.",
+        "duration": "Duração: Persistentes."
+      },
+      "analytics": {
+        "title": "Cookies de Análise",
+        "purpose": "Finalidade: Entender o comportamento do usuário e melhorar nossos serviços.",
+        "details": "Coletam dados sobre padrões de uso para analisar o tráfego e compreender como os usuários interagem com nossa plataforma.",
+        "tools": "Ferramentas: Utilizamos o Google Analytics e outras ferramentas similares.",
+        "duration": "Duração: Persistentes."
+      },
+      "thirdParty": {
+        "title": "Cookies de Terceiros",
+        "purpose": "Finalidade: Funcionalidades fornecidas por serviços de terceiros.",
+        "details": "Alguns cookies são definidos por serviços de terceiros que aparecem em nossas páginas, como botões de compartilhamento social ou vídeos incorporados.",
+        "control": "Controle: Estes cookies são gerenciados por terceiros e não temos controle sobre eles."
+      }
+    },
+    "cookieManagement": {
+      "title": "Como Gerenciar Cookies",
+      "description": "Você pode controlar e gerenciar cookies de várias maneiras:",
+      "browserSettings": {
+        "title": "Configurações do Navegador",
+        "description": "Você pode modificar as configurações do seu navegador para aceitar, rejeitar ou excluir cookies. Observe que, ao desativar cookies essenciais, partes do nosso site podem não funcionar corretamente."
+      },
+      "consentBanner": {
+        "title": "Banner de Consentimento",
+        "description": "Quando você visita nossa plataforma pela primeira vez, um banner de consentimento permite que você aceite ou recuse cookies não essenciais."
+      },
+      "preferencesPanel": {
+        "title": "Painel de Preferências",
+        "description": "Você pode acessar nosso Painel de Preferências de Cookies a qualquer momento para alterar suas escolhas."
+      }
+    },
+    "policyChanges": {
+      "title": "Alterações à Política de Cookies",
+      "description": "Podemos atualizar esta política periodicamente. Quaisquer mudanças significativas serão notificadas através de um aviso proeminente em nosso site ou por e-mail, se apropriado."
+    },
+    "legalBasis": {
+      "title": "Base Legal",
+      "description": "Processamos dados coletados via cookies com base em:",
+      "consent": {
+        "title": "Consentimento",
+        "description": "Para cookies não essenciais"
+      },
+      "legitimateInterest": {
+        "title": "Interesse Legítimo",
+        "description": "Para cookies estritamente necessários ao funcionamento da plataforma"
+      },
+      "contractualObligation": {
+        "title": "Obrigação Contratual",
+        "description": "Quando necessário para fornecer serviços solicitados"
+      }
+    },
+    "refusalImpact": {
+      "title": "Impacto da Recusa de Cookies",
+      "description": "A recusa de certos cookies pode impactar sua experiência em nosso site:",
+      "essential": {
+        "title": "Cookies Essenciais",
+        "description": "Funcionalidades básicas podem não operar corretamente"
+      },
+      "performance": {
+        "title": "Cookies de Desempenho e Análise",
+        "description": "Não poderemos melhorar nossos serviços com base no comportamento do usuário"
+      },
+      "functionality": {
+        "title": "Cookies de Funcionalidade",
+        "description": "Suas preferências não serão salvas entre as sessões"
+      }
+    }
+  },
+  "connectionRequest": {
+"new": "Nova",
+"pending": "Pendente",
+"accepted": "Aceito",
+"rejected": "Rejeitado",
+"cancelled": "Cancelado",
+"blocked": "Bloqueado",
+"block": "Bloquear",
+"mutualConnections": "Amigos em Comum",
+"acceptButton": "Aceitar",
+"noRequests": "Nenhum pedido de conexão.",
+"rejectButton": "Rejeitar",
+"sentAt": "Enviado em",
+"showLess": "Mostrar Menos",
+"showMore": "Mostrar Mais",
+"acceptRequest": "Aceitar Solicitação",
+"rejectRequest": "Rejeitar Solicitação",
+"cancelRequest": "Cancelar Solicitação",
+"viewProfileButton":"Ver Perfil",
+"viewProfile":"Ver Perfil"
+
   },
   "privacyPolicy": {
     "title": "Política de Privacidade",
@@ -118,6 +247,7 @@
       }
     }
   },
+  
   "newCaixinha": "Nova Caixinha",
   "dialogTitle": "Criar Nova Caixinha",
   "basicInfo": "Informações Básicas",
@@ -482,11 +612,18 @@
       "login": "Entrar",
       "email": "E-mail",
       "password": "Senha",
+      "email_info_text": "Participe da nossa lista de interesse, entreremos em contato em breve.",
       "login_button": "Entrar",
+      "login_description": "Entre com suas credenciais de acesso.",
+      "welcome_back": "Bem-vind@ de volta!",
       "login_with_google": "Entrar com Google",
       "login_with_facebook": "Entrar com Facebook",
       "login_with_microsoft": "Entrar com Microsoft",
       "invite_only": "Somente usuários convidados podem se registrar",
+      "no_account_yet": "Ainda nao  tem uma conta?",
+      "sign_up": "Recebeu um convite?",
+      "remember_me": "Lembrar meus dados",
+      "forgot_password": "Esqueceu sua senha?",
       "how_to_get_invite": "Como obter um convite?",
       "modal_title": "Como obter um convite",
       "modal_step1": "Passo 1",
@@ -503,28 +640,102 @@
       "and": "e",
       "modal_instructions": "Instruções Para Obter um Convite"
     },  
-    "home": {
-      "welcome_message": "Bem-vindo ao ElosCloud",
-      "intro_text": "Uma rede social exclusiva para convidados",
-      "enter_now": "Entrar agora",
-      "features_title": "Descubra o que você pode fazer no ElosCloud",
-      "feature1_title": "Crie sua conta e registre seus dados",
-      "feature2_title": "Compre ElosCoin, a moeda virtual da plataforma",
-      "feature3_title": "Compre e venda produtos e serviços com outros usuários",
-      "feature4_title": "Crie posts e receba reações e comentários",
-      "feature5_title": "Receba presentes de seus amigos e conexões",
-      "feature6_title": "Crie e participe de transmissões ao vivo de vídeo e áudio",
-      "feature7_title": "Envie mensagens privadas para seus contatos",
-      "feature8_title": "Ganhe ElosCoin completando tarefas e missões",
-      "call_to_action": "Faça login com sua conta"
-    },
+      "home": {
+        "portfolio": "Portfólio",
+        "services": "Serviços",
+        "contact": "Contato",
+        "login": "Entrar"
+      },
+      "hero": {
+        "title": "Soluções Integradas para sua Empresa",
+        "subtitle": "Transformando Negócios com Tecnologia",
+        "description": "Nossa plataforma oferece soluções completas para gestão empresarial, comunicação e análise de dados. Aumente a produtividade e impulsione os resultados do seu negócio com nossas ferramentas avançadas.",
+        "cta": "Fale Conosco"
+      },
+      "features": {
+        "title": "Nossos Diferenciais",
+        "items": {
+          "auth": {
+            "title": "Autenticação Segura",
+            "description": "Sistema de convites e controle de acesso granular"
+          },
+          "finance": {
+            "title": "Gestão Financeira",
+            "description": "Caixinhas coletivas com relatórios detalhados"
+          },
+          "social": {
+            "title": "Rede Social Corporativa",
+            "description": "Comunicação integrada entre serviços"
+          },
+          "streaming": {
+            "title": "Streaming Profissional",
+            "description": "Plataforma para lives e transmissões corporativas"
+          },
+          "dashboard": {
+            "title": "Painéis Administrativos",
+            "description": "Controle completo de múltiplas aplicações"
+          }
+        }
+      },
+      "portfolio": {
+        "title": "Nosso Portfólio",
+        "items": {
+          "erp": {
+            "title": "Sistema de Gestão Empresarial",
+            "description": "Plataforma completa com módulos financeiros, RH e gestão de projetos integrada."
+          },
+          "communication": {
+            "title": "Plataforma de Comunicação",
+            "description": "Sistema integrado de comunicação corporativa com chat, videoconferência e compartilhamento de documentos."
+          },
+          "analytics": {
+            "title": "Dashboard Analytics",
+            "description": "Painel de métricas com BI avançado para tomadas de decisão estratégicas."
+          }
+        }
+      },
+      "contact": {
+        "title": "Entre em Contato",
+        "subtitle": "Estamos à disposição para ajudar",
+        "description": "Preencha o formulário abaixo e nossa equipe entrará em contato o mais breve possível. Estamos ansiosos para conhecer seu negócio e mostrar como podemos ajudar a alcançar seus objetivos."
+      },
+      "form": {
+        "name": "Nome",
+        "email": "E-mail",
+        "phone": "Telefone",
+        "company": "Empresa",
+        "message": "Mensagem",
+        "submit": "Enviar Mensagem"
+      },
+      "footer": {
+        "company": "Empresa",
+        "about": "Sobre Nós",
+        "team": "Equipe",
+        "careers": "Carreiras",
+        "contact": "Contato",
+        "legal": "Legal",
+        "terms": "Termos de Uso",
+        "privacy": "Política de Privacidade",
+        "cookies": "Cookies",
+        "products": "Produtos",
+        "erp": "ERP Empresarial",
+        "communication": "Plataforma de Comunicação",
+        "analytics": "Analytics",
+        "social": "Rede Social Corporativa",
+        "copyright": "© 2025 ElosCloud. Todos os direitos reservados.",
+        "follow": "Siga-nos",
+        "newsletter": "Receba nossas novidades",
+        "subscribe": "Inscrever-se",
+        "subscribeSuccess": "Obrigado por se inscrever!",
+        "subscribeError": "Ocorreu um erro. Por favor, tente novamente."
+      },
     "topnavbar": {
       "home": "Home",
       "notifications": "Notificações",
       "messages": "Conversas",
-      "boxes": "Caixinhas",
+      "caixinha": "Caixinhas",
       "friends": "Amigos",
-      "shop": "Loja",
+      "marketplace": "Loja",
       "login": "Entrar"
     },
     "notification_card": {
@@ -538,7 +749,9 @@
         "profile": "Perfil",
         "notifications": "Notificações",
         "dashboard": "Dashboard",
-        "logout": "Sair"
+        "logout": "Sair",
+        "settings": "Configurações",
+        "help": "Ajuda"
       },
         "register": {
           "register": "Registrar",
@@ -586,6 +799,7 @@
         "notifications": {
           "newNotifications": "Você tem {{count}} novas notificações",
           "noNewNotifications": "Nenhuma nova notificação",
+          "no_notifications": "Sem notificacoes",
           "markAsRead": "Marcar como lido",
           "markAsUnread": "Desmarcar como lido",
           "viewEvent": "Ver Evento",
@@ -635,7 +849,8 @@
   "noInterests": "Nenhum interesse adicionado",
   "success": "Interesses salvos com sucesso!",
   "error": "Erro ao salvar interesses, tente novamente.",
-  "errorSaving": "Erro ao salvar interesses:"
+  "errorSaving": "Erro ao salvar interesses:",
+  "editInterests": "Editar Interesses"
 },
 "profileHeader": {
   "editProfileImage": "Editar imagem de perfil"
@@ -762,8 +977,7 @@
   "sendGift": "Enviar Presente",
   "removeBestFriend": "Remover Melhor Amigo",
   "addBestFriend": "Adicionar Melhor Amigo",
-  "personalInterests": "Interesses Pessoais",
-  "businessInterests": "Interesses de Negócios",
+  "interests": "Interesses",
   "seeLess": "Ver Menos",
   "seeMore": "Ver Mais",
   "viewProfile": "Ver Perfil"
@@ -772,6 +986,7 @@
   "placeholder": "Buscar amigos..."
 },
 "friendsPage": {
+  "title": "Amigos",
   "instructions": "Gerencie suas conexões, encontre novos amigos e mantenha seus relacionamentos ativos.",
   "myFriends": "Meus Amigos",
   "all": "Todos",
@@ -781,10 +996,23 @@
   "name": "Nome",
   "interests": "Interesses",
   "inviteFriend": "Convidar Amigo",
+  "findFriends": "Encontrar Amigos",
   "searchResults": "Resultados da Busca",
   "noFriendsFound": "Nenhum amigo encontrado. Que tal convidar alguns?",
   "sentInvitations": "Convites Enviados",
   "noResults": "Nenhum resultado encontrado. Tente uma busca diferente."
+},
+"sidebar": {
+"home": "Inicio",
+"social": "Social",
+"posts": "Postagens",
+"friends": "Amigos",
+"conversations": "Conversas",
+"gifts": "Presentes",
+"financial": "Financeiro",
+"box": "Caixinha",
+"contribute": "Contribuir",
+"createBox": "Criar Caixinha"
 },
 "invitationCard": {
   "status": {
@@ -809,6 +1037,7 @@
   "options": "Opções do convite"
 },
 "invitationSendModal": {
+  "followUp": "Ja enviamos o convite para o email que voce informou.",
   "sending": "Enviando convite...",
   "success": "Convite enviado com sucesso!",
   "error": "Erro ao enviar convite.",
@@ -835,4 +1064,46 @@
   "typeYourMessage": "Digite sua mensagem",
   "send": "Enviar"
 }
-  }  
+,
+  "cookies": {
+    "managePreferences": "Gerenciar preferências de cookies",
+    "weUseCookies": "Utilizamos cookies neste site",
+    "bannerDescription": "Este site utiliza cookies para melhorar sua experiência, personalizar conteúdo e analisar o tráfego. Você pode personalizar suas preferências ou aceitar nosso uso recomendado.",
+    "rejectNonEssential": "Aceitar apenas necessários",
+    "customize": "Personalizar",
+    "acceptAll": "Aceitar todos",
+    "cookiePreferences": "Preferências de Cookies",
+    "preferencesDescription": "Os cookies são pequenos arquivos de texto armazenados no seu dispositivo que nos ajudam a melhorar sua experiência. Abaixo você pode escolher quais tipos de cookies deseja permitir.",
+    "savePreferences": "Salvar preferências",
+    "privacyPolicy": "Política de Privacidade",
+    "necessary": {
+      "title": "Cookies Necessários",
+      "purpose": "Essenciais para o funcionamento do site",
+      "details": "Estes cookies são necessários para o funcionamento básico do site e não podem ser desativados. Normalmente, são definidos apenas em resposta a ações feitas por você que equivalem a uma solicitação de serviços, como definir suas preferências de privacidade, fazer login ou preencher formulários."
+    },
+    "functionality": {
+      "title": "Cookies Funcionais",
+      "purpose": "Permitem funcionalidades aprimoradas",
+      "details": "Estes cookies permitem que o site forneça funcionalidades e personalização aprimoradas. Eles podem ser definidos por nós ou por provedores terceiros cujos serviços adicionamos às nossas páginas. Se você não permitir esses cookies, alguns ou todos esses serviços podem não funcionar corretamente."
+    },
+    "analytics": {
+      "title": "Cookies Analíticos",
+      "purpose": "Ajudam a melhorar o site através da análise de uso",
+      "details": "Esses cookies nos permitem contar visitas e fontes de tráfego para medir e melhorar o desempenho do nosso site. Eles nos ajudam a saber quais páginas são as mais e menos populares e como os visitantes navegam pelo site. Todas as informações coletadas por esses cookies são agregadas e, portanto, anônimas."
+    },
+    "marketing": {
+      "title": "Cookies de Marketing",
+      "purpose": "Utilizados para segmentação de publicidade",
+      "details": "Estes cookies podem ser definidos através do nosso site pelos nossos parceiros de publicidade. Eles podem ser usados por essas empresas para criar um perfil de seus interesses e mostrar anúncios relevantes em outros sites. Eles não armazenam diretamente informações pessoais, mas são baseados na identificação exclusiva do seu navegador e dispositivo de internet."
+    },
+    "thirdParty": {
+      "title": "Cookies de Terceiros",
+      "purpose": "Utilizados por serviços externos",
+      "details": "Estes cookies são definidos por serviços de terceiros que aparecem em nossas páginas, como botões de compartilhamento social, mapas, vídeos incorporados ou ferramentas de chat. Eles podem ser usados para esses serviços funcionarem ou para rastrear sua interação com esses serviços."
+    },
+    "moreInfo": "Para mais informações sobre como utilizamos cookies, consulte nossa Política de Cookies.",
+    "cookiePolicyLink": "Política de Cookies",
+    "lastUpdated": "Última atualização",
+    "consentRecord": "Consentimento registrado em",
+    "cookieSettings": "Configurações de Cookies"
+  }}

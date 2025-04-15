@@ -1,7 +1,6 @@
 // hooks/useContextualNavigation.ts
 import { useNavigate, useLocation } from "react-router-dom";
 
-
 interface NavigationContext {
     currentSection: string;
     relatedSections: string[];

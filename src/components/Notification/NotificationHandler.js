@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import notificationService from '../../services/notificationService';
-import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../providers/ToastProvider/index.js';
+import notificationService from '../../services/NotificationService/index.js';
+import { useAuth } from '../../provider/AuthProvider/index.js';
 
 const NotificationHandler = () => {
   const { currentUser } = useAuth();
+  const {showToast} = useToast()
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
@@ -16,7 +17,7 @@ const NotificationHandler = () => {
         setNotifications(userNotifications);
 
         userNotifications.forEach(notification => {
-          toast.info(notification.conteudo, {
+          showToast.info(notification.conteudo, {
             onClose: () => handleNotificationRead(currentUser.uid, notification.id, notification.tipo),
             autoClose: false,
             closeOnClick: true,

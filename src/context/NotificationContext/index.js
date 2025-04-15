@@ -1,3 +1,4 @@
+//src/context/NotificationContext.js
 import { createContext } from 'react';
 
 // Criar o contexto com um valor inicial (facilitando o intellisense)

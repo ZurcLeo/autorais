@@ -1,168 +1,368 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
-import { LOG_LEVELS } from './reducers/metadata/metadataReducer';
-import { coreLogger } from './core/logging/CoreLogger';
-import { ThemeControls } from './ThemeControls.js';
-import HomePage from './components/Pages/HomePage';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import {   Box,
+  Avatar,
+  Typography,
+  Button,
+  Stack,
+  Grid,
+  Divider,
+  Tooltip,
+  Card,
+  Modal,
+  Tabs,
+  Tab,
+  LinearProgress } from '@mui/material';
+import { useAuth } from './providers/AuthProvider';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
-import Dashboard from './components/Dashboard/Dashboard';
-import Profile from './components/Profiles/Profile';
+import Layout from './components/Layout/Layout';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import NotificationHistory from './components/Notification/NotificationHistory';
-import PrivateRoute from './privateRoutes';
+import Profile from './components/Profiles/Profile';
 import FriendsPage from './components/Connections/FriendsPage';
+import CaixinhaPage from './components/Caixinhas/CaixinhaPage';
+import PrivacyPolicy from './components/Pages/Privacy';
+import CookiePolicy from './components/Pages/Cookies';
+import TermsOfUse from './components/Pages/Terms';
+import HomePage from './components/Pages/HomePage';
+import SellerDashboard from './components/Dashboard/SellerDashboard';
+import AdminInterestsPanel from './components/Interests/Admin';
+import { LOG_LEVELS } from './core/constants/config';
+import { coreLogger } from './core/logging';
+import { AccountCircleOutlined, DashboardCustomizeSharp } from '@mui/icons-material';
 import ChatWindow from './components/Messages/ChatWindow';
 import ChatLayout from './components/Messages/ChatLayout';
 import SelectConversation from './components/Messages/SelectConversation';
-import InvitationValidation from './components/Invites/InvitationValidation';
-import Layout from './components/Layout/Layout';
-import CaixinhaPage from './components/Caixinhas/CaixinhaPage';
-import SellerDashboard from './components/Dashboard/SellerDashboard';
-import PrivacyPolicy from './components/Pages/Privacy';
-import TermsOfUse from './components/Pages/Terms';
-import DocHome from './coreDocs/components/DocHome.tsx';
-import AppInitializationDoc from './coreDocs/DocViewer/AppInitialization.docs.tsx';
-import ResilienceSystemDoc from './coreDocs/DocViewer/ResilienceSystem.docs.tsx';
-import AuthenticationDoc from './coreDocs/DocViewer/AuthenticationDoc.tsx';
-import StateManagementDoc from './coreDocs/DocViewer/StateManagementDoc.tsx';
-import ThemeDoc from './coreDocs/DocViewer/ThemeDoc.tsx';
-import LoggingSystemDoc from './coreDocs/DocViewer/LoggingSystemDoc.tsx';
-import ErrorHandlingDoc from './coreDocs/DocViewer/ErrorHandlingDoc.tsx';
-import DocViewer from './coreDocs/DocViewer/index.tsx';
+import { useToast } from './providers/ToastProvider';
+import { PrivateRoute } from './privateRoutes';
+import InvalidInvite from './components/Invites/InvalidInvite';
+import { serviceLocator } from './core/services/BaseService';
+const MODULE_NAME = 'AppRoutes';
 
-const AuthenticatedLayout = () => {
+const AdminRoute = ({ children }) => {
+  const serviceStore = serviceLocator.get('store').getState()?.auth;
+  
+  const { currentUser } = serviceStore;
+
+  console.log('[ROUTES] AdminRoute', currentUser);
+  // Renderizar apenas se for admin ou proprietário
+  if (!currentUser?.isOwnerOrAdmin) {
+    return null;
+  }
+
+  return children;
+};
+
+const LoginRoute = ({ element }) => {
+  const { isAuthenticated } = useAuth();
+  
+  // Verificação pelo contexto/provider
+  if (isAuthenticated) {
+    return <AccountConfirmation />;
+  }
+  
+  const serviceStore = serviceLocator.get('store').getState()?.auth;
+  const serviceUser = serviceLocator.get('auth').getCurrentUser();
+
+  // const serviceUser = authService.getCurrentUser();
+  // const serviceStore = storeService
+  if (serviceUser) {
+    console.warn('Redirecionando diretamente pelo serviço!');
+    console.warn('Estado do ServiceStore: ', serviceStore);
+    console.warn('Estado do authService: ', serviceUser);
+
+
+    return <AccountConfirmation userFromService={serviceStore} />;
+  }
+  
+  return element;
+};
+
+const AccountConfirmation = ({ userFromService }) => {
+
+  const { switchAccount, currentUser } = useAuth();
+  // Priorizar usuário do contexto, com fallback para o usuário do serviço
+  // const {  } = userFromService;
+  
+  const navigate = useNavigate();
   const location = useLocation();
-  const startTime = performance.now();
+  const intendedPath = location.state?.from || '/dashboard';
+  const { showToast } = useToast();
+  
+  const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const [adminTabValue, setAdminTabValue] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    coreLogger.logServiceInitStart('AuthenticatedLayout', LOG_LEVELS.LIFECYCLE, 'Layout initialization', {
-      path: location.pathname,
-      startTimestamp: new Date().toISOString()
-    });
+  // Extrair dados do usuário de forma segura
+  const userEmail = currentUser?.email || 'Usuário Conectado';
+  const fotoDoPerfil = currentUser?.fotoDoPerfil || currentUser?.fotoDoPerfil || process.env.REACT_APP_PLACE_HOLDER_IMG;
+  const displayName = currentUser?.name || currentUser?.displayName || 'Usuário Conectado';
 
-    return () => {
-      coreLogger.logServiceInitComplete('AuthenticatedLayout', LOG_LEVELS.LIFECYCLE, 'Layout cleanup', {
-        path: location.pathname,
-        duration: `${Math.round(performance.now() - startTime)}ms`,
-        endTimestamp: new Date().toISOString()
-      });
-    };
-  }, []);
+  console.log('[ACCOUNTCONFIRMATION] Current user data', {
+    userEmail,
+    displayName,
+    fotoDoPerfil,
+    currentUser,
+    intendedPath,
+    userFromService
+  });
 
-  // Log de mudanças de rota no layout autenticado
-  useEffect(() => {
-    coreLogger.logEvent('AuthenticatedLayout', LOG_LEVELS.STATE, 'Authenticated route change', {
-      path: location.pathname,
-      timestamp: new Date().toISOString()
-    });
-  }, [location]);
+  const handleAdminModalOpen = () => setAdminModalOpen(true);
+  const handleAdminModalClose = () => setAdminModalOpen(false);
+
+  const handleAdminTabChange = (event, newValue) => {
+    setAdminTabValue(newValue);
+  };
+
+  const handleButtonClick = async (action) => {
+    setLoading(true);
+    try {
+      if (action === 'continue') {
+        console.log('[ACCOUNTCONFIRMATION] Navigating to intended path:', intendedPath);
+        navigate(intendedPath, { replace: true });
+      } else if (action === 'otherAccount') {
+        console.log('[ACCOUNTCONFIRMATION] Switching account...');
+        await switchAccount();
+      }
+    } catch (error) {
+      console.error('[ACCOUNTCONFIRMATION] Error during action:', error);
+      showToast(error.message || 'Ocorreu um erro', { type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdminInterests = () => {
+    console.log('[ACCOUNTCONFIRMATION] Admin interests button clicked');
+    navigate('/admin/interests', { replace: true });
+    handleAdminModalClose();
+  };
 
   return (
-    <Layout>
-      <ThemeControls />
-      <Outlet />
-    </Layout>
+    <Box
+      sx={{
+        maxWidth: 400,
+        margin: 'auto',
+        padding: 3,
+        borderRadius: 2,
+        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+        textAlign: 'center',
+      }}
+    >
+      <Grid container direction="column" spacing={2}>
+        <Grid item xs={12}>
+          <Avatar
+            src={fotoDoPerfil}
+            alt={displayName}
+            sx={{
+              width: 60,
+              height: 60,
+              margin: 'auto',
+              backgroundColor: 'primary.main',
+            }}
+          >
+            {userEmail.charAt(0).toUpperCase()}
+          </Avatar>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6" component="h5" gutterBottom>
+            {displayName}
+          </Typography>
+          <Typography variant="h6" component="h5" gutterBottom>
+            Você já entrou!
+          </Typography>
+          <Typography variant="body1" color="text.secondary" marginBottom={1}>
+            Conta conectada:
+          </Typography>
+          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            {userEmail}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Button onClick={() => showToast('Teste!', { type: 'info' })}>
+            Testar Toast
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack spacing={2} direction="column" width="100%">
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={() => handleButtonClick('continue')}
+              startIcon={<AccountCircleOutlined />}
+              disabled={loading}
+            >
+              Continuar com esta conta
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => handleButtonClick('otherAccount')}
+              disabled={loading}
+            >
+              Usar outra conta
+            </Button>
+            {loading && <LinearProgress />}
+          </Stack>
+        </Grid>
+
+        {currentUser?.isOwnerOrAdmin && (
+          <Grid item xs={12} mt={2}>
+            <Divider sx={{ marginBottom: 2 }} />
+            <Tooltip title="Administrar Interesses (Admin)">
+              <Card>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  fullWidth
+                  onClick={handleAdminModalOpen}
+                  startIcon={<DashboardCustomizeSharp />}
+                >
+                  Administrar
+                </Button>
+              </Card>
+            </Tooltip>
+          </Grid>
+        )}
+      </Grid>
+
+      <Modal open={adminModalOpen} onClose={handleAdminModalClose}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Tabs value={adminTabValue} onChange={handleAdminTabChange}>
+            <Tab label="Interesses" />
+            <Tab label="Usuarios" />
+          </Tabs>
+          {adminTabValue === 0 && (
+            <Box mt={2}>
+              <Typography>Administrar Interesses</Typography>
+              <Button onClick={handleAdminInterests}>Gerenciar</Button>
+            </Box>
+          )}
+          {adminTabValue === 1 && (
+            <Box mt={2}>
+              <Typography>Administrar Usuarios</Typography>
+            </Box>
+          )}
+        </Box>
+      </Modal>
+    </Box>
   );
 };
 
-const AppRoutes = () => {
+export default AccountConfirmation;
+
+export const AppRoutes = () => {
+  const serviceStore = serviceLocator.get('store').getState()?.auth;
+  const { isAuthenticated, currentUser, authLoading } = serviceStore;
   const location = useLocation();
+  const navigate = useNavigate();
   const startTime = performance.now();
 
-  // Log de ciclo de vida do componente principal de rotas
   useEffect(() => {
-    coreLogger.logServiceInitStart('AppRoutes', LOG_LEVELS.LIFECYCLE, 'Routes initialization', {
+    // if (authLoading) return;
+
+    coreLogger.log(MODULE_NAME, LOG_LEVELS.INITIALIZATION, 'Routes initialization', {
       startTimestamp: new Date().toISOString(),
-      initialPath: location.pathname
+      initialPath: location.pathname,
     });
 
-    // Registrar métricas de performance inicial
+
+    console.log('LoginRoute render:', { 
+      isAuthenticated, 
+      hasCurrentUser: !!currentUser,
+      currentUserData: currentUser,
+      authLoading
+    });
+
     const initialLoadTime = performance.now() - startTime;
-    coreLogger.logServicePerformance('AppRoutes', LOG_LEVELS.PERFORMANCE, 'Initial routes load', {
+    coreLogger.log(MODULE_NAME, LOG_LEVELS.PERFORMANCE, 'Initial routes load', {
       duration: `${Math.round(initialLoadTime)}ms`,
-      path: location.pathname
+      path: location.pathname,
     });
 
     return () => {
       const totalLifetime = performance.now() - startTime;
-      coreLogger.logServiceInitComplete('AppRoutes', LOG_LEVELS.LIFECYCLE, 'Routes cleanup', {
+      coreLogger.log(MODULE_NAME, LOG_LEVELS.LIFECYCLE, 'Routes cleanup', {
         duration: `${Math.round(totalLifetime)}ms`,
         endTimestamp: new Date().toISOString(),
-        finalPath: location.pathname
+        finalPath: location.pathname,
       });
     };
-  }, []);
+  }, [currentUser, location.pathname]);
 
-  // Log detalhado de mudanças de rota
-  useEffect(() => {
-    coreLogger.logEvent('AppRoutes', LOG_LEVELS.STATE, 'Route navigation', {
-      path: location.pathname,
-      search: location.search,
-      timestamp: new Date().toISOString(),
-      referrer: document.referrer || 'direct',
-      hasAuthenticatedLayout: location.pathname !== '/login' && 
-                             location.pathname !== '/register' &&
-                             location.pathname !== '/'
-    });
-  }, [location]);
+  // if (authLoading) {
+  //   console.log('[ROUTES] Auth loading, showing CircularProgress...');
 
-  // Função auxiliar para logging de erros de rota
-  const handleRouteError = (error) => {
-    coreLogger.logServiceError('AppRoutes', LOG_LEVELS.ERROR, 'Route error', {
-      error: error.message,
-      path: location.pathname,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    });
-  };
+  //   return (
+  //     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+  //       <CircularProgress />
+  //       <Typography ml={2}>Verificando sessão...</Typography>
+  //     </Box>
+  //   );
+  // }
 
-  try {
-    return (
-      <Routes>
-        {/* Rotas públicas */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfUse />} />
-        <Route path="/docs/*" element={<DocViewer />}>
-        <Route index element={<DocHome />} />
-        <Route path="initialization" element={<AppInitializationDoc />} />
-        <Route path="resilience" element={<ResilienceSystemDoc />} />
-        <Route path="auth" element={<AuthenticationDoc />} />
-        <Route path="state" element={<StateManagementDoc />} />
-        <Route path="theme" element={<ThemeDoc />} />
+  // if (userLoading) {
+  //   console.log('[ROUTES] User data loading, showing CircularProgress...');
 
-        <Route path="logging" element={<LoggingSystemDoc />} />
-        <Route path="errors" element={<ErrorHandlingDoc />} />
+  //   return (
+  //     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+  //       <CircularProgress />
+  //       <Typography ml={2}>Carregando dados do usuário...</Typography>
+  //     </Box>
+  //   );
+  // }
+
+  return (
+    <Routes>
+      {/* Rotas públicas */}
+      <Route path="/login" element={<LoginRoute element={<Login />} />} />
+      {/* <Route path="/register" element={<Register />} /> */}
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/cookies" element={<CookiePolicy />} />
+      <Route path="/terms" element={<TermsOfUse />} />
+      <Route path="invite/validate/:inviteId" element={<Register />} />
+      <Route path="/invalid-invite" element={<InvalidInvite />} />
+      {/* <Route path="/complete-profile" element={<CompleteProfile />} /> */}
+
+      <Route index element={<HomePage />} />
+
+      {/* Rotas protegidas */}
+      <Route path="/" element={<Layout><Outlet /></Layout>}>
+        <Route path="dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+        <Route path="notifications" element={<PrivateRoute element={<NotificationHistory />} />} />
+        <Route path="profile/:uid" element={<PrivateRoute element={<Profile />} />} />
+        <Route path="connections" element={<PrivateRoute element={<FriendsPage />} />} />
+        <Route path="messages" element={<PrivateRoute element={<ChatLayout />} />}>
+          <Route index element={<SelectConversation />} />
+          <Route path=":uidDestinatario" element={<ChatWindow />} />
       </Route>
-   {/* <Route path="/auth/callback" element={<AuthCallback />} /> */}
-
-        {/* Rotas autenticadas */}
-        <Route 
-          element={<PrivateRoute element={<AuthenticatedLayout />} />}
-          errorElement={handleRouteError}
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/notifications" element={<NotificationHistory />} />
-          <Route path="/profile/:uid" element={<Profile />} />
-          <Route path="/connections" element={<FriendsPage />} />
-          <Route path="/caixinha" element={<CaixinhaPage />} />
-          <Route path="/vendedor" element={<SellerDashboard />} />
-          <Route path="/chat" element={<ChatLayout />}>
-            <Route index element={<SelectConversation />} />
-            <Route path=":uidDestinatario" element={<ChatWindow />} />
-          </Route>
+        <Route path="caixinha" element={<PrivateRoute element={<CaixinhaPage />} />} />
+        <Route path="vendedor" element={<PrivateRoute element={<SellerDashboard />} />} />
+        {/* Rotas de Administração */}
+        <Route path="admin">
+          <Route path="interests" element={
+            <AdminRoute>
+              <AdminInterestsPanel />
+            </AdminRoute>
+          } />
         </Route>
+      </Route>
 
-        {/* Rotas especiais */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/invite/validate/:inviteId" element={<InvitationValidation />} />
-      </Routes>
-    );
-  } catch (error) {
-    handleRouteError(error);
-    throw error; // Re-throw para error boundary
-  }
-};
-
-export default AppRoutes;
+      {/* Rota de fallback */}
+      <Route path="*" element={<Navigate to="/login" />} />
+    </Routes>
+  );
+}

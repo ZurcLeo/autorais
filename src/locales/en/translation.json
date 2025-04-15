@@ -2,6 +2,8 @@
   "common": {
     "language": "Language",
     "english": "English",
+    "close": "Fechar",
+    "notAvailable": "Nao disponivel",
     "portuguese": "Portuguese",
     "dutch": "Dutch",
     "login_button": "Login",
@@ -286,6 +288,7 @@
     "email": "Email",
     "password": "Password",
     "login_button": "Login",
+    "login_with_microsoft_started": "Iniciando login com a Microsoft...",
     "login_with_google": "Login with Google",
     "login_with_facebook": "Login with Facebook",
     "login_with_microsoft": "Login with Microsoft",
@@ -385,6 +388,9 @@
     }
   },
   "profile": {
+    "statistics": "Estatisticas",
+    "memberSince": "Membro desde: ",
+    "accountType": "Tipo de conta: ",
     "errorCheckingUpdates": "Error checking for updates",
     "errorUserIdNotFound": "Error: userId not found",
     "failedToSaveImage": "Failed to save image",
@@ -406,6 +412,10 @@
       "friendCount": "Friends"
     },
     "interests": {
+      "title": "Interesses",
+      "noInterestsYet": "Voce ainda nao registrou interesses",
+      "addInterests": "Adicionar Interesses",
+      "notAvailable": "Nao disponivel", 
       "personal": "Personal Interests",
       "business": "Business Interests",
       "addRemove": "Add/Remove Interests",

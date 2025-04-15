@@ -1,10 +1,16 @@
 import React from 'react';
+import { useAuth } from '../../providers/AuthProvider';
 import { Box, Typography } from '@mui/material';
 import { Person as PersonIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { serviceLocator } from '../../core/services/BaseService';
 
-const FriendsSection = ({ user }) => {
+const FriendsSection = (user, friends, bestFriends) => {
   const { t } = useTranslation();
+    const serviceStore = serviceLocator.get('store').getState()?.auth;
+    const { currentUser } = serviceStore;
+
+console.log(user, friends, bestFriends)
 
   return (
     <Box>
@@ -15,7 +21,7 @@ const FriendsSection = ({ user }) => {
         </Typography>
       </Box>
       <Typography variant="body1">
-        {user.amigos?.length || 0} {t('friends.friendCount')}
+        {currentUser.amigos?.length || 0} {t('friends.friendCount')}
       </Typography>
     </Box>
   );

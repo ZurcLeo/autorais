@@ -2,9 +2,13 @@ import React from 'react';
 import { Box, Typography, Button, List, ListItem, ListItemText, Divider } from '@mui/material';
 import { Add as AddIcon, AccountBalance as AccountBalanceIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { serviceLocator } from '../../core/services/BaseService';
 
-const ElosCoinsSection = ({ user, transactions, onBuyElosCoins }) => {
+const ElosCoinsSection = ({ transactions, onBuyElosCoins }) => {
   const { t } = useTranslation();
+      const serviceStore = serviceLocator.get('store').getState()?.auth;
+      const { currentUser } = serviceStore;
+console.log('eloscoinsection: ', currentUser)
 
   return (
     <Box>
@@ -20,7 +24,7 @@ const ElosCoinsSection = ({ user, transactions, onBuyElosCoins }) => {
         </Button>
       </Box>
       <Typography variant="h6">
-        {user.saldoElosCoins || 0} {t('elosCoins.currency')}
+        {currentUser.saldoElosCoins || 0} {t('elosCoins.currency')}
       </Typography>
       <Box mt={2}>
         <Typography variant="subtitle1">{t('elosCoins.recentTransactions')}</Typography>

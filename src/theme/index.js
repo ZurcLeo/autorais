@@ -1,7 +1,7 @@
 // theme.js
 import { createTheme } from '@mui/material/styles';
-import { tokens, semanticTokens, colorPalettes } from './tokens';
-
+import { tokens, semanticTokens, colorPalettes } from './themeTokens';
+import _ from 'lodash';
 const createComponents = (mode, tokens, semanticColors) => ({
   MuiCssBaseline: {
     styleOverrides: {
@@ -512,113 +512,250 @@ const createComponents = (mode, tokens, semanticColors) => ({
   // Adicione mais componentes conforme necessário
 });
 
-export const createTypography = (tokens) => {
+// Função para criar tipografia
+const createTypography = (tokens) => {
+  // Função auxiliar para criar estilos de cabeçalho
   const createHeadingStyle = (size, letterSpacing = '-0.01em') => ({
-    fontFamily: tokens.typography.fontFamily.heading,
-    fontSize: tokens.typography.fontSize[size],
-    fontWeight: tokens.typography.fontWeight.bold,
-    lineHeight: tokens.typography.lineHeight.tight,
+    fontFamily: _.get(tokens, 'typography.fontFamily.heading', '"Roboto", "Helvetica", "Arial", sans-serif'),
+    fontSize: _.get(tokens, `typography.fontSize.${size}`, '1rem'),
+    fontWeight: _.get(tokens, 'typography.fontWeight.bold', 700),
+    lineHeight: _.get(tokens, 'typography.lineHeight.tight', 1.2),
     letterSpacing,
   });
 
+  // Criar sistema completo de tipografia com fallbacks seguros
   return {
-    fontFamily: tokens.typography.fontFamily.body,
+    fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
     h1: createHeadingStyle('4xl', '-0.02em'),
     h2: createHeadingStyle('3xl'),
     h3: createHeadingStyle('2xl'),
     h4: createHeadingStyle('xl'),
+    h5: createHeadingStyle('lg'),
+    h6: createHeadingStyle('base'),
+    subtitle1: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.lg', '1.125rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
+    },
+    subtitle2: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.base', '1rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
+    },
+    body1: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.base', '1rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
+    },
+    body2: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.sm', '0.875rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
+    },
+    button: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.sm', '0.875rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
+      letterSpacing: '0.02em',
+      textTransform: 'uppercase',
+    },
+    caption: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.xs', '0.75rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
+    },
+    overline: {
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.xs', '0.75rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase',
+    },
+    // Manter compatibilidade com versão anterior
     body: {
-      fontFamily: tokens.typography.fontFamily.body,
-      fontSize: tokens.typography.fontSize.base,
-      fontWeight: tokens.typography.fontWeight.normal,
-      lineHeight: tokens.typography.lineHeight.normal,
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.base', '1rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     small: {
-      fontFamily: tokens.typography.fontFamily.body,
-      fontSize: tokens.typography.fontSize.sm,
-      fontWeight: tokens.typography.fontWeight.normal,
-      lineHeight: tokens.typography.lineHeight.normal,
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontSize: _.get(tokens, 'typography.fontSize.sm', '0.875rem'),
+      fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
+      lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
   };
-}
+};
 
+// Define os tokens padrão para uso quando os tokens fornecidos estiverem ausentes
+const defaultTokens = {
+  borderRadius: { 
+    xs: '2px',
+    sm: '4px', 
+    base: '8px', 
+    md: '12px', 
+    lg: '16px',
+    xl: '24px'
+  },
+  typography: {
+    fontFamily: {
+      heading: '"Roboto", "Helvetica", "Arial", sans-serif',
+      body: '"Roboto", "Helvetica", "Arial", sans-serif',
+      monospace: '"Roboto Mono", "Courier New", monospace',
+    },
+    fontSize: { 
+      '5xl': '3rem',    // 48px
+      '4xl': '2.25rem', // 36px
+      '3xl': '1.875rem', // 30px
+      '2xl': '1.5rem',  // 24px
+      'xl': '1.25rem',  // 20px
+      'lg': '1.125rem', // 18px
+      'base': '1rem',   // 16px
+      'sm': '0.875rem', // 14px
+      'xs': '0.75rem',  // 12px
+    },
+    fontWeight: {
+      light: 300,
+      normal: 400,
+      medium: 500,
+      semiBold: 600,
+      bold: 700,
+    },
+    lineHeight: {
+      none: 1,
+      tight: 1.25,
+      snug: 1.375,
+      normal: 1.5,
+      relaxed: 1.625,
+      loose: 2,
+    },
+  },
+  spacing: {
+    xs: '0.25rem', // 4px
+    sm: '0.5rem',  // 8px
+    md: '1rem',    // 16px
+    lg: '1.5rem',  // 24px
+    xl: '2rem',    // 32px
+    '2xl': '3rem', // 48px
+  },
+  transitions: {
+    duration: {
+      fast: '150ms',
+      base: '300ms',
+      slow: '500ms',
+    },
+    timing: {
+      ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      in: 'cubic-bezier(0.4, 0, 1, 1)',
+      out: 'cubic-bezier(0, 0, 0.2, 1)',
+      inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    },
+  },
+  elevation: {
+    0: 'none',
+    1: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+    2: '0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12)',
+    3: '0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10)',
+    4: '0 15px 25px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.05)',
+    5: '0 20px 40px rgba(0,0,0,0.2)',
+  },
+};
+
+/**
+ * Função de sanitização para customizações
+ * Valida e sanitiza personalizações para prevenir valores inválidos
+ */
+const sanitizeCustomizations = (customizations) => {
+  if (!_.isPlainObject(customizations)) {
+    return {};
+  }
+
+  // Lista de propriedades permitidas no nível superior
+  const allowedTopLevelKeys = ['palette', 'typography', 'spacing', 'shape', 'components'];
+  
+  // Filtra apenas propriedades permitidas
+  return _.pickBy(customizations, (value, key) => {
+    return allowedTopLevelKeys.includes(key);
+  });
+};
+
+/**
+ * Cria um tema dinâmico baseado em mode e customizações
+ * @param {string} mode - Modo do tema: 'light' ou 'dark'
+ * @param {Object} customizations - Customizações adicionais para o tema
+ * @returns {Object} - Tema configurado
+ */
 export const createDynamicTheme = (mode = 'dark', customizations = {}) => {
-  const currentSemanticColors = semanticTokens[mode] || semanticTokens.dark; // Fallback seguro
-  const safeTokens = tokens || { borderRadius: { base: '4px' } }; // Fallback caso tokens esteja indefinido
+  // Validação de input
+  const validMode = ['light', 'dark'].includes(mode) ? mode : 'dark';
+  
+  // Aplica deep merge para tokens com fallbacks seguros
+  const safeTokens = _.merge({}, defaultTokens, tokens || {});
+  
+  // Obtém cores semânticas com fallback
+  const currentSemanticColors = _.get(semanticTokens, validMode, semanticTokens.dark);
 
+  // Configuração base do tema
   const baseThemeConfig = {
     palette: {
-      mode, // Importante garantir que esta propriedade esteja definida corretamente
+      mode: validMode,
       primary: {
-        main: colorPalettes.ocean[500],
-        light: colorPalettes.ocean[300],
-        dark: colorPalettes.ocean[700],
+        main: _.get(colorPalettes, 'ocean[500]', '#1976d2'),
+        light: _.get(colorPalettes, 'ocean[300]', '#42a5f5'),
+        dark: _.get(colorPalettes, 'ocean[700]', '#0d47a1'),
       },
       secondary: {
-        main: colorPalettes.sunset[500],
-        light: colorPalettes.sunset[300],
-        dark: colorPalettes.sunset[700],
-      },
-      success: {
-        main: colorPalettes.forest[500],
-        light: colorPalettes.forest[300],
-        dark: colorPalettes.forest[700],
-      },
-      background: {
-        default: currentSemanticColors.background.primary,
-        paper: currentSemanticColors.background.secondary,
-      },
-      text: {
-        primary: currentSemanticColors.text.primary,
-        secondary: currentSemanticColors.text.secondary,
-      },
-      // Adicionar explicitamente quaisquer propriedades que os componentes MUI esperam
-      // Garante que estes valores existam para prevenir os erros "cannot read property 'main'"
-      warning: {
-        main: colorPalettes.sunset[500],
-        light: colorPalettes.sunset[300],
-        dark: colorPalettes.sunset[700],
-      },
-      error: {
-        main: colorPalettes.volcano[500],
-        light: colorPalettes.volcano[300],
-        dark: colorPalettes.volcano[700],
+        main: _.get(colorPalettes, 'sunset[500]', '#f50057'),
+        light: _.get(colorPalettes, 'sunset[300]', '#ff4081'),
+        dark: _.get(colorPalettes, 'sunset[700]', '#c51162'),
       },
       info: {
-        main: colorPalettes.glacier[500],
-        light: colorPalettes.glacier[300],
-        dark: colorPalettes.glacier[700],
+        main: _.get(colorPalettes, 'ocean[600]', '#0288d1'),
+        light: _.get(colorPalettes, 'ocean[200]', '#4fc3f7'),
+        dark: _.get(colorPalettes, 'ocean[700]', '#01579b'),
       },
-      // Adicionar cores específicas para os componentes com erro
-      // Estas propriedades são particularmente importantes para os componentes Alert e Switch
-      action: {
-        active: currentSemanticColors.text.primary,
-        hover: currentSemanticColors.interaction.hover.background,
-        selected: currentSemanticColors.interaction.selected.background,
-        disabled: currentSemanticColors.interaction.disabled.background,
-        disabledBackground: currentSemanticColors.interaction.disabled.background,
+      success: {
+        main: _.get(colorPalettes, 'forest[500]', '#4caf50'),
+        light: _.get(colorPalettes, 'forest[300]', '#81c784'),
+        dark: _.get(colorPalettes, 'forest[700]', '#2e7d32'),
       },
-      grey: safeTokens.colorPalettes?.mountain || {
-        50: '#fafafa',
-        100: '#f5f5f5',
-        200: '#eeeeee',
-        300: '#e0e0e0',
-        400: '#bdbdbd',
-        500: '#9e9e9e',
-        600: '#757575',
-        700: '#616161',
-        800: '#424242',
-        900: '#212121',
+      warning: {
+        main: _.get(colorPalettes, 'volcano[500]', '#ff9800'),
+        light: _.get(colorPalettes, 'volcano[300]', '#ffb74d'),
+        dark: _.get(colorPalettes, 'volcano[700]', '#e65100'),
+      },
+      error: {
+        main: _.get(colorPalettes, 'sunset[400]', '#f44336'),
+        light: _.get(colorPalettes, 'sunset[200]', '#ef9a9a'),
+        dark: _.get(colorPalettes, 'sunset[800]', '#b71c1c'),
+      },
+      background: {
+        default: _.get(currentSemanticColors, 'background.primary', '#121212'),
+        paper: _.get(currentSemanticColors, 'background.secondary', '#1e1e1e'),
+      },
+      text: {
+        primary: _.get(currentSemanticColors, 'text.primary', '#ffffff'),
+        secondary: _.get(currentSemanticColors, 'text.secondary', '#b0b0b0'),
       },
     },
     typography: createTypography(safeTokens),
     spacing: (factor) => `${0.25 * factor}rem`,
     shape: {
-      borderRadius: parseInt(safeTokens.borderRadius.base, 10),
+      borderRadius: parseInt(_.get(safeTokens, 'borderRadius.base', '8'), 10),
     },
-    components: createComponents(mode, safeTokens, currentSemanticColors),
+    components: createComponents(validMode, safeTokens, currentSemanticColors),
   };
 
-  // Aplica customizações apenas se forem válidas
-  return createTheme(baseThemeConfig, typeof customizations === 'object' && customizations !== null ? customizations : {});
+  // Sanitiza e aplica customizações
+  const sanitizedCustomizations = sanitizeCustomizations(customizations);
+  
+  // Usa lodash.merge para deep merge das customizações
+  const finalThemeConfig = _.merge({}, baseThemeConfig, sanitizedCustomizations);
+
+  return createTheme(finalThemeConfig);
 };

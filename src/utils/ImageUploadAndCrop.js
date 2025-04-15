@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import AvatarEditor from 'react-avatar-editor';
 import { showPromiseToast } from '../utils/toastUtils';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Slider, IconButton, Box, Tooltip, Typography, Grid } from '@mui/material';
@@ -27,7 +27,7 @@ const ImageUploadAndCrop = ({ image, open, onClose, onSave }) => {
     setContrast(newValue);
   };
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (editorRef.current) {
       const canvas = editorRef.current.getImageScaledToCanvas();
       
@@ -57,29 +57,36 @@ const ImageUploadAndCrop = ({ image, open, onClose, onSave }) => {
         }
       }, 'image/png');
     }
-  };
+  }, [image, scale, rotation, brightness, contrast, onSave, onClose]);
 
-  const applyBrightnessContrast = (value, brightness, contrast) => {
+  const applyBrightnessContrast = useCallback((value, brightness, contrast) => {
     value = value * (brightness / 100);
     value = ((value - 128) * (contrast / 100)) + 128;
     return Math.max(0, Math.min(255, value));
-  };
+  }, []);
+
+  const editorProps = useMemo(() => ({
+    image,
+    width: 250,
+    height: 250,
+    border: 50,
+    borderRadius: 125,
+    scale,
+    rotate: rotation,
+    style: {
+      filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+    }
+  }), [image, scale, rotation, brightness, contrast]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Editar Imagem</DialogTitle>
       <DialogContent>
         <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-          <AvatarEditor
-            ref={editorRef}
-            image={image}
-            width={250}
-            height={250}
-            border={50}
-            borderRadius={125}
-            scale={scale}
-            rotate={rotation}
-          />
+        <AvatarEditor
+      ref={editorRef}
+      {...editorProps}
+    />
           <Grid container spacing={2} marginTop={2}>
             <Grid item xs={12} sm={6}>
               <Typography gutterBottom>Zoom</Typography>

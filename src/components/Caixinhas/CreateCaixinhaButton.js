@@ -24,7 +24,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Add as AddIcon, Info as InfoIcon } from '@mui/icons-material';
-import { useCaixinha } from '../../../src/context/CaixinhaContext';
+import { useCaixinha } from '../../providers/CaixinhaProvider';
 import { showToast } from '../../../src/utils/toastUtils';
 import { useTranslation } from 'react-i18next';
 

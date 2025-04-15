@@ -1,9 +1,13 @@
-// providers/features/BankingProvider/index.js
-import React, { useState, useCallback, useMemo } from 'react';
-import bankingService from '../../services/bankingService';
+// providers/features/BankingContext/index.js
+import React, { createContext, useState, useContext, useCallback, useMemo } from 'react';
+// import bankingService from '../../services/bankingService';
 import { showToast, showPromiseToast } from '../../utils/toastUtils';
 import { useCachedResource } from '../../utils/cache/cacheManager';
 import { validateDocument } from '../../utils/validation';
+
+const BankingContext = createContext();
+
+const MODULE_NAME = 'BankingProvider';
 
 // Constants
 const BANKING_CACHE_TIME = 5 * 60 * 1000; // 5 minutes
@@ -31,8 +35,9 @@ export const BankingProvider = ({ children }) => {
     const fetchBankingInfo = useCallback(async () => {
       if (!caixinhaId) return null;
       try {
-        const info = await bankingService.getBankingInfo(caixinhaId);
-        return info;
+        console.log('BANKING ...EM OBRAS...')
+        // const info = await bankingService.getBankingInfo(caixinhaId);
+        // return info;
       } catch (error) {
         console.error('Error fetching banking info:', error);
         throw error;
@@ -57,8 +62,10 @@ export const BankingProvider = ({ children }) => {
     const fetchBankingHistory = useCallback(async () => {
       if (!caixinhaId) return null;
       try {
-        const history = await bankingService.getBankingHistory(caixinhaId);
-        return history.history;
+        console.log('BANKING ...EM OBRAS...')
+
+        // const history = await bankingService.getBankingHistory(caixinhaId);
+        // return history.history;
       } catch (error) {
         console.error('Error fetching banking history:', error);
         throw error;
@@ -123,14 +130,15 @@ export const BankingProvider = ({ children }) => {
       new Promise(async (resolve, reject) => {
         try {
           setLoading(true);
+          console.log('BANKING ...EM OBRAS...')
 
-          const response = await bankingService.registerBankAccount(caixinhaId, accountData);
+          // const response = await bankingService.registerBankAccount(caixinhaId, accountData);
 
-          // Invalidate caches
-          invalidateBankingInfo();
-          await refetchBankingInfo();
+          // // Invalidate caches
+          // invalidateBankingInfo();
+          // await refetchBankingInfo();
 
-          resolve(response);
+          // resolve(response);
         } catch (error) {
           console.error('Error registering bank account:', error);
           setError(error.message);
@@ -158,19 +166,20 @@ export const BankingProvider = ({ children }) => {
       new Promise(async (resolve, reject) => {
         try {
           setLoading(true);
+          console.log('BANKING ...EM OBRAS...')
 
-          const response = await bankingService.validateBankAccount(transactionData);
+          // const response = await bankingService.validateBankAccount(transactionData);
 
-          // Invalidate and refetch both info and history
-          invalidateBankingInfo();
-          invalidateBankingHistory();
+          // // Invalidate and refetch both info and history
+          // invalidateBankingInfo();
+          // invalidateBankingHistory();
 
-          await Promise.all([
-            refetchBankingInfo(),
-            refetchBankingHistory()
-          ]);
+          // await Promise.all([
+          //   refetchBankingInfo(),
+          //   refetchBankingHistory()
+          // ]);
 
-          resolve(response);
+          // resolve(response);
         } catch (error) {
           console.error('Error validating bank account:', error);
           setError(error.message);
@@ -203,8 +212,10 @@ export const BankingProvider = ({ children }) => {
       new Promise(async (resolve, reject) => {
         try {
           setLoading(true);
-          const details = await bankingService.getTransactionDetails(transactionId);
-          resolve(details);
+          console.log('BANKING ...EM OBRAS...')
+
+          // const details = await bankingService.getTransactionDetails(transactionId);
+          // resolve(details);
         } catch (error) {
           console.error('Error fetching transaction details:', error);
           setError(error.message);
@@ -232,19 +243,20 @@ export const BankingProvider = ({ children }) => {
       new Promise(async (resolve, reject) => {
         try {
           setLoading(true);
+          console.log('BANKING ...EM OBRAS...')
 
-          const response = await bankingService.transferFunds(transferData);
+          // const response = await bankingService.transferFunds(transferData);
 
-          // Invalidate and refetch both info and history
-          invalidateBankingInfo();
-          invalidateBankingHistory();
+          // // Invalidate and refetch both info and history
+          // invalidateBankingInfo();
+          // invalidateBankingHistory();
 
-          await Promise.all([
-            refetchBankingInfo(),
-            refetchBankingHistory()
-          ]);
+          // await Promise.all([
+          //   refetchBankingInfo(),
+          //   refetchBankingHistory()
+          // ]);
 
-          resolve(response);
+          // resolve(response);
         } catch (error) {
           console.error('Error transferring funds:', error);
           setError(error.message);
@@ -277,19 +289,20 @@ export const BankingProvider = ({ children }) => {
       new Promise(async (resolve, reject) => {
         try {
           setLoading(true);
+          console.log('BANKING ...EM OBRAS...')
 
-          const response = await bankingService.cancelTransaction(transactionId);
+          // const response = await bankingService.cancelTransaction(transactionId);
 
-          // Invalidate and refetch both info and history
-          invalidateBankingInfo();
-          invalidateBankingHistory();
+          // // Invalidate and refetch both info and history
+          // invalidateBankingInfo();
+          // invalidateBankingHistory();
 
-          await Promise.all([
-            refetchBankingInfo(),
-            refetchBankingHistory()
-          ]);
+          // await Promise.all([
+          //   refetchBankingInfo(),
+          //   refetchBankingHistory()
+          // ]);
 
-          resolve(response);
+          // resolve(response);
         } catch (error) {
           console.error('Error canceling transaction:', error);
           setError(error.message);
@@ -357,8 +370,16 @@ export const BankingProvider = ({ children }) => {
   ]);
 
   return (
-    <BankingProvider.Provider value={value}>
+    <BankingContext.Provider value={value}>
       {children}
-    </BankingProvider.Provider>
+    </BankingContext.Provider>
   );
+};
+
+export const useBanking = () => {
+  const context = useContext(BankingContext);
+  if (context === undefined) {
+    throw new Error('useBanking must be used within BankingContext');
+  }
+  return context;
 };

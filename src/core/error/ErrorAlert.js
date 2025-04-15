@@ -1,11 +1,14 @@
+//src/core/error/ErrorAlert.js
 import React, { useState, useEffect, useCallback } from 'react';
-import { AlertCircle, Info, CheckCircle, XCircle, X } from 'lucide-react';
+import { AlertCircle, Info, CheckCircle, XCircle, X, RefreshCw, ExternalLink } from 'lucide-react';
 
 // Constantes para animações e configurações
 const ANIMATION_DURATION = 300; // ms
 const AUTO_CLOSE_DELAY = 5000; // ms
 
-// Sistema de alertas completo em um único componente
+/**
+ * Componente de alerta para exibição de mensagens de erro, sucesso, aviso ou informação
+ */
 export const ErrorAlert = ({ 
   type = 'error', 
   title,
@@ -14,10 +17,14 @@ export const ErrorAlert = ({
   position = 'top-right',
   duration = AUTO_CLOSE_DELAY,
   onClose,
+  onRetry,
+  hasDetails = false,
+  errorDetails,
   className = ''
 }) => {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Configuração de ícones e cores para cada tipo de alerta
   const alertConfig = {
@@ -48,7 +55,14 @@ export const ErrorAlert = ({
     }, ANIMATION_DURATION);
   }, [onClose]);
 
-  // Auto-close após o delay definido
+  // Handler para ação de retry quando disponível
+  const handleRetry = useCallback(() => {
+    if (onRetry && typeof onRetry === 'function') {
+      onRetry();
+    }
+  }, [onRetry]);
+
+  // Auto-close após o delay definido (apenas se autoClose estiver ativado)
   useEffect(() => {
     if (autoClose) {
       const timer = setTimeout(() => {
@@ -84,6 +98,36 @@ export const ErrorAlert = ({
             <div className="font-semibold mb-1">{title}</div>
           )}
           <div className="text-sm">{message}</div>
+          
+          {/* Botões de ação */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {onRetry && (
+              <button
+                onClick={handleRetry}
+                className="inline-flex items-center text-xs py-1 px-2 rounded bg-white bg-opacity-30 hover:bg-opacity-50 transition-all"
+              >
+                <RefreshCw size={12} className="mr-1" />
+                Tentar Novamente
+              </button>
+            )}
+            
+            {hasDetails && (
+              <button
+                onClick={() => setShowDetails(!showDetails)}
+                className="inline-flex items-center text-xs py-1 px-2 rounded bg-white bg-opacity-30 hover:bg-opacity-50 transition-all"
+              >
+                <ExternalLink size={12} className="mr-1" />
+                {showDetails ? 'Ocultar Detalhes' : 'Ver Detalhes'}
+              </button>
+            )}
+          </div>
+          
+          {/* Detalhes técnicos do erro (quando expandido) */}
+          {showDetails && errorDetails && (
+            <div className="mt-3 p-2 bg-white bg-opacity-20 rounded text-xs font-mono overflow-auto max-h-32">
+              <pre>{typeof errorDetails === 'string' ? errorDetails : JSON.stringify(errorDetails, null, 2)}</pre>
+            </div>
+          )}
         </div>
         
         <button 

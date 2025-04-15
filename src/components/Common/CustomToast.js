@@ -1,84 +1,210 @@
-import React, { useCallback } from 'react';
-import { Box, Typography, Button, IconButton, Fade } from '@mui/material';
+// src/components/Common/CustomToast.js
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Box, Typography, Button, IconButton, Fade, Paper } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
+// import { useTheme } from '@mui/material/styles';
+import {useAppTheme} from '../../themeContext'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
-const CustomToast = ({ closeToast, toastProps }) => {
-  const theme = useTheme();
-  const { type, message, action, icon: customIcon } = toastProps;
+// Mapeamento de ARIA roles para acessibilidade
+const ariaRoles = {
+  error: 'alert',
+  warning: 'alert',
+  info: 'status',
+  success: 'status'
+};
 
-  const getBackgroundColor = useCallback(() => {
-    switch (type) {
-      case 'success':
-        return theme.palette.success.main;
-      case 'error':
-        return theme.palette.error.main;
-      case 'info':
-        return theme.palette.info.main;
-      case 'warning':
-        return theme.palette.warning.main;
-      default:
-        return theme.palette.background.paper;
+const CustomToast = ({ closeToast, toastProps }) => {
+  const theme = useAppTheme();
+  const { 
+    type = 'info', 
+    message, 
+    action, 
+    icon: customIcon, 
+    animation, 
+    ariaLabel, 
+    variant 
+  } = toastProps;
+  
+  // Referência para contagem regressiva da animação
+  const progressRef = useRef(null);
+  
+  // Efeito para animar o progresso
+  useEffect(() => {
+    if (progressRef.current) {
+      progressRef.current.style.width = '100%';
+      
+      // Reset para animar
+      setTimeout(() => {
+        if (progressRef.current) {
+          progressRef.current.style.transition = 'width linear 5s';
+          progressRef.current.style.width = '0%';
+        }
+      }, 10);
     }
-  }, [theme, type]);
+  }, []);
+
+  // Funções para estilização
+  const getBackgroundColor = useCallback(() => {
+    // Cores por tipo
+    const colors = {
+      success: theme.palette.success.light,
+      error: theme.palette.error.light,
+      info: theme.palette.info.light,
+      warning: theme.palette.warning.light
+    };
+    
+    // Variantes podem ter cores especiais
+    if (variant === 'highlighted') {
+      return colors[type] || theme.palette.background.paper;
+    }
+    
+    if (variant === 'critical') {
+      return type === 'error' ? theme.palette.error.main : colors[type];
+    }
+    
+    return colors[type] || theme.palette.background.paper;
+  }, [theme, type, variant]);
 
   const getIcon = useCallback(() => {
-    if (customIcon) return customIcon;
-    switch (type) {
-      case 'success':
-        return <CheckCircleOutlineIcon />;
-      case 'error':
-        return <ErrorOutlineIcon />;
-      case 'info':
-        return <InfoOutlinedIcon />;
-      case 'warning':
-        return <WarningAmberIcon />;
-      default:
-        return null;
+    if (React.isValidElement(customIcon)) {
+      return customIcon;
     }
+    
+    const icons = {
+      success: <CheckCircleOutlineIcon />,
+      error: <ErrorOutlineIcon />,
+      info: <InfoOutlinedIcon />,
+      warning: <WarningAmberIcon />
+    };
+    
+    return icons[type] || null;
   }, [type, customIcon]);
+
+  // Animações especiais por tipo
+  const getAnimationStyle = useCallback(() => {
+    if (!animation) return {};
+    
+    const animations = {
+      success: {
+        animation: 'toast-success 0.5s ease forwards'
+      },
+      error: {
+        animation: 'toast-error 0.7s ease'
+      },
+      pulse: {
+        animation: 'toast-pulse 2s infinite'
+      }
+    };
+    
+    return animations[animation] || {};
+  }, [animation]);
+
+  // Determinar a cor do texto com base no contraste
+  const getTextColor = useCallback(() => {
+    const bgColor = getBackgroundColor();
+    return theme.palette.getContrastText(bgColor);
+  }, [getBackgroundColor, theme.palette]);
+
+  // Estilo de borda conforme o tipo
+  const getBorderStyle = useCallback(() => {
+    const borders = {
+      success: `4px solid ${theme.palette.success.main}`,
+      error: `4px solid ${theme.palette.error.main}`,
+      info: `4px solid ${theme.palette.info.main}`,
+      warning: `4px solid ${theme.palette.warning.main}`
+    };
+    
+    return {
+      borderLeft: borders[type]
+    };
+  }, [theme, type]);
 
   return (
     <Fade in={true}>
-      <Box
-        role="alert"
-        aria-live="assertive"
+      <Paper
+        elevation={3}
+        role={ariaRoles[type] || 'status'}
+        aria-live={type === 'error' ? 'assertive' : 'polite'}
+        aria-label={ariaLabel || 
+          `${type === 'error' ? 'Erro' : type === 'success' ? 'Sucesso' : 
+            type === 'warning' ? 'Aviso' : 'Informação'}: ${message}`}
         sx={{
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          padding: theme.spacing(1.5, 2),
-          borderRadius: theme.shape.borderRadius,
+          width: '100%',
+          maxWidth: '350px',
+          p: 2,
+          overflow: 'hidden',
           backgroundColor: getBackgroundColor(),
-          color: theme.palette.getContrastText(getBackgroundColor()),
-          boxShadow: theme.shadows[3],
-          maxWidth: '100%',
-          width: '350px',
+          color: getTextColor(),
+          ...getBorderStyle(),
+          ...getAnimationStyle(),
           '@media (max-width:400px)': {
             width: '100%',
           },
+          '&:hover .toast-progress': {
+            animationPlayState: 'paused'
+          },
+          '@keyframes toast-success': {
+            '0%': { transform: 'translateY(10px)', opacity: 0 },
+            '100%': { transform: 'translateY(0)', opacity: 1 }
+          },
+          '@keyframes toast-error': {
+            '0%, 100%': { transform: 'translateX(0)' },
+            '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-5px)' },
+            '20%, 40%, 60%, 80%': { transform: 'translateX(5px)' },
+          },
+          '@keyframes toast-pulse': {
+            '0%': { boxShadow: '0 0 0 0 rgba(0, 0, 0, 0.2)' },
+            '70%': { boxShadow: '0 0 0 10px rgba(0, 0, 0, 0)' },
+            '100%': { boxShadow: '0 0 0 0 rgba(0, 0, 0, 0)' }
+          }
         }}
+        tabIndex={0} // Importante para acessibilidade via teclado
       >
-        <Box sx={{ mr: 1.5 }}>{getIcon()}</Box>
-        <Typography variant="body2" sx={{ flexGrow: 1 }}>
-          {message}
-        </Typography>
-        {action && (
-          <Button
-            color="inherit"
-            size="small"
-            onClick={() => {
-              action.onClick();
-              closeToast();
-            }}
-            sx={{ ml: 1 }}
-          >
-            {action.label}
-          </Button>
-        )}
+        {/* Ícone */}
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mr: 1.5,
+          color: type === 'error' ? theme.palette.error.main :
+                type === 'success' ? theme.palette.success.main :
+                type === 'warning' ? theme.palette.warning.main :
+                theme.palette.info.main
+        }}>
+          {getIcon()}
+        </Box>
+
+        {/* Conteúdo */}
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+            {message}
+          </Typography>
+
+          {/* Botão de ação */}
+          {action && (
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => {
+                action.onClick();
+                if (action.closeAfterClick !== false) {
+                  closeToast();
+                }
+              }}
+              sx={{ mt: 1, fontWeight: 'bold' }}
+            >
+              {action.label}
+            </Button>
+          )}
+        </Box>
+
+        {/* Botão de fechar */}
         <IconButton
           size="small"
           color="inherit"
@@ -88,7 +214,21 @@ const CustomToast = ({ closeToast, toastProps }) => {
         >
           <CloseIcon fontSize="small" />
         </IconButton>
-      </Box>
+
+        {/* Barra de progresso */}
+        <Box
+          ref={progressRef}
+          className="toast-progress"
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            height: '3px',
+            backgroundColor: theme.palette.primary.main,
+            width: '100%',
+          }}
+        />
+      </Paper>
     </Fade>
   );
 };

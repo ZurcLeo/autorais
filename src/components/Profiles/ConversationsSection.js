@@ -1,10 +1,14 @@
 import React from 'react';
+import { useAuth } from '../../providers/AuthProvider';
 import { Box, Typography } from '@mui/material';
 import { MessageSharp as MessageIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { serviceLocator } from '../../core/services/BaseService';
 
-const ConversationsSection = ({ user }) => {
+const ConversationsSection = () => {
   const { t } = useTranslation();
+      const serviceStore = serviceLocator.get('store').getState()?.auth;
+      const { currentUser } = serviceStore;
 
   return (
     <Box>
@@ -15,7 +19,7 @@ const ConversationsSection = ({ user }) => {
         </Typography>
       </Box>
       <Typography variant="body1">
-        {user.conversasComMensagensNaoLidas?.length || 0} {t('conversations.unreadConversationsCount')}
+        {currentUser.conversasComMensagensNaoLidas?.length || 0} {t('conversations.unreadConversationsCount')}
       </Typography>
     </Box>
   );

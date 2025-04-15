@@ -1,6 +1,5 @@
-// src/firebaseConfig.js
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -11,24 +10,17 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
+// Inicializando Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-console.log('Firebase Config:', {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY ? 'Present' : 'Missing',
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN ? 'Present' : 'Missing',
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID ? 'Present' : 'Missing',
-storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET ? 'Present' : 'Missing',
-messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID ? 'Present' : 'Missing',
-appId: process.env.REACT_APP_FIREBASE_APP_ID ? 'Present' : 'Missing',
-});
-
-console.log('[Firebase] Config loaded:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasAuthDomain: !!firebaseConfig.authDomain,
-  hasProjectId: !!firebaseConfig.projectId
-});
-
-console.log('[Firebase] Auth instance:', !!auth);
+// Configurar persistência explicitamente
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("✅ Persistência ativada e configurada! auth: ");
+  })
+  .catch(error => {
+    console.error("❌ Erro ao configurar persistência:", error);
+  });
 
 export { auth };

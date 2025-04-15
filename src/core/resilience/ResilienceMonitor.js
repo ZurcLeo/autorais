@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Alert, Box, CircularProgress, Typography, Chip, Paper, Tooltip } from '@mui/material';
 import { retryManager } from '../../core/resilience';
-import { CircuitState } from '../../core/resilience/types';
+import { CircuitState } from '../../core/constants/config';
 
 // Atualiza os dados a cada 2 segundos
 const REFRESH_INTERVAL = 2000;

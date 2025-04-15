@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { LOG_LEVELS } from '../../core/constants/config';
+import { coreLogger } from '../../core/logging';
 
+const MODULE_NAME = 'CacheManager';
 // Default cache durations
 const DEFAULT_CACHE_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
 const DEFAULT_STALE_TIME = 30 * 1000; // 30 seconds in milliseconds
@@ -12,18 +15,17 @@ export class CacheManager {
   constructor() {
     this.cache = new Map();
     this.subscribers = new Map();
-    console.info('[CacheManager] CacheManager initialized'); // Log de info
   }
 
   setItem(key, value, options = {}) {
     try {
       if (!key) {
-        console.warn('[CacheManager] Cannot set cache item with null or undefined key'); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Cannot set cache item with null or undefined key.');
         throw new Error('Key is null or undefined');
       }
 
       if (value === undefined || value === null) {
-        console.warn('[CacheManager] Cannot set cache item with null or undefined value'); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Cannot set cache item with null or undefined value.');
         throw new Error('Value is null or undefined');
       }
 
@@ -32,29 +34,34 @@ export class CacheManager {
       const staleTime = options.staleTime || DEFAULT_STALE_TIME;
 
       if (typeof cacheTime !== 'number' || cacheTime < 0) {
-        console.warn('[CacheManager] Invalid cacheTime, using default value'); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Invalid cacheTime, using default value.');
         cacheTime = DEFAULT_CACHE_TIME;
       }
 
       if (typeof staleTime !== 'number' || staleTime < 0) {
-        console.warn('[CacheManager] Invalid staleTime, using default value'); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Invalid staleTime, using default value.');
         staleTime = DEFAULT_STALE_TIME;
       }
 
       this.cache.set(key, { value, timestamp, cacheTime, staleTime });
-      console.debug(`[CacheManager] Item set for key "${key}"`, { value, timestamp, cacheTime, staleTime }); // Log de debug
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[CacheManager] Item set for key "${key}"`, {
+        value,
+        timestamp,
+        cacheTime,
+        staleTime,
+      });
 
       if (this.subscribers.has(key)) {
         this.subscribers.get(key).forEach((callback) => {
           try {
             callback(value);
           } catch (error) {
-            console.error(`[CacheManager] Error notifying subscriber for key "${key}":`, error.message, error.stack); // Log de erro
+            coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error notifying subscriber for key "${key}":`, error.message, error.stack);
           }
         });
       }
     } catch (error) {
-      console.error(`[CacheManager] Error setting item for key "${key}":`, error.message, error.stack); // Log de erro
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error setting item for key "${key}":`, error.message, error.stack);
       throw error; // Re-throw para que o chamador possa lidar com o erro
     }
   }
@@ -62,27 +69,29 @@ export class CacheManager {
   getItem(key) {
     try {
       if (!key) {
-        console.debug('[CacheManager] Key is null or undefined'); // Log de debug
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, 'Key is null or undefined');
         return null;
       }
 
       const item = this.cache.get(key);
       if (!item) {
-        console.debug(`[CacheManager] Item not found for key "${key}"`); // Log de debug
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item not found for key "${key}"`);
         return null;
       }
 
       const { value, timestamp, cacheTime } = item;
       if (Date.now() - timestamp > cacheTime) {
-        console.debug(`[CacheManager] Item for key "${key}" expired and removed`); // Log de debug
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item for key "${key}" expired and removed`);
         this.cache.delete(key);
         return null;
       }
-
-      console.debug(`[CacheManager] Item retrieved for key "${key}"`, { value, timestamp }); // Log de debug
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item retrieved for key "${key}"`, {
+        value,
+        timestamp,
+      });
       return value;
     } catch (error) {
-      console.error(`[CacheManager] Error getting item for key "${key}":`, error.message, error.stack); // Log de erro
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error getting item for key "${key}":`, error.message, error.stack);
       return null;
     }
   }
@@ -90,21 +99,21 @@ export class CacheManager {
   isStale(key) {
     try {
       if (!key) {
-        console.debug('[CacheManager] Key is null or undefined'); // Log de debug
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, 'Key is null or undefined');
         return true;
       }
 
       const item = this.cache.get(key);
       if (!item) {
-        console.debug(`[CacheManager] Item not found for key "${key}"`); // Log de debug
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item not found for key "${key}"`);
         return true;
       }
 
       const isStale = Date.now() - item.timestamp > item.staleTime;
-      console.debug(`[CacheManager] Item for key "${key}" is ${isStale ? 'stale' : 'fresh'}`); // Log de debug
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item for key "${key}" is ${isStale ? 'stale' : 'fresh'}`);
       return isStale;
     } catch (error) {
-      console.error(`[CacheManager] Error checking staleness for key "${key}":`, error.message, error.stack); // Log de erro
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error checking staleness for key "${key}":`, error.message, error.stack);
       return true; // Assume stale em caso de erro
     }
   }
@@ -112,7 +121,7 @@ export class CacheManager {
   subscribe(key, callback) {
     try {
       if (!key || typeof callback !== 'function') {
-        console.warn('[CacheManager] Invalid subscription parameters', { key, callback }); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Invalid subscription parameters', { key, callback });
         throw new Error('Invalid subscription parameters');
       }
 
@@ -121,7 +130,7 @@ export class CacheManager {
       }
 
       this.subscribers.get(key).add(callback);
-      console.debug(`[CacheManager] Subscriber added for key "${key}"`); // Log de debug
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Subscriber added for key "${key}"`);
 
       return () => {
         const subscribers = this.subscribers.get(key);
@@ -130,11 +139,11 @@ export class CacheManager {
           if (subscribers.size === 0) {
             this.subscribers.delete(key);
           }
-          console.debug(`[CacheManager] Subscriber removed for key "${key}"`); // Log de debug
+          coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Subscriber removed for key "${key}"`);
         }
       };
     } catch (error) {
-      console.error(`[CacheManager] Error subscribing to key "${key}":`, error.message, error.stack); // Log de erro
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error subscribing to key "${key}":`, error.message, error.stack);
       throw error; // Re-throw para que o chamador possa lidar com o erro
     }
   }
@@ -142,14 +151,14 @@ export class CacheManager {
   invalidate(key) {
     try {
       if (!key) {
-        console.warn('[CacheManager] Cannot invalidate null or undefined key'); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Cannot invalidate null or undefined key');
         throw new Error('Key is null or undefined');
       }
 
       this.cache.delete(key);
-      console.debug(`[CacheManager] Item invalidated for key "${key}"`); // Log de debug
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item invalidated for key "${key}"`);
     } catch (error) {
-      console.error(`[CacheManager] Error invalidating key "${key}":`, error.message, error.stack); // Log de erro
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error invalidating key "${key}":`, error.message, error.stack);
       throw error; // Re-throw para que o chamador possa lidar com o erro
     }
   }
@@ -158,9 +167,9 @@ export class CacheManager {
     try {
       this.cache.clear();
       this.subscribers.clear();
-      console.info('[CacheManager] Cache and subscribers cleared'); // Log de info
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Cache and subscribers cleared');
     } catch (error) {
-      console.error('[CacheManager] Error clearing cache:', error.message, error.stack); // Log de erro
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Error clearing cache:', error.message, error.stack);
       throw error; // Re-throw para que o chamador possa lidar com o erro
     }
   }
@@ -180,17 +189,17 @@ export function useCachedResource(key, fetchFn, options = {}) {
   const fetch = useCallback(
     async (force = false) => {
       if (!key || !fetchFn) {
-        console.warn('[useCachedResource] Invalid key or fetch function'); // Log de warn
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, '[useCachedResource] Invalid key or fetch function');
         return;
       }
-
       // Check if we need to fetch
       if (!force && data && !globalCache.isStale(key)) {
-        console.debug(`[useCachedResource] Data for key "${key}" is fresh, skipping fetch`); // Log de debug
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Data for key "${key}" is fresh, skipping fetch`);
         return;
       }
 
-      console.time(`[useCachedResource] Fetch time for key "${key}"`); // Medição de tempo
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Fetching data for key "${key}"`);
+      const startTime = performance.now(); // Medição de tempo
       try {
         setLoading(true);
         setError(null);
@@ -199,14 +208,16 @@ export function useCachedResource(key, fetchFn, options = {}) {
         if (result !== undefined && result !== null) {
           globalCache.setItem(key, result, options);
           setData(result);
-          console.debug(`[useCachedResource] Data fetched and cached for key "${key}"`, result); // Log de debug
+          coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Data fetched and cached for key "${key}"`, result);
         }
       } catch (err) {
         setError(err);
-        console.error(`[useCachedResource] Error fetching key "${key}":`, err.message, err.stack); // Log de erro
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `[useCachedResource] Error fetching key "${key}":`, err.message, err.stack);
       } finally {
         setLoading(false);
-        console.timeEnd(`[useCachedResource] Fetch time for key "${key}"`); // Finalização da medição de tempo
+        const endTime = performance.now();
+        const fetchTime = endTime - startTime;
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Fetch time for key "${key}": ${fetchTime.toFixed(2)}ms`); // Finalização da medição de tempo
       }
     },
     [key, fetchFn, stableOptions]
@@ -214,7 +225,7 @@ export function useCachedResource(key, fetchFn, options = {}) {
 
   useEffect(() => {
     if (!key) {
-      console.warn('[useCachedResource] Key is null or undefined'); // Log de warn
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, '[useCachedResource] Key is null or undefined');
       return;
     }
 
@@ -222,13 +233,13 @@ export function useCachedResource(key, fetchFn, options = {}) {
 
     if (!data || globalCache.isStale(key)) {
       fetch().catch((err) => {
-        console.error(`[useCachedResource] Error in initial fetch for key "${key}":`, err.message, err.stack); // Log de erro
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `[useCachedResource] Error in initial fetch for key "${key}":`, err.message, err.stack);
       });
     }
 
     return () => {
       unsubscribe();
-      console.debug(`[useCachedResource] Unsubscribed from key "${key}"`); // Log de debug
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Unsubscribed from key "${key}"`);
     };
   }, [key, fetch]);
 

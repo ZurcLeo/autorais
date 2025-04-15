@@ -1,5 +1,6 @@
 import { useReducer } from 'react';
-import { NOTIFICATION_ACTIONS, initialNotificationState, notificationReducer } from '../../../reducers/notification/notificationState';
+import { notificationReducer } from '../../../reducers/notification/notificationReducer';
+import { initialNotificationState } from '../../core/constants/initialState';
 
 export const useNotificationState = () => {
   const [state, dispatch] = useReducer(notificationReducer, initialNotificationState);

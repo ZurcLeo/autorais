@@ -1,222 +1,125 @@
-// src/reducers/authReducer.js
-import { loggerSystem } from '../../core/logging/loggerSystem';
+// src/reducers/auth/authReducer.js
+import { AUTH_ACTIONS } from "../../core/constants/actions";
+import { initialAuthState } from "../../core/constants/initialState";
 
-const MODULE_NAME = 'AuthReducer';
-
-/**
- * Action types for authentication state management
- * These constants define all possible actions that can modify the auth state
- */
-export const AUTH_ACTIONS = {
-  LOGIN_START: 'LOGIN_START',
-  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-  LOGIN_FAILURE: 'LOGIN_FAILURE',
-  LOGOUT: 'LOGOUT',
-  FETCH_START: 'FETCH_START',
-  FETCH_SUCCESS: 'FETCH_SUCCESS',
-  FETCH_FAILURE: 'FETCH_FAILURE',
-  UPDATE_USER: 'UPDATE_USER',
-  SET_ERROR: 'SET_ERROR',
-  SET_LOADING: 'SET_LOADING',
-  CLEAR_STATE: 'CLEAR_STATE'
-};
-
-/**
- * Initial state for the auth context
- * This represents the starting point for our authentication management system
- */
-export const initialState = {
-  currentUser: null,         // Current authenticated user
-  isLoading: true,          // Loading state indicator
-  isLoggingIn: false,       // Login process indicator
-  isAuthenticated: false,    // Authentication status
-  error: null,              // Error state
-  lastUpdated: null,        // Timestamp of last state update
-  provider: null,           // Authentication provider used
-  sessionExpiry: null       // Session expiration timestamp
-};
-
-/**
- * Auth reducer function
- * Handles all state transitions for the authentication context
- * 
- * @param {Object} state - Current state
- * @param {Object} action - Action object containing type and payload
- * @returns {Object} New state
- */
-export const authReducer = (state, action) => {
-  const startTime = performance.now();
-  let newState;
-
-  try {
-    newState = processAuthAction(state, action);
-    
-    loggerSystem.logStateChange(MODULE_NAME, state, newState, action.type, {
-      duration: performance.now() - startTime
-    });
-
-    return newState;
-  } catch (error) {
-    loggerSystem.logError(MODULE_NAME, error, {
-      actionType: action.type,
-      previousState: state,
-      duration: performance.now() - startTime
-    });
-    
-    return {
-      ...state,
-      error: error.message,
-      lastUpdated: Date.now()
-    };
-  }
-};
-
-/**
- * Helper function to process auth reducer actions
- * Separates the core state transition logic for better error handling
- */
-function processAuthAction(state, action) {
+export const authReducer = (state = initialAuthState, action) => {
+  // Para fins de debug - pode ser removido em produção
+  console.log(`[AuthReducer] Recebendo ação: ${action.type}`, {
+    payload: action.payload,
+    currentState: {...state}
+  });
+  
   switch (action.type) {
+    case AUTH_ACTIONS.SET_FIRST_ACCESS:
+      return {
+        ...state,
+        isFirstAccess: action.payload.isFirstAccess,
+        lastUpdated: action.payload.timestamp
+      };
+    
+    case AUTH_ACTIONS.SET_PROFILE_UPDATE_NEEDED:
+      return {
+        ...state,
+        needsProfileUpdate: action.payload.needsProfileUpdate,
+        profileUpdateReason: action.payload.reason,
+        lastUpdated: action.payload.timestamp
+      };
+
+      case AUTH_ACTIONS.PROFILE_UPDATED:
+        return {
+          ...state,
+          needsProfileUpdate: false,
+          isFirstAccess: false,
+          lastUpdated: action.payload.timestamp
+        };
+
+        case AUTH_ACTIONS.REGISTER_START:
+          return {
+            ...state,
+            authLoading: true,
+            error: null
+          };
+        
+        case AUTH_ACTIONS.REGISTER_SUCCESS:
+          return {
+            ...state,
+            isAuthenticated: true,
+            currentUser: action.payload.user,
+            user: action.payload.user,
+            authLoading: false,
+            isFirstAccess: true, // Novo usuário, então é primeiro acesso
+            needsProfileUpdate: true,
+            error: null
+          };
+        
+        case AUTH_ACTIONS.REGISTER_FAILURE:
+          return {
+            ...state,
+            authLoading: false,
+            error: action.payload.error
+          };
+
     case AUTH_ACTIONS.LOGIN_START:
       return {
         ...state,
-        isLoggingIn: true,
+        authLoading: true,
         error: null,
         lastUpdated: Date.now()
       };
       
-    case AUTH_ACTIONS.LOGIN_SUCCESS:
-      return {
-        ...state,
-        currentUser: action.payload,
-        isLoading: false,
-        isLoggingIn: false,
-        isAuthenticated: true,
-        error: null,
-        lastUpdated: Date.now(),
-        provider: action.payload.provider,
-        sessionExpiry: action.payload.sessionExpiry
-      };
-    
+      case AUTH_ACTIONS.LOGIN_SUCCESS:
+        const userData = action.payload;
+        console.log('LOGIN_SUCCESS action.payload:', userData);
+        
+        return {
+          ...state,
+         
+          authLoading: false,
+          isAuthenticated: true,
+          userId: userData.userId,
+          currentUser: userData.user,
+          error: null,
+          lastUpdated: Date.now()
+        };;
+      
     case AUTH_ACTIONS.LOGIN_FAILURE:
+      const errorMessage = typeof action.payload === 'string'
+        ? action.payload
+        : action.payload?.error || 'Unknown authentication error';
+        
       return {
         ...state,
-        isLoading: false,
-        isLoggingIn: false,
         isAuthenticated: false,
-        error: action.payload,
+        currentUser: null,
+        authLoading: false,
+        error: errorMessage,
         lastUpdated: Date.now()
       };
 
     case AUTH_ACTIONS.LOGOUT:
       return {
-        ...initialState,
-        isLoading: false,
+        ...initialAuthState,
+        authLoading: false,
         lastUpdated: Date.now()
       };
-
-    case AUTH_ACTIONS.FETCH_START:
+      
+    case AUTH_ACTIONS.LOGIN_EXPIRED:
       return {
-        ...state,
-        isLoading: true,
-        error: null
-      };
-
-    case AUTH_ACTIONS.FETCH_SUCCESS:
-      return {
-        ...state,
-        currentUser: action.payload,
-        isLoading: false,
-        isAuthenticated: true,
-        error: null,
+        ...initialAuthState,
+        authLoading: false,
+        error: 'Session expired or invalid',
         lastUpdated: Date.now()
       };
-
-    case AUTH_ACTIONS.FETCH_FAILURE:
+      
+    case AUTH_ACTIONS.SET_AUTH_LOADING:
       return {
         ...state,
-        isLoading: false,
-        isAuthenticated: false,
-        error: action.payload,
-        lastUpdated: Date.now()
+        authLoading: action.payload === true || action.payload === false 
+          ? action.payload 
+          : false
       };
-
-    case AUTH_ACTIONS.UPDATE_USER:
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          ...action.payload
-        },
-        lastUpdated: Date.now()
-      };
-
-    case AUTH_ACTIONS.SET_ERROR:
-      return {
-        ...state,
-        error: action.payload,
-        lastUpdated: Date.now()
-      };
-
-    case AUTH_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        isLoading: action.payload
-      };
-
-    case AUTH_ACTIONS.CLEAR_STATE:
-      return {
-        ...initialState,
-        isLoading: false,
-        lastUpdated: Date.now()
-      };
-
+      
     default:
-      loggerSystem.logWarning(MODULE_NAME, `Unknown action type: ${action.type}`);
       return state;
   }
-}
-
-/**
- * Validates the shape of the auth state
- * Used for debugging and ensuring state integrity
- */
-export function validateAuthState(state) {
-  const requiredKeys = [
-    'currentUser',
-    'isLoading',
-    'isLoggingIn',
-    'isAuthenticated',
-    'error',
-    'lastUpdated',
-    'provider',
-    'sessionExpiry'
-  ];
-
-  const missingKeys = requiredKeys.filter(key => !(key in state));
-  
-  if (missingKeys.length > 0) {
-    const error = new Error(`Invalid auth state: missing keys ${missingKeys.join(', ')}`);
-    loggerSystem.logError(MODULE_NAME, error, { state });
-    throw error;
-  }
-
-  // Additional validation for authenticated state consistency
-  if (state.isAuthenticated && !state.currentUser) {
-    const error = new Error('Invalid auth state: authenticated but no current user');
-    loggerSystem.logError(MODULE_NAME, error, { state });
-    throw error;
-  }
-
-  // Validate session expiry if authenticated
-  if (state.isAuthenticated && state.sessionExpiry) {
-    const now = Date.now();
-    if (now > state.sessionExpiry) {
-      const error = new Error('Invalid auth state: session expired');
-      loggerSystem.logError(MODULE_NAME, error, { state });
-      throw error;
-    }
-  }
-
-  return true;
-}
+};

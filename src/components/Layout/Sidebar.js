@@ -1,106 +1,215 @@
-// src/components/Layout/Sidebar.js
-import React, {useState} from 'react';
-import { IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Box, Collapse, Toolbar, Divider } from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import { GiHouse, GiPartyFlags, GiThreeFriends, GiTakeMyMoney, GiNewspaper, GiConversation, GiPiggyBank, GiPresent, GiLockedChest } from "react-icons/gi";
-import { useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';  // Importação do uuid
+// src/components/Layout/Sidebar.js - Versão Refatorada
+import React, { useState, useEffect } from 'react';
+import { 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemIcon, 
+  ListItemText, 
+  Box, 
+  Collapse, 
+  Divider, 
+  Tooltip, 
+  IconButton 
+} from '@mui/material';
+import { 
+  ExpandLess, 
+  ExpandMore, 
+  ChevronLeft, 
+  ChevronRight 
+} from '@mui/icons-material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { serviceLocator } from '../../core/services/BaseService';
+import { coreLogger } from '../../core/logging';
+import { LOG_LEVELS } from '../../core/constants/config';
+import { useTranslation } from 'react-i18next';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
+import { sidebarMenu } from './config/sidebarMenu';
 
-const Sidebar = () => {
-  const [openSocial, setOpenSocial] = useState(false);
-  const [openFinanceiro, setOpenFinanceiro] = useState(false);
+const MODULE_NAME = 'Sidebar';
+
+const Sidebar = ({ 
+  open, 
+  toggleSidebar, 
+  isMobile, 
+  sidebarWidth = 280, 
+  collapsedWidth = 80 
+}) => {
+      const serviceStore = serviceLocator.get('store').getState()?.auth;
+      const { isAuthenticated, currentUser } = serviceStore;
+  const { t } = useTranslation();
+  const muiTheme = useMuiTheme();
+  const [openSections, setOpenSections] = useState({
+    social: false,
+    financeiro: false
+  });
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Expandir automaticamente a seção baseada na rota atual
+  useEffect(() => {
+    const path = location.pathname;
 
-  const handleSocialClick = () => {
-    setOpenSocial(!openSocial);
+    // Expandir ou colapsar conforme a rota
+    setOpenSections({
+      social: ['/posts', '/connections', '/messages', '/gift'].includes(path),
+      financeiro: ['/caixinha', '/contribuir', '/caixinha/create'].includes(path)
+    });
+
+    // Log de navegação
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigation changed', {
+      path,
+      user: currentUser.uid,
+      sidebarOpen: open
+    });
+  }, [location.pathname, currentUser, open]);
+
+  const handleSectionToggle = (section) => {
+    setOpenSections((prevState) => ({
+      ...prevState,
+      [section]: !prevState[section]
+    }));
+
+    if (!open && !isMobile) {
+      toggleSidebar();
+    }
+
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, `${section} section toggled`, {
+      isOpen: !openSections[section]
+    });
+  };
+  
+  const handleNavigation = (path) => {
+    navigate(path);
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigation initiated', {
+      from: location.pathname,
+      to: path
+    });
   };
 
-  const handleFinanceiroClick = () => {
-    setOpenFinanceiro(!openFinanceiro);
-  };
+  if (!isAuthenticated) {
+    return null;
+  }
 
-  return (
-    <Drawer variant="permanent" sx={{ width: 300 }}>
-      <Toolbar />
-      <Box sx={{ width: 300, paddingTop: 5 }}>
+  const drawerWidth = isMobile ? sidebarWidth : (open ? sidebarWidth : collapsedWidth);
+
+  const renderMenuItem = (item, isSubMenuOpen, onToggleSubMenu) => (
+    <Tooltip 
+    title={!open && t(item.textKey)} 
+    placement="right" 
+    arrow={!open}
+    key={item.id || `tooltip-${item.path}`} // Adicionar uma key única aqui
+  >
+    <ListItem
+      button
+      onClick={() => item.path ? handleNavigation(item.path) : onToggleSubMenu && onToggleSubMenu()}
+      selected={item.path && location.pathname === item.path}
+      sx={{
+        minHeight: 48,
+        justifyContent: open ? 'initial' : 'center',
+        px: 2.5,
+        pl: item.level > 0 ? 4 : 2.5, // Indentação para submenus
+      }}
+    >
+        <ListItemIcon
+          sx={{
+            minWidth: 0,
+            mr: open ? 3 : 'auto',
+            justifyContent: 'center',
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
+        {open && (
+          <>
+            <ListItemText primary={t(item.textKey)} />
+            {item.items && (isSubMenuOpen ? <ExpandLess /> : <ExpandMore />)}
+          </>
+        )}
+      </ListItem>
+    </Tooltip>
+  );
+
+  const drawerContent = (
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: open ? 'flex-end' : 'center',
+          padding: open ? 1 : 0,
+          minHeight: 64,
+        }}
+      >
+        {!isMobile && (
+          <IconButton onClick={toggleSidebar}>
+            {open ? <ChevronLeft /> : <ChevronRight />}
+          </IconButton>
+        )}
+      </Box>
+      <Divider />
+      <Box sx={{ overflow: 'auto', height: 'calc(100% - 64px)' }}>
         <List>
-          <ListItem key={uuidv4()} onClick={() => navigate('/dashboard')}>
-            <IconButton size="medium">
-              <GiHouse />
-            </IconButton>
-            <ListItemText primary="Home" />
-          </ListItem>
-          <Divider />
-          <ListItem key={uuidv4()} onClick={handleSocialClick}>
-            <IconButton size="medium">
-              <GiPartyFlags />
-            </IconButton>
-            <ListItemText primary="Social" />
-            {openSocial ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openSocial} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem key={uuidv4()} onClick={() => navigate('/posts')}>
-                <IconButton size="medium">
-                  <GiNewspaper />
-                </IconButton>
-                <ListItemText inset primary="Postagens" />
-              </ListItem>
-              <ListItem key={uuidv4()} onClick={() => navigate('/connections')}>
-                <IconButton size="medium">
-                  <GiThreeFriends />
-                </IconButton>
-                <ListItemText inset primary="Amigos" />
-              </ListItem>
-              <ListItem key={uuidv4()} onClick={() => navigate('/messages')}>
-                <IconButton size="medium">
-                  <GiConversation />
-                </IconButton>
-                <ListItemText inset primary="Conversas" />
-              </ListItem>
-              <ListItem key={uuidv4()} onClick={() => navigate('/gift')}>
-                <IconButton size="medium">
-                  <GiPresent />
-                </IconButton>
-                <ListItemText inset primary="Presentes" />
-              </ListItem>
-            </List>
-          </Collapse>
-          <Divider />
-          <ListItem key={uuidv4()} onClick={handleFinanceiroClick}>
-            <ListItemIcon>
-              <IconButton size="medium">
-                <GiTakeMyMoney />
-              </IconButton>
-            </ListItemIcon>
-            <ListItemText primary="Financeiro" />
-            {openFinanceiro ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openFinanceiro} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem key={uuidv4()} onClick={() => navigate('/caixinha')}>
-                <IconButton size="medium">
-                  <GiLockedChest />
-                </IconButton>
-                <ListItemText inset primary="Caixinha" />
-              </ListItem>
-              <ListItem key={uuidv4()} onClick={() => navigate('/contribuir')}>
-                <IconButton size="medium">
-                  <GiLockedChest />
-                </IconButton>
-                <ListItemText inset primary="Contribuir" />
-              </ListItem>
-              <ListItem key={uuidv4()} onClick={() => navigate('/caixinha/create')}>
-                <IconButton size="medium">
-                  <GiPiggyBank />
-                </IconButton>
-                <ListItemText inset primary="Criar nova caixinha" />
-              </ListItem>
-            </List>
-          </Collapse>
+          {sidebarMenu.map((item) => (
+            <React.Fragment key={item.id}>
+              {renderMenuItem(item, openSections[item.id], () => handleSectionToggle(item.id))}
+              {open && item.items && (
+                <Collapse in={openSections[item.id]} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {item.items.map(subItem => renderMenuItem(subItem, openSections[subItem.id]))}
+                  </List>
+                </Collapse>
+              )}
+              {item.id !== 'home' && <Divider />}
+            </React.Fragment>
+          ))}
         </List>
       </Box>
-    </Drawer>
+    </>
+  );
+
+  return (
+    <Box
+      component="nav"
+      sx={{ 
+        width: { sm: drawerWidth }, 
+        flexShrink: { sm: 0 } 
+      }}
+    >
+      {isMobile ? (
+        <Drawer
+          variant="temporary"
+          open={open}
+          onClose={toggleSidebar}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth 
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        <Drawer
+          variant="permanent"
+          sx={{
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: open ? sidebarWidth : collapsedWidth, 
+              transition: muiTheme.transitions.create('width', {
+                easing: muiTheme.transitions.easing.sharp,
+                duration: muiTheme.transitions.duration.enteringScreen,
+              }),
+            },
+          }}
+          open={open}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
+    </Box>
   );
 };
 

@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { coreLogger } from '../../core/logging/CoreLogger';
-import { LOG_LEVELS } from '../../reducers/metadata/metadataReducer';
+import { LOG_LEVELS } from '../../core/constants/config';
 
 interface TrackingOptions {
   section: string;

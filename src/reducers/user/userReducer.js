@@ -1,65 +1,142 @@
-export const USER_ACTIONS = {
-    FETCH_START: 'FETCH_START',
-    FETCH_SUCCESS: 'FETCH_SUCCESS',
-    FETCH_FAILURE: 'FETCH_FAILURE',
-    UPDATE_USER: 'UPDATE_USER',
-    SET_ERROR: 'SET_ERROR',
-    SET_LOADING: 'SET_LOADING',
-    CLEAR_USER: 'CLEAR_USER'
-  };
+// src/reducers/user/userReducer.js
+import { is } from "date-fns/locale";
+import { USER_ACTIONS } from "../../core/constants/actions";
+import { initialUserState } from "../../core/constants/initialState";
+import { coreLogger } from "../../core/logging/CoreLogger";
+
+export const userReducer = (state = initialUserState, action) => {
+  // Para fins de debug - pode ser removido em produção
+  // coreLogger.logEvent('UserReducer', 'DEBUG', `Processando ação: ${action.type}`, {
+  //   payload: action.payload ? { ...action.payload } : null
+  // });
   
-  export const initialUserState = {
-    currentUser: null,
-    usersList: [],
-    isLoading: false,
-    error: null,
-    lastUpdated: null
-  };
-  
-  export const userReducer = (state, action) => {
-    switch (action.type) {
-      case USER_ACTIONS.FETCH_START:
-        return {
-          ...state,
-          isLoading: true,
-          error: null
-        };
+  switch (action.type) {
+    case USER_ACTIONS.FETCH_START:
+      return {
+        ...state,
+        userLoading: true,
+        userId: action.userId,
+        error: null,
+        lastUpdated: Date.now()
+      };
+      
+    case USER_ACTIONS.FETCH_SUCCESS:
+      return {
+        ...state,
+        user: action.user,
+        usersById: action.usersById,
+        userLoading: false,
+        isAuthenticated: true, 
+        error: null,
+        lastUpdated: Date.now()
+      };
+    
+    case USER_ACTIONS.FETCH_FAILURE:
+      const errorMessage = typeof action.user === 'string'
+        ? action.user
+        : action.error || 'Unknown error fetching user data';
         
-      case USER_ACTIONS.FETCH_SUCCESS:
+      return {
+        ...state,
+        userLoading: false,
+        error: errorMessage,
+        lastUpdated: Date.now()
+      };
+
+    case USER_ACTIONS.UPDATE_SUCCESS:
+      // Se não tivermos perfil, não tentar atualizar
+      if (!state.user) {
+        return state;
+      }
+      
+      // Dados a serem mesclados ao perfil existente
+      const updates = action.user;
+      const updatedProfile = { ...state.user, ...updates };
+      
+      // Se tivermos ID do usuário, atualizar também o cache
+      const userId2 = updatedProfile?.uid || updatedProfile?.id;
+      const updatedUsersById2 = userId2 ? {
+        ...state.usersById,
+        [userId2]: updatedProfile
+      } : state.usersById;
+      
+      return {
+        ...state,
+        user: updatedProfile,
+        usersById: updatedUsersById2,
+        // userLoading: false,
+        lastUpdated: Date.now()
+      };
+      
+    case USER_ACTIONS.USER_PROFILE_COMPLETE:
+      return {
+        ...state,
+        user: action.user,
+        authLoading: false,
+        userLoading: false,
+        currentUser: action.user,
+        isAuthenticated: true,
+        isFirstAccess: false,
+        needsProfileUpdate: false,
+        isProfileComplete: true,
+        error: null,
+        lastUpdated: Date.now()
+      };
+      
+    case USER_ACTIONS.USER_PROFILE_INCOMPLETE:
+      return {
+        ...state,
+        user: action.user,
+        // userLoading: false,
+        isProfileComplete: false,
+        needsProfileCompletion: true,
+        error: null,
+        lastUpdated: Date.now()
+      };
+
+      case USER_ACTIONS.SET_PROFILE_UPDATE_NEEDED:
         return {
           ...state,
-          currentUser: action.payload,
-          isLoading: false,
-          error: null,
+          // user: action.user,
+          // // userLoading: false,
+          // isProfileComplete: false,
+          // needsProfileCompletion: true,
+          // error: null,
           lastUpdated: Date.now()
         };
       
-      case USER_ACTIONS.FETCH_FAILURE:
-        return {
-          ...state,
-          isLoading: false,
-          error: action.payload,
-          lastUpdated: Date.now()
-        };
-  
-      case USER_ACTIONS.UPDATE_USER:
-        return {
-          ...state,
-          currentUser: {
-            ...state.currentUser,
-            ...action.payload
-          },
-          lastUpdated: Date.now()
-        };
-  
-      case USER_ACTIONS.CLEAR_USER:
-        return {
-          ...initialUserState,
-          isLoading: false,
-          lastUpdated: Date.now()
-        };
-  
-      default:
+    case USER_ACTIONS.DELETE_SUCCESS:
+      const deleteId = action.userId;
+      
+      // Se não tivermos ID, não há o que excluir
+      if (!deleteId) {
         return state;
-    }
-  };
+      }
+      
+      // Remover do cache de usuários
+      const { [deleteId]: deletedUser, ...remainingUsers } = state.usersById;
+      
+      // Se for o perfil atual, limpar
+      const newUserProfile = state.user && 
+        (state.user.uid === deleteId || state.user.id === deleteId)
+        ? null
+        : state.user;
+        
+      return {
+        ...state,
+        user: newUserProfile,
+        usersById: remainingUsers,
+        // userLoading: false,
+        lastUpdated: Date.now()
+      };
+
+    case USER_ACTIONS.CLEAR_USER:
+      return {
+        ...initialUserState,
+        lastUpdated: Date.now()
+      };
+  
+    default:
+      return state;
+  }
+};

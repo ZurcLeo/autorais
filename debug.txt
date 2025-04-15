@@ -1,0 +1,786 @@
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service store registered
+// CoreLogger.js:173 Data: ObjectcriticalPath: truedependencies: ['eventActionBridge']lazy: falsephase: "CORE"[[Prototype]]: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: store
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service user registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service user registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service messages registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service messages registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: messages
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service interests registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service interests registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: interests
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service invites registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service invites registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: invites
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service notifications registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service notifications registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: notifications
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service connections registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service connections registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: connections
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INIT] store (Session: 9017)
+// CoreLogger.js:168 Message: StoreService initialization started
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] store (Session: 9017)
+// CoreLogger.js:168 Message: StoreService initialization started
+// authReducer.js:9 [AuthReducer] Recebendo ação: @@redux/INITa.5.i.o.4.h Object
+// authReducer.js:9 [AuthReducer] Recebendo ação: @@redux/PROBE_UNKNOWN_ACTION9.2.h.x.g.a Object
+// CoreLogger.js:167 [DEBUG] UserReducer (Session: 9017)
+// CoreLogger.js:168 Message: Processando ação: @@redux/INITa.5.i.o.4.h
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [DEBUG] UserReducer (Session: 9017)
+// CoreLogger.js:168 Message: Processando ação: @@redux/INITa.5.i.o.4.h
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [DEBUG] UserReducer (Session: 9017)
+// CoreLogger.js:168 Message: Processando ação: @@redux/PROBE_UNKNOWN_ACTIONg.x.y.q.j.v
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [DEBUG] UserReducer (Session: 9017)
+// CoreLogger.js:168 Message: Processando ação: @@redux/PROBE_UNKNOWN_ACTIONg.x.y.q.j.v
+// CoreLogger.js:173 Data: Object
+// userPrefsReducer.js:10 UserPrefs action: @@redux/INITa.5.i.o.4.h undefined
+// userPrefsReducer.js:10 UserPrefs action: @@redux/PROBE_UNKNOWN_ACTIONp.0.t.a.0.p undefined
+// authReducer.js:9 [AuthReducer] Recebendo ação: @@INIT Object
+// CoreLogger.js:167 [DEBUG] UserReducer (Session: 9017)
+// CoreLogger.js:168 Message: Processando ação: @@INIT
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [DEBUG] UserReducer (Session: 9017)
+// CoreLogger.js:168 Message: Processando ação: @@INIT
+// CoreLogger.js:173 Data: Object
+// userPrefsReducer.js:10 UserPrefs action: @@INIT undefined
+// CoreLogger.js:167 [STATE] store (Session: 9017)
+// CoreLogger.js:168 Message: Store created
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [STATE] store (Session: 9017)
+// CoreLogger.js:168 Message: Store created
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] store (Session: 9017)
+// CoreLogger.js:168 Message: Setting store to EventActionBridgeService
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [STATE] store (Session: 9017)
+// CoreLogger.js:168 Message: Setting store to EventActionBridgeService
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// BaseService.js:62 ServiceEventHub: Registrado listener global para *
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [DEBUG] App (Session: 9017)
+// CoreLogger.js:168 Message: App initialization started
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service apiService registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service apiService registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: apiService
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service store registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service store registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: store
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service user registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service user registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service messages registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service messages registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: messages
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service interests registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service interests registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: interests
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service invites registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service invites registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: invites
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service notifications registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service notifications registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: notifications
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service connections registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service connections registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: connections
+// CoreLogger.js:173 Data: Object
+// StoreService.js:148 Inicializado com sucesso
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// userMappings.js:160 [UserMappings] User mappings registered successfully
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: eventActionBridge
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: store
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] store (Session: 9017)
+// CoreLogger.js:168 Message: EventActionBridge configured with mappings
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [STATE] store (Session: 9017)
+// CoreLogger.js:168 Message: EventActionBridge configured with mappings
+// CoreLogger.js:167 [INIT] store (Session: 9017)
+// CoreLogger.js:168 Message: StoreService initialized successfully
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] store (Session: 9017)
+// CoreLogger.js:168 Message: StoreService initialized successfully
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// App.js:33 USER_ACTIONS.FETCH_START: user/FETCH_START
+// App.js:34 Mapeamento usa: user/FETCH_START
+// App.js:35 São iguais? true
+// hook.js:377 USER_ACTIONS.FETCH_START: user/FETCH_START
+// hook.js:377 Mapeamento usa: user/FETCH_START
+// hook.js:377 São iguais? true
+// CoreLogger.js:167 [INFO] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: [AuthProvider] Estado atualizado
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: [AuthProvider] Estado atualizado
+// CoreLogger.js:173 Data: Object
+// hook.js:377 [INFO] AuthProvider (Session: 9017)
+// hook.js:377 Message: [AuthProvider] Estado atualizado
+// hook.js:377 Data: Object
+// hook.js:377 Metadata: Object
+// hook.js:377 [INFO] AuthProvider (Session: 9017)
+// hook.js:377 Message: [AuthProvider] Estado atualizado
+// hook.js:377 Data: Object
+// DebugProvider.js:13 🛠️ Inicializando ambiente de debug
+// index.js:473 🔧 Ferramentas de diagnóstico de eventos disponíveis via "eventDiagnostics"
+// DebugProvider.js:25 🔧 Ferramentas de diagnóstico exportadas: OK
+// CoreLogger.js:167 [INIT] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service initialization started: AppRoutes
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service initialization started: AppRoutes
+// CoreLogger.js:173 Data: Object
+// routes.js:189 LoginRoute render: Object
+// CoreLogger.js:167 [PERF] App (Session: 9017)
+// CoreLogger.js:168 Message: Service performance: AppRoutes
+// CoreLogger.js:173 Data: Object
+// index.js:39 DashboardProvider - userId: undefined
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: interests
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// index.js:155 [UserProvider] UserLoading state:  false
+// index.js:55 Auth state changed: Object
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: Iniciando AuthProvider e AuthService
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: Iniciando AuthProvider e AuthService
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: AuthProvider e AuthService inicializados com sucesso
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: AuthProvider e AuthService inicializados com sucesso
+// CoreLogger.js:167 [PERF] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: State change handler set
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [PERF] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: State change handler set
+// CoreLogger.js:167 [INIT] App (Session: 9017)
+// CoreLogger.js:168 Message: CoreLogger initialized
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INIT] App (Session: 9017)
+// CoreLogger.js:168 Message: Environment check
+// CoreLogger.js:173 Data: Object
+// index.js:288 Debug Panel inicializado Object
+// hook.js:608 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. Error Component Stack
+//     at BrowserRouter (index.tsx:789:1)
+//     at ServiceInitializer (App.js:29:1)
+//     at App (App.js:122:1)
+//     at DefaultPropsProvider (DefaultPropsProvider.js:9:1)
+//     at RtlProvider (index.js:10:1)
+//     at ThemeProvider (ThemeProvider.js:31:1)
+//     at ThemeProvider (ThemeProvider.js:44:1)
+//     at ThemeProvider (ThemeProvider.js:13:1)
+//     at ThemeContextProvider (themeContext.js:27:1)
+//     at ErrorBoundaryProvider (ErrorBoundaryProvider.js:13:1)
+// overrideMethod @ hook.js:608
+// hook.js:608 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. Error Component Stack
+//     at BrowserRouter (index.tsx:789:1)
+//     at ServiceInitializer (App.js:29:1)
+//     at App (App.js:122:1)
+//     at DefaultPropsProvider (DefaultPropsProvider.js:9:1)
+//     at RtlProvider (index.js:10:1)
+//     at ThemeProvider (ThemeProvider.js:31:1)
+//     at ThemeProvider (ThemeProvider.js:44:1)
+//     at ThemeProvider (ThemeProvider.js:13:1)
+//     at ThemeContextProvider (themeContext.js:27:1)
+//     at ErrorBoundaryProvider (ErrorBoundaryProvider.js:13:1)
+// overrideMethod @ hook.js:608
+// CoreLogger.js:167 [INIT] App (Session: 9017)
+// CoreLogger.js:168 Message: CoreLogger initialized
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INIT] App (Session: 9017)
+// CoreLogger.js:168 Message: Environment check
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INIT] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service initialization completed: AppRoutes
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service initialization completed: AppRoutes
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [DEBUG] CacheManager (Session: 9017)
+// CoreLogger.js:168 Message: Item invalidated for key "user:profile"
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [DEBUG] CacheManager (Session: 9017)
+// CoreLogger.js:168 Message: Item invalidated for key "user:profile"
+// CoreLogger.js:167 [DEBUG] CacheManager (Session: 9017)
+// CoreLogger.js:168 Message: Item invalidated for key "users:list"
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [DEBUG] CacheManager (Session: 9017)
+// CoreLogger.js:168 Message: Item invalidated for key "users:list"
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [PERF] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: State change handler cleared
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [PERF] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: State change handler cleared
+// DebugProvider.js:13 🛠️ Inicializando ambiente de debug
+// index.js:473 🔧 Ferramentas de diagnóstico de eventos disponíveis via "eventDiagnostics"
+// DebugProvider.js:25 🔧 Ferramentas de diagnóstico exportadas: OK
+// CoreLogger.js:167 [INIT] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service initialization started: AppRoutes
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service initialization started: AppRoutes
+// CoreLogger.js:173 Data: Object
+// routes.js:189 LoginRoute render: Object
+// CoreLogger.js:167 [PERF] App (Session: 9017)
+// CoreLogger.js:168 Message: Service performance: AppRoutes
+// CoreLogger.js:173 Data: Object
+// index.js:39 DashboardProvider - userId: undefined
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: interests
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// index.js:155 [UserProvider] UserLoading state:  false
+// index.js:55 Auth state changed: Object
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: Iniciando AuthProvider e AuthService
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: Iniciando AuthProvider e AuthService
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: AuthProvider e AuthService inicializados com sucesso
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INIT] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: AuthProvider e AuthService inicializados com sucesso
+// CoreLogger.js:167 [PERF] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: State change handler set
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [PERF] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: State change handler set
+// index.js:288 Debug Panel inicializado Object
+// CoreLogger.js:167 [DEBUG] App (Session: 9017)
+// CoreLogger.js:168 Message: App initialization started
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service apiService registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service apiService registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: apiService
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service authToken registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service store registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service store registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: store
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service user registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service user registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: user
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service messages registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service messages registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: messages
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service interests registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service interests registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: interests
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service invites registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service invites registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: invites
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service notifications registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service notifications registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: notifications
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service connections registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] ServiceInitializer (Session: 9017)
+// CoreLogger.js:168 Message: Service connections registered
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: connections
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [STATE] App (Session: 9017)
+// CoreLogger.js:168 Message: Service state update: authToken
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:167 [INFO] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: [AuthProvider] Estado atualizado
+// CoreLogger.js:173 Data: Object
+// CoreLogger.js:178 Metadata: Object
+// CoreLogger.js:167 [INFO] AuthProvider (Session: 9017)
+// CoreLogger.js:168 Message: [AuthProvider] Estado atualizado
+// CoreLogger.js:173 Data: Object
+// hook.js:377 [INFO] AuthProvider (Session: 9017)
+// hook.js:377 Message: [AuthProvider] Estado atualizado
+// hook.js:377 Data: Object
+// hook.js:377 Metadata: Object
+// hook.js:377 [INFO] AuthProvider (Session: 9017)
+// hook.js:377 Message: [AuthProvider] Estado atualizado
+// hook.js:377 Data: Object

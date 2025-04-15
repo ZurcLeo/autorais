@@ -1,7 +1,7 @@
 // src/core/resilience/index.js
 import { RetryManager } from './RetryManager';
 import { ResilienceConfig, validateResilienceConfig } from './ResilienceConfig';
-import { CircuitState, ResilienceError } from './types';
+import { CircuitState, ResilienceError } from './../constants/config';
 
 // Criar a instância única do RetryManager
 const retryManager = RetryManager.getInstance();

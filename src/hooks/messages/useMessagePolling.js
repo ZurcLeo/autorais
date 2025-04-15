@@ -1,21 +1,11 @@
 // src/hooks/messages/useMessagePolling.js
 import { useEffect, useRef } from 'react';
 import { PollingService } from '../../utils/pollingService';
-import messageService from '../../services/messageService';
-import { MESSAGE_ACTIONS } from '../../reducers/messages/messageReducer';
+import { messageService } from '../../services/MessageService';
+import { MESSAGE_CACHE_CONFIG } from '../../core/constants/config';
+import { MESSAGE_ACTIONS } from '../../core/constants/actions';
 import { globalCache } from '../../utils/cache/cacheManager';
-import {coreLogger as CoreLogger} from '../../core/logging/CoreLogger';
-
-// Cache configuration for messages
-const CACHE_CONFIG = {
-  MESSAGES_KEY: 'messages:all',
-  UNREAD_KEY: 'messages:unread',
-  LATEST_KEY: 'messages:latest',
-  ACTIVE_CHATS_KEY: 'messages:active-chats',
-  CACHE_TIME: 5 * 60 * 1000, // 5 minutes
-  STALE_TIME: 30 * 1000,     // 30 seconds
-  POLLING_INTERVAL: 10 * 1000 // 10 seconds
-};
+import {coreLogger as CoreLogger} from '../../core/logging';
 
 export const useMessagePolling = (userId, dispatch, processMessage) => {
   // Use ref to maintain single instance of PollingService
@@ -34,17 +24,17 @@ export const useMessagePolling = (userId, dispatch, processMessage) => {
         dispatch({ type: MESSAGE_ACTIONS.FETCH_START });
 
         // Check cache first
-        const cachedMessages = globalCache.getItem(CACHE_CONFIG.MESSAGES_KEY);
+        const cachedMessages = globalCache.getItem(MESSAGE_CACHE_CONFIG.MESSAGES_KEY);
         
-        if (cachedMessages && !globalCache.isStale(CACHE_CONFIG.MESSAGES_KEY)) {
+        if (cachedMessages && !globalCache.isStale(MESSAGE_CACHE_CONFIG.MESSAGES_KEY)) {
           // Use cached data
           dispatch({
             type: MESSAGE_ACTIONS.FETCH_SUCCESS,
             payload: {
               messages: cachedMessages,
-              unreadCount: globalCache.getItem(CACHE_CONFIG.UNREAD_KEY) || 0,
-              latestMessage: globalCache.getItem(CACHE_CONFIG.LATEST_KEY),
-              activeChats: globalCache.getItem(CACHE_CONFIG.ACTIVE_CHATS_KEY) || new Set()
+              unreadCount: globalCache.getItem(MESSAGE_CACHE_CONFIG.UNREAD_KEY) || 0,
+              latestMessage: globalCache.getItem(MESSAGE_CACHE_CONFIG.LATEST_KEY),
+              activeChats: globalCache.getItem(MESSAGE_CACHE_CONFIG.ACTIVE_CHATS_KEY) || new Set()
             }
           });
           return;
@@ -73,24 +63,24 @@ export const useMessagePolling = (userId, dispatch, processMessage) => {
         );
 
         // Update cache with fresh data
-        globalCache.setItem(CACHE_CONFIG.MESSAGES_KEY, processedMessages, {
-          cacheTime: CACHE_CONFIG.CACHE_TIME,
-          staleTime: CACHE_CONFIG.STALE_TIME
+        globalCache.setItem(MESSAGE_CACHE_CONFIG.MESSAGES_KEY, processedMessages, {
+          cacheTime: MESSAGE_CACHE_CONFIG.CACHE_TIME,
+          staleTime: MESSAGE_CACHE_CONFIG.STALE_TIME
         });
 
-        globalCache.setItem(CACHE_CONFIG.UNREAD_KEY, unreadCount, {
-          cacheTime: CACHE_CONFIG.CACHE_TIME,
-          staleTime: CACHE_CONFIG.STALE_TIME
+        globalCache.setItem(MESSAGE_CACHE_CONFIG.UNREAD_KEY, unreadCount, {
+          cacheTime: MESSAGE_CACHE_CONFIG.CACHE_TIME,
+          staleTime: MESSAGE_CACHE_CONFIG.STALE_TIME
         });
 
-        globalCache.setItem(CACHE_CONFIG.LATEST_KEY, latestMessage, {
-          cacheTime: CACHE_CONFIG.CACHE_TIME,
-          staleTime: CACHE_CONFIG.STALE_TIME
+        globalCache.setItem(MESSAGE_CACHE_CONFIG.LATEST_KEY, latestMessage, {
+          cacheTime: MESSAGE_CACHE_CONFIG.CACHE_TIME,
+          staleTime: MESSAGE_CACHE_CONFIG.STALE_TIME
         });
 
-        globalCache.setItem(CACHE_CONFIG.ACTIVE_CHATS_KEY, activeChats, {
-          cacheTime: CACHE_CONFIG.CACHE_TIME,
-          staleTime: CACHE_CONFIG.STALE_TIME
+        globalCache.setItem(MESSAGE_CACHE_CONFIG.ACTIVE_CHATS_KEY, activeChats, {
+          cacheTime: MESSAGE_CACHE_CONFIG.CACHE_TIME,
+          staleTime: MESSAGE_CACHE_CONFIG.STALE_TIME
         });
 
         dispatch({
@@ -122,7 +112,7 @@ export const useMessagePolling = (userId, dispatch, processMessage) => {
       }
     };
 
-    pollingServiceRef.current.addTask('pollMessages', pollMessages, CACHE_CONFIG.POLLING_INTERVAL);
+    pollingServiceRef.current.addTask('pollMessages', pollMessages, MESSAGE_CACHE_CONFIG.POLLING_INTERVAL);
 
     // Initial poll
     pollMessages();

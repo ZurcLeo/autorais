@@ -1,7 +1,7 @@
 // src/core/error/ErrorBoundary.js
 import React, { Component } from 'react';
+import { LOG_LEVELS } from '../../core/constants/config';
 // import { coreLogger } from '../logging';
-import { LOG_LEVELS } from '../../reducers/metadata/metadataReducer';
 import { ErrorAlert } from './ErrorAlert';
 
 export class ErrorBoundary extends Component {
@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component {
         }
       }
     });
-
+    console.error(error, errorInfo)
     if (this.props.onError) {
       try {
         this.props.onError(error, errorInfo);
@@ -67,7 +67,16 @@ export class ErrorBoundary extends Component {
         return this.props.fallback;
       }
 
-      return <ErrorAlert error={this.state.error} onReload={this.handleReload} />;
+      // Correção: Adaptação adequada para a interface esperada pelo ErrorAlert
+      return (
+        <ErrorAlert 
+          type="error"
+          title="Erro de Aplicação"
+          message={this.state.error?.message || "Ocorreu um erro inesperado"}
+          autoClose={false}
+          onClose={this.handleReload}
+        />
+      );
     }
 
     return this.props.children;

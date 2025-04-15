@@ -1,108 +1,200 @@
+// src/utils/toastUtils.js
 import { toast } from 'react-toastify';
 import CustomToast from '../components/Common/CustomToast';
 
+// Configurações base para diferentes dispositivos
+const getBaseConfig = () => {
+  const isMobile = window.innerWidth < 600;
+  
+  return {
+    position: isMobile ? 'bottom-center' : 'bottom-right',
+    autoClose: isMobile ? 4000 : 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    limit: 3 // Limita o número de toasts visíveis simultaneamente
+  };
+};
+
+// Cálculo de duração baseado no conteúdo
+const calculateDuration = (message, type) => {
+  const baseTime = {
+    error: 6000,
+    warning: 5000,
+    success: 4000,
+    info: 5000
+  }[type] || 5000;
+  
+  // Algoritmo simples: quanto mais texto, mais tempo (com limite máximo)
+  const messageLength = typeof message === 'string' ? message.length : 0;
+  const readingTime = Math.min(messageLength * 50, 5000);
+  
+  return baseTime + readingTime;
+};
+
+// Toast básico
 export const showToast = (message, options = {}) => {
+  const {
+    type = 'info',
+    autoClose,
+    animation,
+    action,
+    variant,
+    onClose,
+    ...restOptions
+  } = options;
+
+  // Determinar tempo de exibição
+  const autoCloseTime = autoClose !== undefined
+    ? autoClose
+    : calculateDuration(message, type);
+
+  // Criar o toast
   return toast(
     ({ closeToast }) => (
       <CustomToast
-        closeToast={closeToast}
-        toastProps={{ message, ...options }}
+        closeToast={() => {
+          if (onClose) onClose();
+          closeToast();
+        }}
+        toastProps={{ 
+          message, 
+          type, 
+          action,
+          animation,
+          variant
+        }}
       />
     ),
     {
-      position: "bottom-right",
-      autoClose: 5000, // 5 segundos para fechar automaticamente
-      hideProgressBar: false, 
-      closeOnClick: true, 
-      pauseOnHover: true, 
-      draggable: true, 
-      ...options, 
+      ...getBaseConfig(),
+      type,
+      autoClose: autoCloseTime,
+      ...restOptions
     }
   );
 };
 
-export const showPromiseToast = async (promise, messages) => {
-  const stages = {
-    initial: {
-      progress: 0,
-      message: messages.loading || "Iniciando...",
-    },
-    progress: {
-      progress: 40,
-      message: messages.progress || "Processando...",
-    },
-    almostDone: {
-      progress: 80,
-      message: messages.almostDone || "Quase lá...",
-    }
-  };
-
-  const id = showToast(stages.initial.message, {
+// Toast para promises (carregamento, sucesso e erro)
+export const showPromiseToast = async (promise, messages, options = {}) => {
+  const { type: initialType, ...initialOptions } = options;
+  
+  // Toast de loading
+  const id = showToast(messages.loading || "Processando...", {
+    type: initialType || 'info',
     isLoading: true,
-    progress: stages.initial.progress,
-    duration: null // Não fecha automaticamente
+    autoClose: false,
+    hideProgressBar: true,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: false,
+    ...initialOptions
   });
 
-  // Atualiza o progresso periodicamente
-  const progressInterval = setInterval(() => {
-    const currentProgress = toast.getToast(id)?.progress || 0;
-    if (currentProgress < 80) {
-      toast.update(id, {
-        progress: currentProgress + 10
-      });
-    }
-  }, 1000);
-
   try {
+    // Aguardar a promise
     const result = await promise;
-    clearInterval(progressInterval);
     
-    // Animação de sucesso
+    // Atualizar para toast de sucesso
     toast.update(id, {
       render: ({ closeToast }) => (
         <CustomToast
           closeToast={closeToast}
           toastProps={{
-            type: "success",
-            message: messages.success || "Concluído com sucesso!",
-            animation: "success"
+            type: 'success',
+            message: messages.success || 'Concluído com sucesso!',
+            animation: 'success',
+            ...options
           }}
         />
       ),
-      type: "success",
+      type: 'success',
       isLoading: false,
-      autoClose: 5000,
-      transition: 'Bounce'
+      autoClose: options.autoClose || calculateDuration(messages.success || 'Concluído com sucesso!', 'success'),
+      closeOnClick: true,
+      hideProgressBar: false,
+      draggable: true
     });
-
+    
     return result;
   } catch (error) {
-    clearInterval(progressInterval);
+    // Capturar a mensagem de erro
+    const errorMessage = messages.error || error?.message || 'Ocorreu um erro.';
     
-    // Animação de erro
+    // Atualizar para toast de erro
     toast.update(id, {
       render: ({ closeToast }) => (
         <CustomToast
           closeToast={closeToast}
           toastProps={{
-            type: "error",
-            message: error.message,
-            animation: "error",
-            action: {
-              label: "Tentar novamente",
-              onClick: () => {
-                closeToast();
-                return showPromiseToast(promise, messages);
-              }
-            }
+            type: 'error',
+            message: errorMessage,
+            animation: 'error',
+            action: options.errorAction
+              ? {
+                  label: options.errorAction.label,
+                  onClick: () => {
+                    closeToast();
+                    options.errorAction.onClick?.();
+                  }
+                }
+              : undefined
           }}
         />
       ),
-      type: "error",
+      type: 'error',
       isLoading: false,
-      autoClose: 8000
+      autoClose: options.autoClose || calculateDuration(errorMessage, 'error'),
+      closeOnClick: true,
+      hideProgressBar: false,
+      draggable: true
     });
-
+    
     throw error;
   }
 };
+
+// Toast contextual para casos específicos
+export const showContextualToast = (message, context, options = {}) => {
+  const contextConfigs = {
+    transactionSuccess: {
+      type: 'success',
+      autoClose: 7000,
+      animation: 'success',
+      variant: 'highlighted'
+    },
+    authError: {
+      type: 'error',
+      autoClose: 8000,
+      animation: 'error',
+      variant: 'critical'
+    },
+    notification: {
+      type: 'info',
+      autoClose: 5000,
+      animation: 'pulse'
+    },
+    invitationSuccess: {
+      type: 'success',
+      autoClose: 6000,
+      animation: 'success',
+      variant: 'highlighted'
+    },
+    invitationError: {
+      type: 'error',
+      autoClose: 7000,
+      animation: 'error'
+    },
+    // Adicione mais contextos conforme necessário
+  };
+  
+  const contextConfig = contextConfigs[context] || {};
+  return showToast(message, { ...contextConfig, ...options });
+};
+
+// Utilitários para gerenciar toasts ativos
+export const dismissToast = toast.dismiss;
+export const dismissAllToasts = toast.dismissAll;
+export const updateToast = toast.update;
+export const isActive = toast.isActive;

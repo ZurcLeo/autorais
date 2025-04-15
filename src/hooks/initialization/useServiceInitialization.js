@@ -1,158 +1,125 @@
-// src/hooks/initialization/useServiceInitialization.js
-import { useContext, useEffect } from 'react';
-import { LOG_LEVELS, SERVICE_METADATA } from '../../reducers/metadata/metadataReducer';
-import { ServiceInitializationContext } from '../../core/initialization/ServiceInitializationProvider';
-import { coreLogger } from '../../core/logging/CoreLogger';
+// // useServiceInitialization.js (refatorado)
+// import { useContext, useCallback, useMemo } from 'react';
+// import { LOG_LEVELS } from '../../core/constants/config';
+// import { SERVICE_METADATA } from '../../reducers/metadata/metadataReducer';
+// import { ServiceInitializationContext } from '../../core/initialization/ServiceInitializationProvider';
+// import { coreLogger } from '../../core/logging';
+// import { 
+//   isInitializationComplete, 
+//   hasCriticalFailure as checkCriticalFailure,
+//   areDependenciesReady as checkDependenciesReady
+// } from '../../core/initialization/initializationUtils';
 
-const MODULE_NAME = 'useServiceInitialization';
+// const MODULE_NAME = 'useServiceInitialization';
 
-export function useServiceInitialization() {
+// export function useServiceInitialization() {
+//   const context = useContext(ServiceInitializationContext);
 
-
-  const context = useContext(ServiceInitializationContext);
-
-  if (!context) {
-    const error = new Error('useServiceInitialization must be used within ServiceInitializationProvider');
-    coreLogger.logServiceError(MODULE_NAME, error);
-    throw error;
-  }
-
-  const { state, dispatch } = context;
-console.log('context: ', context)
-  // Helpers para verificar estado dos serviços
-  const isServiceReady = (serviceName) => {
-    console.log('serviceName: ', serviceName)
-    return state?.services?.[serviceName]?.status === 'ready';
-  };
-
-  const isServiceInitializing = (serviceName) => {
-    console.log('serviceName: ', serviceName)
-    return state?.services?.[serviceName]?.status === 'initializing';
-  };
-
-  const getServiceError = (serviceName) => {
-    console.log('serviceName: ', serviceName)
-    return state?.services?.[serviceName]?.error || null;
-  };
-
-//   useEffect(() => {
-//     console.log('[ServiceInitialization] Current state:', {
-//         servicesState,
-//         criticalServicesReady: coreReady
+//   if (!context) {
+//     const error = new Error('useServiceInitialization must be used within ServiceInitializationProvider');
+//     coreLogger.log(MODULE_NAME, LOG_LEVELS.ERROR, 'Ocorreu um erro.', {
+//       error
 //     });
-// }, [servicesState, coreReady]);
+//     throw error;
+//   }
 
-  // Verifica se todas as dependências de um serviço estão prontas
-  const areDependenciesReady = (serviceName) => {
-    console.log('serviceName: ', serviceName)
-    const serviceMetadata = SERVICE_METADATA[serviceName];
-    console.log('serviceMetadata: ', serviceMetadata)
-    return serviceMetadata?.dependencies?.every(dep => 
-      state.services[dep]?.status === 'ready'
-    ) ?? true;
-  }
+//   const { state, dispatch, isBootstrapReady, bootstrapError, retryInitialization } = context;
 
-  // Verifica se houve falha crítica em algum serviço
-  const hasCriticalFailure = () => {
-    return Object.entries(state?.services || {}).some(
-      ([serviceName, status]) => {
-        const metadata = state?.metadata?.[serviceName];
-        return metadata?.criticalPath && status?.status === 'failed';
-      }
-    );
-  };
-  console.log('hasCriticalFailure: ', hasCriticalFailure())
+//   // Helpers para verificar estado dos serviços
+//   const isServiceReady = useCallback((serviceName) => {
+//     return state?.services?.[serviceName]?.status === 'ready';
+//   }, [state?.services]);
 
-  // Verifica se a inicialização está completa
-  const isInitializationComplete = () => {
-    const criticalServices = Object.entries(state?.services || {})
-      .filter(([serviceName]) => state?.metadata?.[serviceName]?.criticalPath);
+//   const isServiceInitializing = useCallback((serviceName) => {
+//     return state?.services?.[serviceName]?.status === 'initializing';
+//   }, [state?.services]);
 
-    return criticalServices.every(([_, status]) => status?.status === 'ready');
-  };
-  console.log('isInitializationComplete: ', isInitializationComplete())
+//   const getServiceError = useCallback((serviceName) => {
+//     return state?.services?.[serviceName]?.error || null;
+//   }, [state?.services]);
 
+//   // Utiliza helpers centralizados com memoização
+//   const areDependenciesReady = useCallback((serviceName) => {
+//     return checkDependenciesReady(serviceName, state?.services, SERVICE_METADATA);
+//   }, [state?.services]);
 
-  // Log do estado atual
-  const logInitializationState = () => {
-    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Current initialization state', {
-      services: state?.services,
-      dependencies: state?.dependencies,
-      metadata: state?.metadata,
-      timestamp: new Date().toISOString()
-    });
-  };
+//   // Verifica se houve falha crítica em algum serviço
+//   const hasCriticalFailure = useCallback(() => {
+//     if (bootstrapError) return true;
+//     return checkCriticalFailure(state?.services, SERVICE_METADATA);
+//   }, [state?.services, bootstrapError]);
 
-  console.log('logInitializationState: ', logInitializationState())
+//   // Verificação memoizada de inicialização completa
+//   const isInitComplete = useMemo(() => {
+//     if (!isBootstrapReady) return false;
+//     return isInitializationComplete(state?.services);
+//   }, [isBootstrapReady, state?.services]);
 
-  console.log('return: ', 
-    // 'serviceName: ', serviceName,
-    'state: ', state, 
-    'dispatch:', dispatch, 
-    'isServiceReady: ', isServiceReady, 
-    'isServiceInitializing: ', isServiceInitializing,
-    'getServiceError: ', getServiceError,
-    'areDependenciesReady: ', areDependenciesReady,
-    'hasCriticalFailure: ', hasCriticalFailure,
-    'isInitializationComplete: ', isInitializationComplete,
-    'logInitializationState: ', logInitializationState
-  )
-
-  return {
-    // Estado
-    state,
+//   const criticalFailureDetected = useMemo(() => {
+//     coreLogger.log(MODULE_NAME, LOG_LEVELS.DEBUG, 'Verificando falhas críticas:',
+//       bootstrapError,
+//       state?.services,
+//       SERVICE_METADATA
+//     );
     
-    // Dispatch (caso necessário para componentes que precisem atualizar o estado)
-    dispatch,
+//     if (bootstrapError) {
+//       coreLogger.log(MODULE_NAME, LOG_LEVELS.DEBUG, 'Bootstrap error detectado');
+//       return true;
+//     }
     
-    // Status helpers
-    isServiceReady,
-    isServiceInitializing,
-    getServiceError,
-    areDependenciesReady,
-    hasCriticalFailure,
-    isInitializationComplete,
+//     // Verificação explícita de serviços críticos com falha
+//     const criticalServicesWithFailure = Object.entries(state?.services || {})
+//       .filter(([serviceName, serviceState]) => {
+//         const isCritical = SERVICE_METADATA[serviceName]?.criticalPath === true;
+//         const hasFailed = serviceState?.status === 'failed' || serviceState?.status === 'blocked';
+//         return isCritical && hasFailed;
+//       });
     
-    // Logging
-    logInitializationState,
-    
-    // Computed properties
-    criticalServicesReady: isInitializationComplete(),
-    hasErrors: hasCriticalFailure(),
-    
-    // Metadata
-    metadata: state?.metadata || {},
-    
-    // Service states
-    services: state?.services || {},
-    
-    // Dependencies
-    dependencies: state?.dependencies || {}
-  };
-}
+//     coreLogger.log(MODULE_NAME, LOG_LEVELS.DEBUG, 'Serviços críticos com falha:', criticalServicesWithFailure);
+//     return criticalServicesWithFailure.length > 0;
+//   }, [state?.services, bootstrapError]);
 
-// Exemplo de uso:
-/*
-function MyComponent() {
-  const {
-    isServiceReady,
-    hasCriticalFailure,
-    services,
-    criticalServicesReady
-  } = useServiceInitialization();
+//   // Log do estado atual
+//   const logInitializationState = useCallback(() => {
+//     coreLogger.log(MODULE_NAME, LOG_LEVELS.DEBUG, 'Current initialization state', {
+//       bootstrap: state?.bootstrap,
+//       services: state?.services,
+//       metadata: SERVICE_METADATA,
+//       timestamp: new Date().toISOString()
+//     });
+//   }, [state]);
 
-  if (hasCriticalFailure()) {
-    return <ErrorDisplay />;
-  }
-
-  if (!criticalServicesReady) {
-    return <LoadingIndicator />;
-  }
-
-  if (!isServiceReady('auth')) {
-    return <AuthenticationLoading />;
-  }
-
-  return <div>My Component Content</div>;
-}
-*/
+//   return {
+//     // Estado
+//     state,
+    
+//     // Dispatch (caso necessário para componentes que precisem atualizar o estado)
+//     dispatch,
+    
+//     // Bootstrap status
+//     isBootstrapReady,
+//     bootstrapError,
+//     retryInitialization,
+    
+//     // Status helpers
+//     isServiceReady,
+//     isServiceInitializing,
+//     getServiceError,
+//     areDependenciesReady,
+//     hasCriticalFailure,
+//     // isInitializationComplete: isInitComplete,
+//     isInitComplete,
+    
+//     // Logging
+//     logInitializationState,
+    
+//     // Computed properties
+//     hasErrors: criticalFailureDetected,
+    
+//     // Metadata
+//     metadata: SERVICE_METADATA,
+    
+//     // Service states
+//     services: state?.services || {},
+//   };
+// }

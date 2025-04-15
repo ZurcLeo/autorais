@@ -1,256 +1,737 @@
-import { api } from '../apiService';
-import { coreLogger } from '../../core/logging/CoreLogger';
+// src/services/ConnectionService/index.js
+import {BaseService, serviceLocator, serviceEventHub} from '../../core/services/BaseService';
+import {LOG_LEVELS} from '../../core/constants/config';
+import {CONNECTION_ACTIONS, SERVICE_ACTIONS} from '../../core/constants/actions';
+import {CONNECTION_EVENTS} from '../../core/constants/events';
 
-class ConnectionService {
-  constructor() {
-    this.serviceName = 'connections';
-  }
+const MODULE_NAME = 'connections';
 
-  // Método de inicialização requerido pelo ServiceInitializer
-  async initialize() {
-    coreLogger.log(`Initializing ${this.serviceName} service`, 'INITIALIZATION');
-    // Verificação inicial do endpoint para garantir que o serviço está acessível
-    await this.healthCheck();
-    return true;
-  }
+class ConnectionService extends BaseService {
+    constructor() {
+        super(MODULE_NAME);
+        this.instanceId = Math
+            .random()
+            .toString(36)
+            .substring(2, 10);
 
-  // Método de health check requerido pelo ServiceInitializer
-  async healthCheck() {
-    try {
-      await api.get('/api/connections/health');
-      return { status: 'healthy' };
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'healthCheck' 
-      });
-      throw error;
+        this._connectionsCache = new Map();
+        this._searchCache = new Map();
+        this._isInitialized = false;
+
+        this._metadata = {
+            name: MODULE_NAME,
+            phase: 'COMMUNICATION',
+            criticalPath: true,
+            dependencies: [
+                'auth', 'users'
+            ],
+            category: 'communications',
+            description: 'Gerencia Amizades e Conexoes.'
+        };
+
+        this._log(
+            `📊 Nova instância de ${MODULE_NAME} criada, instanceId: ${this.instanceId}`
+        );
+
+        this.apiService = serviceLocator.get('apiService');
+        this.authService = serviceLocator.get('auth');
+        this.notificationService = serviceLocator.get('notifications');
+        this.socket = null;
     }
-  }
 
-  // Método de shutdown requerido pelo ServiceInitializer
-  async shutdown() {
-    coreLogger.log(`Shutting down ${this.serviceName} service`, 'INITIALIZATION');
-    return true;
-  }
+    // Método para obter o usuário atual - mesma abordagem do InviteService
+    getCurrentUser() {
+        return this._currentUser = this
+            .authService
+            .getCurrentUser();
+    }
 
-  /**
-   * Obtém conexões e melhores amigos de um usuário.
-   * @param {string} userId - ID do usuário.
-   * @returns {Promise<Object>} - Dados das conexões do usuário.
+    async initialize() {
+        if (this.isInitialized) 
+            return this;
+        
+        this._log(
+            MODULE_NAME,
+            LOG_LEVELS.LIFECYCLE,
+            'ConnectionService initializing...',
+            {timestamp: Date.now()}
+        );
+
+        try {
+            this._log(
+                MODULE_NAME,
+                LOG_LEVELS.INITIALIZATION,
+                'Initializing serviço de conexões'
+            );
+
+            this._isInitialized = true;
+
+            // this._setupSocketListeners();
+
+            this._emitEvent(SERVICE_ACTIONS.SERVICE_READY, {
+                serviceName: MODULE_NAME,
+                timestamp: new Date().toISOString()
+            });
+
+            return this;
+        } catch (error) {
+            this._logError(error, 'initialize');
+            throw error;
+        }
+    }
+
+      async initialize() {
+        if (this.isInitialized) return this;
+    
+        this._log(MODULE_NAME, LOG_LEVELS.LIFECYCLE, 'ConnectionService initializing...', { timestamp: Date.now() });
+    
+        try {
+    
+          this._log(MODULE_NAME, LOG_LEVELS.INITIALIZATION, 'Inicializando serviço de convites');
+          
+          this._isInitialized = true;
+          
+          this._emitEvent(SERVICE_ACTIONS.SERVICE_READY, {
+            serviceName: MODULE_NAME,
+            timestamp: new Date().toISOString()
+          });
+    
+          return this;
+        } catch (error) {
+          this._logError(error, 'initialize');
+          return true; // Mantendo o comportamento de retornar true em caso de erro
+        }
+      }
+
+      async healthCheck() {
+        try {
+          // Tentar verificar a saúde via API
+          const healthResponse = await this._executeWithRetry(
+            async () => {
+              return await this.apiService.get(`/api/health/service/${this.serviceName}`);
+            },
+            'healthCheck'
+          );
+    
+          return { status: healthResponse.data.status, timestamp: Date.now() };
+        } catch (error) {
+          // Implementar fallback se o endpoint de saúde estiver indisponível
+          this._log(
+            MODULE_NAME,
+            LOG_LEVELS.WARNING,
+            'Health check endpoint unavailable, proceeding with degraded mode',
+            { error: error.message }
+          );
+    
+          // Ainda retornar healthy para não bloquear outras funcionalidades
+          return {
+            status: 'degraded',
+            details: 'Operating in offline mode',
+            timestamp: Date.now(),
+            error: error.message
+          };
+        }
+      }
+
+    async getConnections() {
+        // Obter o usuário atual de forma segura
+        this.getCurrentUser();
+        console.log('teste de current', this.getCurrentUser())
+
+        // Verificar se o usuário está autenticado
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        this._emitEvent(CONNECTION_ACTIONS.FETCH_START);
+
+        try {
+            const userId = this._currentUser.uid;
+
+            // Verificar cache
+            if (this._connectionsCache.has(userId) && !this._isCacheExpired(userId)) {
+                const cachedData = this
+                    ._connectionsCache
+                    .get(userId);
+                this._emitEvent(CONNECTION_EVENTS.CONNECTIONS_FETCHED, {result: cachedData});
+                return cachedData;
+            }
+
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .get(`/api/connections/active/user/${userId}`);
+            }, 'getConnections');
+
+            // Processar os dados
+            const {friends, bestFriends, sentRequests, receivedRequests} = this.processConnectionData(response.data);
+
+            const result = {
+                friends,
+                bestFriends,
+                receivedRequests,
+                sentRequests
+            };
+            console.log('processConnectionData: ', result)
+
+            // Armazenar em cache
+            this._cacheConnections(userId, result);
+
+            // Emitir evento
+            this._emitEvent(CONNECTION_EVENTS.CONNECTIONS_FETCHED, {result});
+            return result;
+        } catch (error) {
+            this._logError(error, 'getConnections');
+            this._emitEvent(CONNECTION_EVENTS.FETCH_FAILURE, {error: error.message});
+            throw error;
+        }
+    }
+
+    async getRequestsByStatus(userId, status) {
+        this.getCurrentUser();
+        // Obter o usuário atual se não for fornecido
+        if (!userId) {
+
+            if (!this._currentUser) {
+                throw new Error('Usuário não autenticado');
+            }
+            userId = this._currentUser.uid;
+        }
+
+        try {
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .get(`/api/connections/requested/${userId}?status=${status}`);
+            }, 'getRequestsByStatus');
+
+            const requestedConnections = response.data || [];
+
+            this._log(
+                MODULE_NAME,
+                'INFO',
+                `Obtidas ${requestedConnections.length} solicitações com status: ${status}`
+            );
+
+            this._emitEvent(
+                CONNECTION_EVENTS.REQUESTED_CONNECTIONS_LOADED,
+                {requestedConnections, status}
+            );
+
+            return requestedConnections;
+        } catch (error) {
+            this._logError(error, 'getRequestsByStatus');
+            throw error;
+        }
+    }
+
+    async getPendingRequests() {
+        return this.getRequestsAsSender();
+    }
+
+    /**
+ * Obtém solicitações enviadas pelo usuário atual com um determinado status
+ * @param {string} status - Status das solicitações a serem buscadas
+ * @returns {Promise<Array>} - Lista de solicitações
+ */
+    async getRequestsAsSender(status = 'pending') {
+        this.getCurrentUser();
+
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        try {
+            const userId = this._currentUser.uid;
+
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .get(`/api/connections/requested/user/${userId}`);
+            }, 'getRequestsAsSender');
+
+            const sentRequests = response.data || [];
+
+            this._log(
+                MODULE_NAME,
+                'INFO',
+                `Obtidas ${sentRequests.length} solicitações enviadas com status: ${status}`
+            );
+
+            this._emitEvent(CONNECTION_EVENTS.SENT_REQUESTS_LOADED, {sentRequests, status});
+
+            return sentRequests;
+        } catch (error) {
+            this._logError(error, 'getRequestsAsSender');
+            return [];
+        }
+    }
+
+    /**
+   * Aceita uma solicitação de conexão
+   * @param {string} requestId - ID da solicitação
+   * @returns {Promise<Object>} - Resposta do servidor
    */
-  async getConnectionsByUserId(userId) {
-    if (!userId) {
-      const error = new Error('userID é obrigatório para buscar conexões');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
+    async acceptRequest(requestId) {
+        this.getCurrentUser();
+
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        try {
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .post(`/api/connections/requests/${requestId}/accept`);
+            }, 'acceptRequest');
+
+            // Invalidar cache após aceitar uma solicitação
+            this.invalidateConnectionCache(this._currentUser.uid);
+
+            this._emitEvent(
+                CONNECTION_EVENTS.CONNECTION_REQUEST_ACCEPTED,
+                {requestId, result: response.data}
+            );
+
+            return response.data;
+        } catch (error) {
+            this._logError(error, 'acceptRequest');
+            throw error;
+        }
     }
 
-    try {
-      const response = await api.get(`/api/connections/active/user/${userId}`);
-      coreLogger.log(`Connections fetched for user ${userId}`, 'INFO', {
-        count: response.data?.length || 0
-      });
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'getConnectionsByUserId',
-        userId 
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Atualiza uma conexão ativa.
-   * @param {string} connectionId - ID da conexão
-   * @param {Object} updateData - Dados a serem atualizados
-   * @returns {Promise<Object>} - Conexão atualizada
+    /**
+   * Rejeita uma solicitação de conexão
+   * @param {string} requestId - ID da solicitação
+   * @returns {Promise<Object>} - Resposta do servidor
    */
-  async updateActiveConnection(connectionId, updateData) {
-    if (!connectionId || !updateData) {
-      const error = new Error('connectionId e updateData são obrigatórios');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
+    async rejectRequest(requestId) {
+        this.getCurrentUser();
+
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        try {
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .put(`/api/connections/requested/${requestId}/reject`);
+            }, 'rejectRequest');
+
+            this._emitEvent(
+                CONNECTION_EVENTS.CONNECTION_REQUEST_REJECTED,
+                {requestId, result: response.data}
+            );
+
+            return response.data;
+        } catch (error) {
+            this._logError(error, 'rejectRequest');
+            throw error;
+        }
     }
 
-    try {
-      const response = await api.put(`/api/connections/active/${connectionId}`, updateData);
-      coreLogger.log(`Connection ${connectionId} updated`, 'INFO', { 
-        updateFields: Object.keys(updateData) 
-      });
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'updateActiveConnection',
-        connectionId,
-        updateFields: Object.keys(updateData)
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Adiciona um amigo à lista de melhores amigos
-   * @param {string} userId - ID do usuário
-   * @param {string} friendId - ID do amigo
-   * @returns {Promise<Object>}
+    /**
+   * Bloqueia um usuário
+   * @param {string} userId - ID do usuário a ser bloqueado
+   * @returns {Promise<Object>} - Resposta do servidor
    */
-  async addBestFriend(userId, friendId) {
-    if (!userId || !friendId) {
-      const error = new Error('userId e friendId são obrigatórios');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
+    async blockUser(userId) {
+        this.getCurrentUser();
+
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        try {
+            const currentUserId = this._currentUser.uid;
+
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .post(`/api/connections/blocked`, {
+                        userId: currentUserId,
+                        blockedUserId: userId
+                    });
+            }, 'blockUser');
+
+            // Invalidar cache após bloqueio
+            this.invalidateConnectionCache(currentUserId);
+
+            this._emitEvent(CONNECTION_EVENTS.USER_BLOCKED, {
+                blockedUserId: userId,
+                result: response.data
+            });
+
+            return response.data;
+        } catch (error) {
+            this._logError(error, 'blockUser');
+            throw error;
+        }
     }
 
-    try {
-      const response = await api.post(`/api/connections/bestfriends`, { 
-        userId, 
-        friendId 
-      });
-      
-      coreLogger.log(`Added best friend relationship`, 'INFO', {
-        userId,
-        friendId
-      });
-      
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'addBestFriend',
-        userId,
-        friendId
-      });
-      throw error;
-    }
-  }
+    async addBestFriend(friendId) {
+        // Obter o usuário atual de forma segura
+        this.getCurrentUser();
 
-  /**
-   * Remove um amigo da lista de melhores amigos
-   * @param {string} userId - ID do usuário
-   * @param {string} friendId - ID do amigo
-   * @returns {Promise<Object>}
-   */
-  async removeBestFriend(userId, friendId) {
-    if (!userId || !friendId) {
-      const error = new Error('userId e friendId são obrigatórios');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
-    }
+        // Verificar se o usuário está autenticado
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
 
-    try {
-      const response = await api.delete(`/api/connections/bestfriends/${userId}/${friendId}`);
-      
-      coreLogger.log(`Removed best friend relationship`, 'INFO', {
-        userId,
-        friendId
-      });
-      
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'removeBestFriend',
-        userId,
-        friendId
-      });
-      throw error;
-    }
-  }
+        try {
+            const userId = this._currentUser.uid;
 
-  /**
-   * Deleta uma conexão ativa.
-   * @param {string} userId - ID do usuário
-   * @param {string} friendId - ID do amigo a ser removido
-   */
-  async deleteActiveConnection(userId, friendId) {
-    if (!userId || !friendId) {
-      const error = new Error('userId e friendId são obrigatórios');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .put(`/api/connections/active/bestfriends/${friendId}`, {friendId});
+            }, 'addBestFriend');
+
+            // Invalidar cache
+            this.invalidateConnectionCache(userId);
+
+            // Emitir evento
+            this._emitEvent(
+                CONNECTION_EVENTS.BEST_FRIEND_ADDED,
+                {friendId, connection: response.data}
+            );
+
+            // Emitir evento de atualização para o provider
+            this._emitEvent(CONNECTION_EVENTS.CONNECTION_UPDATED, {
+                type: 'bestFriend',
+                action: 'add',
+                connection: response.data
+            });
+
+            return response.data;
+        } catch (error) {
+            this._logError(error, 'addBestFriend');
+            throw error;
+        }
     }
 
-    try {
-      const response = await api.delete(`/api/connections/active/${userId}/${friendId}`);
-      
-      coreLogger.log(`Connection deleted`, 'INFO', {
-        userId,
-        friendId
-      });
-      
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'deleteActiveConnection',
-        userId,
-        friendId
-      });
-      throw error;
-    }
-  }
+    async removeBestFriend(friendId) {
+        // Obter o usuário atual de forma segura
+        this.getCurrentUser();
 
-  /**
-   * Envia uma solicitação de amizade.
-   * @param {string} userId - ID do usuário que envia a solicitação
-   * @param {string} friendId - ID do amigo a ser convidado
-   * @returns {Promise<Object>} - Dados da solicitação enviada
-   */
-  async createRequestConnection(userId, friendId) {
-    if (!userId || !friendId) {
-      const error = new Error('userId e friendId são obrigatórios');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
-    }
+        // Verificar se o usuário está autenticado
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
 
-    try {
-      const response = await api.post('/api/connections/request', { userId, friendId });
-      
-      coreLogger.log(`Connection request sent`, 'INFO', {
-        from: userId,
-        to: friendId
-      });
-      
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'createRequestConnection',
-        userId,
-        friendId
-      });
-      throw error;
-    }
-  }
+        try {
+            const userId = this._currentUser.uid;
 
-  /**
-   * Busca usuários com base em um termo de pesquisa.
-   * @param {string} query - Termo de busca.
-   * @returns {Promise<Array>} - Lista de usuários encontrados.
-   */
-  async searchUsers(query) {
-    if (!query || query.trim().length === 0) {
-      const error = new Error('Termo de busca é obrigatório');
-      coreLogger.logServiceError(this.serviceName, error);
-      throw error;
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .delete(`/api/connections/active/bestfriends/${friendId}`);
+            }, 'removeBestFriend');
+
+            // Invalidar cache
+            this.invalidateConnectionCache(userId);
+
+            // Emitir evento
+            this._emitEvent(
+                CONNECTION_EVENTS.BEST_FRIEND_REMOVED,
+                {friendId, connection: response.data}
+            );
+
+            // Emitir evento de atualização para o provider
+            this._emitEvent(CONNECTION_EVENTS.CONNECTION_UPDATED, {
+                type: 'bestFriend',
+                action: 'remove',
+                connection: response.data
+            });
+
+            return response.data;
+        } catch (error) {
+            this._logError(error, 'removeBestFriend');
+            throw error;
+        }
     }
 
-    try {
-      const response = await api.get(`/api/connections/search`, { 
-        params: { q: query.trim() } 
-      });
-      
-      coreLogger.log(`User search performed`, 'INFO', {
-        query,
-        resultsCount: response.data?.length || 0
-      });
-      
-      return response.data;
-    } catch (error) {
-      coreLogger.logServiceError(this.serviceName, error, { 
-        context: 'searchUsers',
-        query
-      });
-      throw error;
+    async deleteConnection(friendId) {
+        // Obter o usuário atual de forma segura
+        this.getCurrentUser();
+
+        // Verificar se o usuário está autenticado
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        try {
+            const userId = this._currentUser.uid;
+
+            await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .delete(`/api/connections/${userId}/friends/${friendId}`);
+            }, 'deleteConnection');
+
+            // Invalidar cache
+            this.invalidateConnectionCache(userId);
+
+            // Emitir evento
+            this._emitEvent(CONNECTION_EVENTS.CONNECTION_DELETED, {connectionId: friendId});
+
+            return {success: true};
+        } catch (error) {
+            this._logError(error, 'deleteConnection');
+            throw error;
+        }
     }
-  }
+
+    async createConnectionRequest(friendId) {
+        // Obter o usuário atual de forma segura
+        this.getCurrentUser();
+
+        // Verificar se o usuário está autenticado
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        try {
+            const userId = this._currentUser.uid;
+
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .post(`/api/connections/requested`, {
+                        userId: userId,
+                        friendId: friendId
+                    });
+            }, 'createConnectionRequest');
+
+            const newRequest = response.data;
+
+            // Emitir evento
+            this._emitEvent(CONNECTION_EVENTS.CONNECTION_REQUESTED, {newRequest});
+
+            return newRequest;
+        } catch (error) {
+            this._logError(error, 'createConnectionRequest');
+            throw error;
+        }
+    }
+
+    async searchUsers(query, options = {}) {
+        // Obter o usuário atual de forma segura
+        this.getCurrentUser();
+
+        // Verificar se o usuário está autenticado
+        if (!this._currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        // Emitir evento de início de busca
+        this._emitEvent(CONNECTION_EVENTS.SEARCH_STARTED, {query, options});
+
+        try {
+            const userId = this._currentUser.uid;
+
+            // Parâmetros de busca avançados
+            const {
+                type = 'all',
+                page = 1,
+                limit = 20,
+                includeInactive = false
+            } = options;
+
+            // Verificar cache para consultas recentes
+            const cacheKey = this._generateSearchCacheKey(query, userId, options);
+
+            if (this._searchCache.has(cacheKey) && !this._isSearchCacheExpired(cacheKey)) {
+                const cachedResults = this
+                    ._searchCache
+                    .get(cacheKey)
+                    .results;
+
+                // Emitir evento de busca concluída (do cache)
+                this._emitEvent(CONNECTION_EVENTS.SEARCH_COMPLETED, {
+                    results: cachedResults,
+                    fromCache: true,
+                    query
+                });
+
+                return cachedResults;
+            }
+
+            // Construir parâmetros de query para API
+            const searchParams = new URLSearchParams({
+                q: query,
+                excludeUserId: userId,
+                type,
+                page,
+                limit,
+                includeInactive: includeInactive
+                    ? 'true'
+                    : 'false'
+            });
+
+            // Realizar busca no backend com parâmetros aprimorados
+            const response = await this._executeWithRetry(async () => {
+                return await this
+                    .apiService
+                    .get(`/api/users/search?${searchParams.toString()}`);
+            }, 'searchUsers');
+
+            const results = response.data.results || [];
+
+            // Categorizar resultados
+            const categorizedResults = this._categorizeSearchResults(results, query);
+
+            // Armazenar em cache com metadados
+            this._cacheSearchResults(cacheKey, {
+                results,
+                categorized: categorizedResults,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(response.data.count / limit),
+                    hasMore: results.length >= limit
+                }
+            });
+
+            // Emitir evento de busca concluída com resultados completos
+            this._emitEvent(CONNECTION_EVENTS.SEARCH_COMPLETED, {
+                results,
+                categorized: categorizedResults,
+                fromCache: false,
+                query,
+                count: response.data.count
+            });
+
+            return results;
+        } catch (error) {
+            this._logError(error, 'searchUsers');
+
+            // Emitir evento de erro
+            this._emitEvent(CONNECTION_EVENTS.SEARCH_ERROR, {
+                error: error.message,
+                query
+            });
+
+            throw error;
+        }
+    }
+
+    // Método auxiliar para categorizar resultados
+    _categorizeSearchResults(results, query) {
+        if (!results || !Array.isArray(results)) 
+            return {};
+        
+        const lowerQuery = query.toLowerCase();
+
+        // Dividir em categorias
+        const exactMatches = results.filter(
+            user => user.nome
+                ?.toLowerCase() === lowerQuery || user.email
+                    ?.toLowerCase() === lowerQuery
+        );
+
+        const byInterests = results.filter(
+            user => Array.isArray(user.interesses) && 
+                    user.interesses.some(interest => interest.toLowerCase().includes(lowerQuery))
+        );
+
+        const byLocation = results.filter(
+            user => user.localizacao
+                ?.toLowerCase().includes(lowerQuery)
+        );
+
+        return {
+            exactMatches,
+            byInterests,
+            byLocation,
+            others: results.filter(
+                user => !exactMatches.includes(user) && !byInterests.includes(user) && !byLocation.includes(user)
+            )
+        };
+    }
+
+    // Método para processar dados de conexões
+    processConnectionData(connectionsData) {
+        if (!connectionsData) 
+            return {friends: [], bestFriends: []};
+
+        // Se já temos friends e bestFriends separados na resposta
+        if (Array.isArray(connectionsData.friends) && Array.isArray(connectionsData.bestFriends)) {
+            return {friends: connectionsData.friends, bestFriends: connectionsData.bestFriends};
+        }
+
+        // Código original para compatibilidade com formato antigo
+        const friends = [];
+        const bestFriends = [];
+
+        (connectionsData.connections || []).forEach(connection => {
+            if (connection.isBestFriend) {
+                bestFriends.push(connection);
+            } else {
+                friends.push(connection);
+            }
+        });
+
+        return {friends, bestFriends};
+    }
+
+    // Métodos para gerenciamento de cache
+    invalidateConnectionCache(userId) {
+        this
+            ._connectionsCache
+            .delete(userId);
+    }
+
+    _cacheConnections(userId, data) {
+        this
+            ._connectionsCache
+            .set(userId, {
+                ...data,
+                timestamp: Date.now()
+            });
+    }
+
+    _cacheSearchResults(cacheKey, results) {
+        this
+            ._searchCache
+            .set(cacheKey, {results, timestamp: Date.now()});
+    }
+
+    _generateSearchCacheKey(query, userId, options) {
+        return `${query}:${userId}:${JSON.stringify(options)}`;
+    }
+
+    _isCacheExpired(userId, maxAge = 5 * 60 * 1000) { // 5 minutos
+        if (!this._connectionsCache.has(userId)) 
+            return true;
+        
+        const cachedData = this
+            ._connectionsCache
+            .get(userId);
+        return Date.now() - cachedData.timestamp > maxAge;
+    }
+
+    _isSearchCacheExpired(cacheKey, maxAge = 60 * 1000) { // 1 minuto
+        if (!this._searchCache.has(cacheKey)) 
+            return true;
+        
+        const cachedData = this
+            ._searchCache
+            .get(cacheKey);
+        return Date.now() - cachedData.timestamp > maxAge;
+    }
+
+    _clearCache() {
+        this
+            ._connectionsCache
+            .clear();
+        this
+            ._searchCache
+            .clear();
+    }
 }
 
-// Exporta uma instância singleton
-export const connectionService = new ConnectionService();
+export {
+    ConnectionService
+};

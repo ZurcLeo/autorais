@@ -1,6 +1,6 @@
 import { useState, useCallback, useContext } from 'react';
 import { ConnectionContext } from '../context/ConnectionContext';
-import { coreLogger } from '../../core/logging/CoreLogger';
+import { coreLogger } from '../../core/logging';
 
 export function useConnectionSearch() {
   const { searchUsers, searchResults, searching, error } = useContext(ConnectionContext);

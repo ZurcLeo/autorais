@@ -1,6 +1,5 @@
 // stateManagementTokens.js
 import { tokens } from './index';
-import { initA11y } from './a11yTokens.js';
 
 // Tokens para gerenciamento de estado seguindo a mesma estrutura do Design System
 export const stateManagementTokens = {

@@ -1,36 +1,37 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useCallback } from 'react';
+import { useAuth } from '../../providers/AuthProvider';
 import { Box, Typography, TextField, IconButton, Tooltip, Fade, Snackbar } from '@mui/material';
 import { Edit as EditIcon, Save as SaveIcon, Close as CloseIcon } from '@mui/icons-material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { debounce } from 'lodash';
-import { useValidation } from '../../context/ValidationContext'; // Importando o contexto de validação
-import { useTranslation } from 'react-i18next'; // Importando para traduções
+import { serviceLocator } from '../../core/services/BaseService';
+import { useValidation } from '../../providers/ValidationProvider'; // Correto
+import { useTranslation } from 'react-i18next';
 
-const ProfileInfo = ({ user, onSave }) => {
-  const { t } = useTranslation(); // Função para tradução
-  const [editingField, setEditingField] = useState(null);
+const ProfileInfo = ({ onSave }) => {
+  const { t } = useTranslation();
+  const serviceStore = serviceLocator.get('store').getState()?.auth;
+  const { currentUser } = serviceStore;  const [editingField, setEditingField] = useState(null);
   const [tempValue, setTempValue] = useState('');
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const { validateText } = useValidation(); // Usando o contexto de validação
-  const sugestoes = ["Sugestão 1", "Sugestão 2", "Sugestão 3"]; // Sugestões para o autocomplete
+  const { validateField } = useValidation(); // 🔹 Correção do uso da validação
+  const sugestoes = ["Sugestão 1", "Sugestão 2", "Sugestão 3"];
 
-  const debouncedValidation = debounce((value) => {
-    const validationError = validateText(value);
-    if (validationError) {
-      setError(validationError);
-      setOpenSnackbar(true);
-      return;
-    }
-    setError('');
-    setOpenSnackbar(false);
-  }, 300);
+  // 🔹 Validação otimizada com debounce
+  const debouncedValidation = useCallback(
+    debounce((field, value) => {
+      const validationError = validateField(value, field === 'descricao' ? 'text' : 'default'); 
+      setError(validationError || '');
+      setOpenSnackbar(!!validationError);
+    }, 300),
+    [validateField]
+  );
 
   const handleEdit = (field) => {
     setEditingField(field);
-    setTempValue(user[field] || '');
+    setTempValue(currentUser[field] || '');
   };
 
   const handleCancel = () => {
@@ -40,9 +41,14 @@ const ProfileInfo = ({ user, onSave }) => {
   };
 
   const handleSave = async (field) => {
-    if (error) {
+    const validationError = validateField(tempValue, field === 'descricao' ? 'text' : 'default');
+
+    if (validationError) {
+      setError(validationError);
+      setOpenSnackbar(true);
       return;
     }
+
     try {
       await onSave(field, tempValue);
       setEditingField(null);
@@ -59,13 +65,7 @@ const ProfileInfo = ({ user, onSave }) => {
   };
 
   const renderField = (label, field) => (
-    <Box
-      display="flex"
-      alignItems="center"
-      py={2}
-      borderBottom="1px solid #eaeaea"
-      sx={{ '&:last-child': { borderBottom: 'none' } }}
-    >
+    <Box display="flex" alignItems="center" py={2} borderBottom="1px solid #eaeaea">
       <Typography variant="body1" color="textSecondary" flexBasis="30%">
         {label}
       </Typography>
@@ -78,7 +78,7 @@ const ProfileInfo = ({ user, onSave }) => {
               value={tempValue}
               onInputChange={(event, newInputValue) => {
                 setTempValue(newInputValue);
-                debouncedValidation(newInputValue);
+                debouncedValidation(field, newInputValue);
               }}
               renderInput={(params) => (
                 <TextField
@@ -88,11 +88,13 @@ const ProfileInfo = ({ user, onSave }) => {
                   multiline
                   rows={4}
                   autoFocus
+                  error={!!error}
+                  helperText={error}
                   InputProps={{
                     endAdornment: (
                       <Box>
                         <Tooltip title={t('common.save')}>
-                          <IconButton size="small" onClick={() => handleSave(field)}>
+                          <IconButton size="small" onClick={() => handleSave(field)} disabled={!!error}>
                             <SaveIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -110,10 +112,9 @@ const ProfileInfo = ({ user, onSave }) => {
           </Fade>
         ) : (
           <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-            {user[field] || t('profileInfo.notProvided')}
+            {currentUser[field] || t('profileInfo.notProvided')}
           </pre>
         )}
-        {error && <Typography color="error">{error}</Typography>}
       </Box>
       {editingField !== field && (
         <Tooltip title={t('common.edit')}>

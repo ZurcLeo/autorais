@@ -1,9 +1,9 @@
 // src/hooks/messages/useMessageOperations.js
 import { useCallback } from 'react';
-import messageService from '../../services/messageService';
+import { messageService } from '../../services/MessageService';
 import { MESSAGE_ACTIONS } from '../../reducers/messages/messageReducer';
 import { showPromiseToast } from '../../utils/toastUtils';
-import {coreLogger as CoreLogger} from '../../core/logging/CoreLogger';
+import {coreLogger as CoreLogger} from '../../core/logging';
 
 export const useMessageOperations = (
   userId, 
@@ -73,7 +73,7 @@ export const useMessageOperations = (
         markReady('messages');
         throw error;
       }
-    }, { id: `mark-message-read-${messageId}` });
+    }, { conversationId: `mark-message-read-${messageId}` });
   }, [userId, state.messages, state.unreadCount, syncStateUpdate, processMessage, markReady]);
 
   return {

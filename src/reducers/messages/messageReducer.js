@@ -1,186 +1,332 @@
-// src/reducers/messageReducer.js
-import { coreLogger as CoreLogger} from "../../core/logging";
-const MODULE_NAME = 'MessageReducer';
+// src/reducers/messages/messageReducer.js
 
-/**
- * Action types for message state management
- * These constants define all possible actions that can modify the message state
- */
-export const MESSAGE_ACTIONS = {
-  FETCH_START: 'FETCH_START',
-  FETCH_SUCCESS: 'FETCH_SUCCESS',
-  FETCH_FAILURE: 'FETCH_FAILURE',
-  UPDATE_MESSAGES: 'UPDATE_MESSAGES',
-  UPDATE_UNREAD_COUNT: 'UPDATE_UNREAD_COUNT',
-  UPDATE_LATEST_MESSAGE: 'UPDATE_LATEST_MESSAGE',
-  UPDATE_ACTIVE_CHATS: 'UPDATE_ACTIVE_CHATS',
-  SET_ERROR: 'SET_ERROR',
-  SET_LOADING: 'SET_LOADING',
-  CLEAR_STATE: 'CLEAR_STATE'
+import {MESSAGE_ACTIONS} from '../../core/constants/actions';
+import {initialMessageState} from '../../core/constants/initialState';
+
+export const messageReducer = (state = initialMessageState, action) => {
+    switch (action.type) {
+            // Ações de busca
+        case MESSAGE_ACTIONS.FETCH_START:
+            return {
+                ...state,
+                isLoading: true,
+                error: null
+            };
+
+            case MESSAGE_ACTIONS.FETCH_SUCCESS:
+                return {
+                  ...state,
+                  messages: action.payload.messages || [],
+                  // Opcional: armazenar conversationId se necessário
+                  activeChat: action.payload.conversationId || state.activeChat,
+                  isLoading: false
+                };
+
+        case MESSAGE_ACTIONS.FETCH_FAILURE:
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload.error
+            };
+
+        case MESSAGE_ACTIONS.RECONCILE_MESSAGE:
+            const {temporaryId, permanentMessage} = action.payload;
+
+            return {
+                ...state,
+                messages: state
+                    .messages
+                    .map(
+                        msg => msg.id === temporaryId
+                            ? {
+                                ...permanentMessage,
+                                sending: false,
+                                temporaryId: undefined
+                            }
+                            : msg
+                    ),
+                // Também atualizar nas últimas mensagens se necessário
+                latestMessages: Object
+                    .entries(state.latestMessages)
+                    .reduce((acc, [convId, lastMsg]) => {
+                        if (lastMsg.id === temporaryId) {
+                            acc[convId] = {
+                                ...permanentMessage,
+                                sending: false,
+                                temporaryId: undefined
+                            };
+                        } else {
+                            acc[convId] = lastMsg;
+                        }
+                        return acc;
+                    }, {})
+            };
+
+        case MESSAGE_ACTIONS.MESSAGE_SEND_FAILED:
+            return {
+                ...state,
+                messages: state
+                    .messages
+                    .map(
+                        msg => msg.id === action.payload.messageId
+                            ? {
+                                ...msg,
+                                sending: false,
+                                error: true,
+                                errorMessage: action.payload.error
+                            }
+                            : msg
+                    )
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_CONVERSATION_MESSAGES:
+            const {conversationId, messages, userIds} = action.payload;
+
+            // Garantindo que userIds existe
+            const [userId1, userId2] = userIds || conversationId.split('_');
+
+            return {
+                ...state,
+                messages: [
+                    // Filtrar mensagens que não pertencem a esta conversa
+                    ...state
+                        .messages
+                        .filter(
+                            msg => !(msg.uidRemetente === userId1 && msg.uidDestinatario === userId2) && !(msg.uidRemetente === userId2 && msg.uidDestinatario === userId1)
+                        ),
+                    // Adicionar as novas mensagens
+                    ...messages
+                ],
+                latestMessages: messages.length > 0
+                    ? {
+                        ...state.latestMessages,
+                        [conversationId]: messages[messages.length - 1]
+                    }
+                    : state.latestMessages
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_MESSAGES:
+            if (action.payload.message) {
+                const newMessage = action.payload.message;
+                const conversationId = action.payload.conversationId || [newMessage.uidRemetente, newMessage.uidDestinatario]
+                    .sort()
+                    .join('_');
+
+                // Verificar se a mensagem já existe
+                const messageExists = Array.isArray(state.messages) && state
+                    .messages
+                    .some(msg => msg.id === newMessage.id);
+
+                if (!messageExists) {
+                    // Adicionar mensagem nova
+                    const updatedMessages = [
+                        ...state.messages,
+                        newMessage
+                    ];
+
+                    // Atualizar a conversa correspondente (se existir)
+                    let updatedConversations = [...state.conversations];
+                    const conversationIndex = updatedConversations.findIndex(
+                        c => c.id === conversationId
+                    );
+
+                    if (conversationIndex >= 0) {
+                        // Se a conversa existir, atualizar a última mensagem
+                        updatedConversations[conversationIndex] = {
+                            ...updatedConversations[conversationIndex],
+                            lastMessage: newMessage,
+                            // Incrementar contador apenas se for uma mensagem recebida não lida Usando o
+                            // destinatário da mensagem atual como referência, não state.currentUserId
+                            unreadCount: action.payload.isIncoming && !newMessage.lido
+                                ? (updatedConversations[conversationIndex].unreadCount || 0) + 1
+                                : updatedConversations[conversationIndex].unreadCount
+                        };
+                    }
+
+                    return {
+                        ...state,
+                        messages: updatedMessages,
+                        conversations: updatedConversations,
+                        latestMessages: {
+                            ...state.latestMessages,
+                            [conversationId]: newMessage
+                        }
+                    };
+                }
+
+                // Atualização de status de mensagem existente
+                return {
+                    ...state,
+                    messages: state
+                        .messages
+                        .map(
+                            msg => msg.id === newMessage.id
+                                ? {
+                                    ...msg,
+                                    ...newMessage
+                                }
+                                : msg
+                        )
+                };
+            }
+
+            // Caso de exclusão de mensagem
+            if (action.payload.deleted) {
+                return {
+                    ...state,
+                    messages: state
+                        .messages
+                        .filter(msg => msg.id !== action.payload.messageId)
+                };
+            }
+
+            return state;
+
+        case MESSAGE_ACTIONS.UPDATE_LATEST_MESSAGE:
+            return {
+                ...state,
+                latestMessages: {
+                    ...state.latestMessages,
+                    [action.payload.conversationId]: action.payload.message
+                }
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_UNREAD_COUNT:
+            return {
+                ...state,
+                unreadCounts: {
+                    ...state.unreadCounts,
+                    [action.payload.conversationId]: action.payload.count
+                }
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_MESSAGE_STATUS:
+            return {
+                ...state,
+                messages: state
+                    .messages
+                    .map(
+                        msg => msg.id === action.payload.messageId
+                            ? updateMessageStatus(msg, action.payload.status)
+                            : msg
+                    )
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_ACTIVE_CHATS:
+            return {
+                ...state,
+                conversations: action.payload.conversations || []
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_TYPING_STATUS:
+            { // Adicionei as chaves para delimitar o bloco
+                const {conversationId, userId, isTyping} = action.payload;
+                return {
+                    ...state,
+                    typingStatus: {
+                        ...state.typingStatus,
+                        [conversationId]: {
+                            ...(state.typingStatus[conversationId] || {}),
+                            [userId]: isTyping
+                        }
+                    }
+                }
+            };
+
+        case MESSAGE_ACTIONS.UPDATE_MESSAGE_DATA_LEITURA:
+            return {
+                ...state,
+                messages: state
+                    .messages
+                    .map(
+                        msg => msg.id === action.payload.messageId
+                            ? {
+                                ...msg,
+                                dataLeitura: action.payload.dataLeitura,
+                                lido: true,
+                                visto: true
+                            }
+                            : msg
+                    )
+            };
+
+            case MESSAGE_ACTIONS.SET_ACTIVE_CHAT:
+                const newActiveChat = action.payload?.conversationId || action.payload;
+                
+                console.log('messageReducer - SET_ACTIVE_CHAT:', newActiveChat);
+                
+                if (!newActiveChat) {
+                  console.warn('messageReducer - SET_ACTIVE_CHAT recebeu payload inválido:', action.payload);
+                  return state;
+                }
+                
+                return {
+                  ...state,
+                  activeChat: newActiveChat
+                };
+
+        case MESSAGE_ACTIONS.CLEAR_ERROR:
+            return {
+                ...state,
+                error: action.payload.error
+            };
+
+        case MESSAGE_ACTIONS.CLEAR_STATE:
+            return initialMessageState;
+
+        default:
+            return state;
+    }
 };
 
-/**
- * Initial state for the message context
- * This represents the starting point for our message management system
- */
-export const initialMessageState = {
-  messages: [],               // Array of all messages
-  unreadCount: 0,            // Number of unread messages
-  latestMessage: null,       // Most recent message
-  activeChats: new Set(),    // Set of active chat user IDs
-  loading: true,             // Loading state indicator
-  error: null,               // Error state
-  lastUpdated: null          // Timestamp of last state update
+// Funções auxiliares
+const isMessageInConversation = (message, conversationId) => {
+    if (!message || !conversationId) 
+        return false;
+    
+    const userIds = conversationId.split('_');
+    return (
+        message.uidRemetente === userIds[0] && message.uidDestinatario === userIds[1]
+    ) || (
+        message.uidRemetente === userIds[1] && message.uidDestinatario === userIds[0]
+    );
 };
 
-/**
- * Message reducer function
- * Handles all state transitions for the message context
- * 
- * @param {Object} state - Current state
- * @param {Object} action - Action object containing type and payload
- * @returns {Object} New state
- */
-export const messageReducer = (state, action) => {
-  const startTime = performance.now();
-  let newState;
+const updateMessageStatus = (message, status) => {
+    const now = new Date().toISOString();
 
-  try {
-    newState = processReducerAction(state, action);
-    
-    CoreLogger.logStateChange(MODULE_NAME, state, newState, action.type, {
-      duration: performance.now() - startTime
-    });
+    switch (status) {
+        case 'enviado':
+            return {
+                ...message,
+                enviado: true
+            };
 
-    return newState;
-  } catch (error) {
-    CoreLogger.logError(MODULE_NAME, error, {
-      actionType: action.type,
-      previousState: state,
-      duration: performance.now() - startTime
-    });
-    
-    return {
-      ...state,
-      error: error.message,
-      lastUpdated: Date.now()
-    };
-  }
+        case 'entregue':
+            return {
+                ...message,
+                enviado: true,
+                entregue: true
+            };
+
+        case 'visto':
+            return {
+                ...message,
+                enviado: true,
+                entregue: true,
+                lido: true,
+                visto: true,
+                dataLeitura: message.dataLeitura || now // Só atualiza se ainda não tiver data de leitura
+            };
+
+        case 'lido':
+            return {
+                ...message,
+                lido: true,
+                dataLeitura: message.dataLeitura || now // Só atualiza se ainda não tiver data de leitura
+            };
+
+        default:
+            return message;
+    }
 };
-
-/**
- * Helper function to process reducer actions
- * Separates the core state transition logic for better error handling
- */
-function processReducerAction(state, action) {
-  switch (action.type) {
-    case MESSAGE_ACTIONS.FETCH_START:
-      return {
-        ...state,
-        loading: true,
-        error: null
-      };
-      
-    case MESSAGE_ACTIONS.FETCH_SUCCESS:
-      return {
-        ...state,
-        ...action.payload,
-        loading: false,
-        error: null,
-        lastUpdated: Date.now()
-      };
-    
-    case MESSAGE_ACTIONS.FETCH_FAILURE:
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-        lastUpdated: Date.now()
-      };
-
-    case MESSAGE_ACTIONS.UPDATE_MESSAGES:
-      return {
-        ...state,
-        messages: action.payload,
-        lastUpdated: Date.now()
-      };
-
-    case MESSAGE_ACTIONS.UPDATE_UNREAD_COUNT:
-      // Ensure unread count never goes below 0
-      return {
-        ...state,
-        unreadCount: Math.max(0, action.payload),
-        lastUpdated: Date.now()
-      };
-
-    case MESSAGE_ACTIONS.UPDATE_LATEST_MESSAGE:
-      return {
-        ...state,
-        latestMessage: action.payload,
-        lastUpdated: Date.now()
-      };
-
-    case MESSAGE_ACTIONS.UPDATE_ACTIVE_CHATS:
-      return {
-        ...state,
-        activeChats: action.payload,
-        lastUpdated: Date.now()
-      };
-
-    case MESSAGE_ACTIONS.SET_ERROR:
-      return {
-        ...state,
-        error: action.payload,
-        lastUpdated: Date.now()
-      };
-
-    case MESSAGE_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload
-      };
-
-    case MESSAGE_ACTIONS.CLEAR_STATE:
-      return {
-        ...initialMessageState,
-        loading: false,
-        lastUpdated: Date.now()
-      };
-
-    default:
-      CoreLogger.logWarning(MODULE_NAME, `Unknown action type: ${action.type}`);
-      return state;
-  }
-}
-
-/**
- * Validates the shape of the message state
- * Used for debugging and ensuring state integrity
- */
-export function validateMessageState(state) {
-  const requiredKeys = [
-    'messages',
-    'unreadCount',
-    'latestMessage',
-    'activeChats',
-    'loading',
-    'error',
-    'lastUpdated'
-  ];
-
-  const missingKeys = requiredKeys.filter(key => !(key in state));
-  
-  if (missingKeys.length > 0) {
-    const error = new Error(`Invalid message state: missing keys ${missingKeys.join(', ')}`);
-    CoreLogger.logError(MODULE_NAME, error, { state });
-    throw error;
-  }
-
-  if (state.unreadCount < 0) {
-    const error = new Error('Invalid message state: unreadCount cannot be negative');
-    CoreLogger.logError(MODULE_NAME, error, { state });
-    throw error;
-  }
-
-  return true;
-}

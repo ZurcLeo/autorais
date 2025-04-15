@@ -1,80 +1,187 @@
-import React, { useMemo } from 'react';
-import { AppBar, Toolbar, Box, useTheme, Tooltip, IconButton } from '@mui/material';
-import { GiLockedChest, GiThreeFriends, GiConversation, GiShoppingCart } from "react-icons/gi";
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Tooltip,
+  IconButton,
+  Typography,
+  Badge,
+  Menu,
+  MenuItem,
+  Button
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { GiLockedChest, GiSettingsKnobs, GiWorld, GiShoppingCart } from "react-icons/gi";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useNotifications } from '../../hooks/notification/useNotifications';
+import { ThemeControls} from '../../ThemeControls';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../providers/AuthProvider';
 import LanguageSwitcher from '../../LanguageSwitcher';
+import { serviceLocator } from '../../core/services/BaseService';
 import UserProfileDropdown from './UserProfileDropdown';
-import { withAuthGuard } from './withAuthGuard';
+import { coreLogger } from '../../core/logging';
+import { LOG_LEVELS } from '../../core/constants/config';
+import NavItem from './NavItem';
+import { GiConversation, GiThreeFriends } from 'react-icons/gi';
 
 const MODULE_NAME = 'TopNavBar';
 
-const TopNavBar = () => {
+const TopNavBar = ({ sidebarOpen, toggleSidebar, isMobile }) => {
+  const serviceStore = serviceLocator.get('store').getState()?.auth;
+  const notificationsService = serviceLocator.get('store').getState()?.notifications;
+
+  const { isAuthenticated } = serviceStore;
   const { t } = useTranslation();
-  const { currentUser: user } = useAuth();
+  const location = useLocation();
+  const [anchorElTheme, setAnchorElTheme] = useState(null);
+  const isThemeMenuOpen = Boolean(anchorElTheme);
   const navigate = useNavigate();
-  const theme = useTheme();
+  const { unreadCount } = useNotifications();
+  
+console.log('LOGANDO NO TOPNAV', notificationsService)
+  const handleNavigation = (path) => {
+    navigate(path);
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigation from TopNavBar', {
+      from: location.pathname,
+      to: path
+    });
+  };
 
-  // Componentes para navegação autenticada
-  const AuthenticatedNav = useMemo(() => () => (
-    <>
-      <Tooltip title={t('topnavbar.messages')}>
-        <IconButton
-          aria-label={t('topnavbar.messages')}
-          onClick={() => navigate('/chat')}
-        >
-          <GiConversation />
-        </IconButton>
-      </Tooltip>
-      {/* ... outros botões ... */}
-      <UserProfileDropdown />
-    </>
-  ), [navigate, t]);
+  const handleThemeMenuOpen = (event) => {
+    setAnchorElTheme(event.currentTarget);
+  };
 
-  const UnauthenticatedNav = () => (
-    <Tooltip title={t('topnavbar.login')}>
-      <IconButton
-        aria-label={t('topnavbar.login')}
-        onClick={() => navigate('/login')}
-      >
-        <span>{t('topnavbar.login')}</span>
-      </IconButton>
-    </Tooltip>
-  );
+  const handleThemeMenuClose = () => {
+    setAnchorElTheme(null);
+  };
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{
-        zIndex: theme.zIndex.drawer + 1,
-        padding: '0.5rem',
-        [theme.breakpoints.down('sm')]: { padding: '0.5rem' },
-      }}
-    >
+    <AppBar position="fixed" sx={{
+      width: { sm: `calc(100% - ${sidebarOpen ? 350 : 150}px)` },
+      ml: { sm: `${sidebarOpen ? 280 : 150}px` },
+      zIndex: (theme) => theme.zIndex.drawer + 1,
+      transition: (theme) => theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }}>
       <Toolbar>
-        <Box sx={{ flexGrow: 1 }}>
-          <Tooltip title={t('topnavbar.home')}>
-            <IconButton
-              onClick={() => navigate(user ? '/dashboard' : '/')}
-              aria-label={t('topnavbar.home')}
-            >
-              {/* Considere usar um componente Image otimizado aqui */}
-              <img 
-                src={process.env.REACT_APP_PLACE_HOLDER_IMG} 
-                alt="Logo" 
-                style={{ height: '80px', margin: '-15px' }} 
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={toggleSidebar}
+          sx={{ mr: 2, ...(isMobile ? {} : { display: 'none' }) }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          {t('app.title')}
+        </Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {isAuthenticated && (
+            <>
+              {!isMobile && (
+                <>
+                  <NavItem
+                    icon={<GiConversation />}
+                    onClick={() => handleNavigation('/messages')}
+                    tooltip={t('topnavbar.messages')}
+                  />
+                  <NavItem
+                    icon={<GiThreeFriends />}
+                    onClick={() => handleNavigation('/connections')}
+                    tooltip={t('topnavbar.friends')}
+                  />
+                </>
+              )}
+              <NavItem
+                icon={<GiLockedChest />}
+                onClick={() => handleNavigation('/caixinha')}
+                tooltip={t('topnavbar.caixinha')}
               />
+              <NavItem
+                icon={<GiShoppingCart />}
+                onClick={() => handleNavigation('/marketplace')}
+                tooltip={t('topnavbar.marketplace')}
+              />
+            </>
+          )}
+
+          <Tooltip title={t('common.settings')} arrow>
+            <IconButton
+              size="large"
+              aria-label="theme settings"
+              aria-controls="theme-menu"
+              aria-haspopup="true"
+              onClick={handleThemeMenuOpen}
+              color="inherit"
+            >
+              <GiSettingsKnobs />
             </IconButton>
           </Tooltip>
-        </Box>
 
-        {user ? <AuthenticatedNav /> : <UnauthenticatedNav />}
-        <LanguageSwitcher />
+          <Menu
+            id="theme-menu"
+            anchorEl={anchorElTheme}
+            open={isThemeMenuOpen}
+            onClose={handleThemeMenuClose}
+            MenuListProps={{
+              'aria-labelledby': 'theme-settings-button',
+            }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={handleThemeMenuClose}>
+              <ThemeControls />
+            </MenuItem>
+          </Menu>
+
+          <Tooltip title={t('topnavbar.notifications')} arrow>
+            <IconButton size="large" color="inherit">
+              <Badge
+                overlap="circular"
+                badgeContent={unreadCount > 0 ? unreadCount : null}
+                color="error"
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <GiWorld />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+          {isAuthenticated ? <UserProfileDropdown /> : <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Button
+              color="inherit"
+              onClick={() => handleNavigation('/login')}
+              sx={{ mx: 1 }}
+            >
+              {t('topnavbar.login')}
+            </Button>
+            {/* <Button
+              color="inherit"
+              variant="outlined"
+              onClick={() => handleNavigation('/register')}
+              sx={{ mx: 1 }}
+            >
+              {t('topnavbar.register')}
+            </Button> */}
+            <LanguageSwitcher />
+          </Box>}
+        </Box>
       </Toolbar>
     </AppBar>
   );
 };
 
-// Exportamos o TopNavBar envolvido com o AuthGuard
-export default withAuthGuard(TopNavBar);
+export default TopNavBar;

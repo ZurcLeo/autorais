@@ -27,3 +27,4 @@ yarn-error.log*
 
 # Ignorar arquivo serviceAccountKeys.json
 serviceAccountKeys.json
+.vscode/claudesync.json

@@ -3,9 +3,7 @@
 // import { useTranslation } from 'react-i18next';
 // import { globalCache } from '../utils/cache/cacheManager';
 // import { showToast, showPromiseToast } from '../utils/toastUtils';
-// import { useAuth } from './AuthContext';
-// // import { useServiceInit } from './ServiceInitializationProvider';
-// // import { useRootState } from './RootStateProvider';
+// import { useAuth } from '../providers/AuthProvider';
 
 // const InterestsContext = createContext();
 

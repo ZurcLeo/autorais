@@ -8,31 +8,47 @@ import React, {
 } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { createDynamicTheme } from './theme/';
-import { colorPalettes } from './theme/tokens';
-import { coreLogger } from './core/logging/CoreLogger';
+import { createThemeVariant } from './theme/themeVariants';
+import { colorPalettes } from './theme/themeTokens';
+import { coreLogger } from './core/logging';
 import { Button } from '@mui/material';
 
 const ThemeContext = createContext();
 
-export const useTheme = () => {
+// Lista de temas disponíveis
+const AVAILABLE_THEMES = ['ocean', 'sunset', 'forest', 'mountain', 'glacier', 'volcano', 'earth'];
+
+export const useAppTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error('useAppTheme must be used within a ThemeProvider');
   }
   return context;
 };
 
 const THEME_STORAGE_KEY = 'app-theme-preferences';
 
-export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
+export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTheme = 'ocean' }) => {
   const getStoredTheme = useCallback(() => {
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : { mode: defaultMode };
+      return stored ? JSON.parse(stored) : { 
+        mode: defaultMode,
+        currentTheme: defaultTheme,
+        autoMode: false,
+        reduceMotion: false,
+        highContrast: false
+      };
     } catch {
-      return { mode: defaultMode };
+      return { 
+        mode: defaultMode,
+        currentTheme: defaultTheme,
+        autoMode: false,
+        reduceMotion: false,
+        highContrast: false
+      };
     }
-  }, [defaultMode]);
+  }, [defaultMode, defaultTheme]);
 
   const [themeState, setThemeState] = useState(getStoredTheme);
   const [themeError, setThemeError] = useState(null);
@@ -62,8 +78,7 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [handleChange]);
 
-  // Mova todos os useCallback para o nível superior do componente
-  // em vez de dentro do useMemo
+  // Callbacks
   const toggleTheme = useCallback(() => {
     setThemeState((prev) => ({
       ...prev,
@@ -95,8 +110,14 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
   }, []);
 
   const resetTheme = useCallback(() => {
-    setThemeState({ mode: defaultMode, autoMode: false });
-  }, [defaultMode]);
+    setThemeState({ 
+      mode: defaultMode, 
+      currentTheme: defaultTheme,
+      autoMode: false,
+      reduceMotion: false,
+      highContrast: false
+    });
+  }, [defaultMode, defaultTheme]);
 
   const toggleReduceMotion = useCallback(() => {
     setThemeState(prev => ({
@@ -112,6 +133,16 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
     }));
   }, []);
 
+  // Nova função para alterar a variante do tema
+  const setTheme = useCallback((themeName) => {
+    if (AVAILABLE_THEMES.includes(themeName)) {
+      setThemeState(prev => ({
+        ...prev,
+        currentTheme: themeName
+      }));
+    }
+  }, []);
+
   // Agora useMemo apenas para combinar os callbacks já criados
   const themeActions = useMemo(
     () => ({
@@ -121,63 +152,73 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
       resetTheme,
       toggleReduceMotion,
       toggleHighContrast,
+      setTheme, // Adicionando nova função
     }),
-    [toggleTheme, setThemeMode, toggleAutoMode, resetTheme, toggleReduceMotion, toggleHighContrast]
+    [toggleTheme, setThemeMode, toggleAutoMode, resetTheme, toggleReduceMotion, toggleHighContrast, setTheme]
   );
 
   // Criação do tema com tratamento de erro
   const theme = useMemo(() => {
     try {
-      const dynamicTheme = createDynamicTheme(themeState.mode, {
-        components: {
-          MuiButton: {
-            defaultProps: {
-              disableElevation: themeState.reduceMotion,
+      // Criar primeiro a variante de tema baseada na seleção do usuário
+      const themeVariant = createThemeVariant(
+        themeState.currentTheme || 'ocean',
+        themeState.mode,
+        {
+          contrastLevel: themeState.highContrast ? 1.5 : 1
+        }
+      );
+      
+      // Depois criar o tema dinâmico com as cores da variante
+      const dynamicTheme = createDynamicTheme(
+        themeState.mode,
+        {
+          // Incluir as cores da variante no objeto de customização
+          palette: {
+            primary: {
+              main: themeVariant.primary.main,
+              light: themeVariant.primary.light,
+              dark: themeVariant.primary.dark
             },
-            styleOverrides: {
-              root: {
-                transition: themeState.reduceMotion ? 'none' : undefined,
+            secondary: {
+              main: themeVariant.secondary.main,
+              light: themeVariant.secondary.light,
+              dark: themeVariant.secondary.dark
+            },
+            // Outros valores de palette...
+          },
+          components: {
+            MuiButton: {
+              defaultProps: {
+                disableElevation: themeState.reduceMotion,
+              },
+              styleOverrides: {
+                root: {
+                  transition: themeState.reduceMotion ? 'none' : undefined,
+                },
+              },
+            },
+            MuiCssBaseline: {
+              styleOverrides: {
+                body: {
+                  scrollBehavior: themeState.reduceMotion ? 'auto' : 'smooth',
+                },
               },
             },
           },
-          MuiCssBaseline: {
-            styleOverrides: {
-              body: {
-                scrollBehavior: themeState.reduceMotion ? 'auto' : 'smooth',
-              },
-            },
-          },
-        },
-        palette: {
-          mode: themeState.mode,
-          primary: {
-            main: colorPalettes.ocean[500],
-            light: colorPalettes.ocean[300],
-            dark: colorPalettes.ocean[700],
-          },
-          secondary: {
-            main: colorPalettes.sunset[500],
-            light: colorPalettes.sunset[300],
-            dark: colorPalettes.sunset[700],
-          },
-          success: {
-            main: colorPalettes.forest[500],
-            light: colorPalettes.forest[300],
-            dark: colorPalettes.forest[700],
-          },
-        },
-      });
+        }
+      );
 
-      // Fallbacks para paletas ausentes
-      dynamicTheme.palette.success = dynamicTheme.palette.success || { main: '#4caf50', light: '#81c784', dark: '#388e3c' };
-      dynamicTheme.palette.warning = dynamicTheme.palette.warning || { main: '#ff9800', light: '#ffb74d', dark: '#f57c00' };
-      dynamicTheme.palette.error = dynamicTheme.palette.error || { main: '#f44336', light: '#e57373', dark: '#d32f2f' };
-      dynamicTheme.palette.info = dynamicTheme.palette.info || { main: '#2196f3', light: '#64b5f6', dark: '#1976d2' };
-      dynamicTheme.palette.grey = dynamicTheme.palette.grey || {
-        50: '#fafafa', 100: '#f5f5f5', 200: '#eeeeee', 300: '#e0e0e0',
-        400: '#bdbdbd', 500: '#9e9e9e', 600: '#757575', 700: '#616161',
-        800: '#424242', 900: '#212121',
-      };
+      // // Fallbacks para paletas ausentes
+      // dynamicTheme.palette.success = dynamicTheme.palette.success || { main: '#4caf50', light: '#81c784', dark: '#388e3c' };
+      // dynamicTheme.palette.warning = dynamicTheme.palette.warning || { main: '#ff9800', light: '#ffb74d', dark: '#f57c00' };
+      // dynamicTheme.palette.error = dynamicTheme.palette.error || { main: '#f44336', light: '#e57373', dark: '#d32f2f' };
+      // dynamicTheme.palette.info = dynamicTheme.palette.info || { main: '#2196f3', light: '#64b5f6', dark: '#1976d2' };
+      // dynamicTheme.palette.grey = dynamicTheme.palette.grey || {
+      //   50: '#fafafa', 100: '#f5f5f5', 200: '#eeeeee', 300: '#e0e0e0',
+      //   400: '#bdbdbd', 500: '#9e9e9e', 600: '#757575', 700: '#616161',
+      //   800: '#424242', 900: '#212121',
+      // };
 
       return dynamicTheme;
     } catch (error) {
@@ -203,7 +244,8 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
         shape: { borderRadius: 4 },
       };
     }
-  }, [themeState.mode, themeState.reduceMotion]);
+  }, [themeState.mode, themeState.currentTheme, themeState.reduceMotion, themeState.highContrast]);
+
 
   // Context value com estado e ações do tema
   const contextValue = useMemo(
@@ -213,6 +255,8 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark' }) => {
       autoMode: themeState.autoMode,
       reduceMotion: themeState.reduceMotion,
       highContrast: themeState.highContrast,
+      currentTheme: themeState.currentTheme || 'ocean', // Adicionando a variante atual
+      availableThemes: AVAILABLE_THEMES, // Adicionando lista de temas disponíveis
       error: themeError,
       palette: theme.palette,
     }),

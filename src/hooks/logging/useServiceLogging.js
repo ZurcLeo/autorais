@@ -1,7 +1,7 @@
 // src/hooks/useServiceLogging.js
 import { useEffect } from 'react';
-import { coreLogger } from '../../core/logging/CoreLogger';
-import { LOG_LEVELS } from '../../reducers/metadata/metadataReducer';
+import { coreLogger } from '../../core/logging';
+import { LOG_LEVELS } from '../../core/constants';
 import { useLocation } from 'react-router-dom';
 
 export const useServiceLogging = (serviceName, options = {}) => {

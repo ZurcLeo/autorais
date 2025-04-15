@@ -1,92 +1,175 @@
-// src/App.js
-import React, { useEffect } from 'react';
-import { Container } from '@mui/material';
+// src/App.js - Versão Refatorada
+import React, {useState, useEffect} from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { serviceLocator } from './core/services/BaseService.js';
+import { ServiceInitializationProvider } from './core/initialization/ServiceInitializationProvider';
+import { AuthProvider } from './providers/AuthProvider';
+import { NotificationProvider } from './providers/NotificationProvider';
+import { DashboardProvider } from './context/DashboardContext';
+import { AppRoutes } from './routes';
+import { setupAuthEventMonitoring } from './providers/AuthProvider';
+import { UserProvider } from './providers/UserProvider';
+import { InterestsProvider } from './providers/InterestsProvider';
+import { ValidationProvider } from './providers/ValidationProvider';
 import { ToastProvider } from './providers/ToastProvider';
-import { ToastContainer } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
-import { LOG_LEVELS } from './reducers/metadata/metadataReducer';
-import AppRoutes from './routes';
-import { coreLogger } from './core/logging/CoreLogger';
+import { ConnectionProvider } from './providers/ConnectionProvider';
+import { InviteProvider } from './providers/InviteProvider';
+import CookieConsentManager from './components/Preferences/CookieConsentManager.js';
+import { DebugProvider } from './core/debug/index.js';
+import { DebugProviderBridge } from './core/debug/DebugProvider';
+import { MessageProvider } from './providers/MessageProvider/index.js';
+import { CaixinhaProvider} from './providers/CaixinhaProvider';
+import {InitialLoadingScreen} from './components/Auth/InitialLoadingScreen.js';
+import { useServiceInitialization } from './core/initialization/ServiceInitializationProvider';
+import { debugServiceInstance } from './core/services/serviceDebug.js';
+/**
+ * Componente que renderiza a aplicação quando serviços críticos estão prontos
+ * ou uma tela de carregamento quando estão inicializando
+ */
+const AppInitializer = ({ children }) => {
+  const { 
+    isBootstrapReady, 
+    bootstrapError, 
+    criticalServicesReady,
+    hasCriticalFailure,
+    retryInitialization,
+    isAuthReady
+  } = useServiceInitialization();
+  
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const [sessionCheckError, setSessionCheckError] = useState(null);
 
-const App = () => {
-    const location = useLocation();
-    const startTime = performance.now();
+  // Efeito para verificar a sessão quando o serviço de autenticação estiver pronto
+// Dentro de useEffect no AppInitializer
+useEffect(() => {
+  setupAuthEventMonitoring()
+  if (isAuthReady) {
+    const authService = serviceLocator.get('auth');
+    console.log('Verificando sessão com authService:');
+    debugServiceInstance('auth'); // Adicionar isto para depuração
+    
+    try {
+      // Chamar o checkSession de forma assíncrona
+      authService.checkSession()
+        .then(sessionResult => {
+          console.log('Session check result:', sessionResult);
+          console.log('Auth service após verificação de sessão:');
+          debugServiceInstance('auth'); // Verificar novamente após a chamada
+          // Marcar a verificação de sessão como concluída
+          setSessionChecked(true);
+        })
+        .catch(error => {
+          console.error('Session check failed:', error);
+          setSessionCheckError(error);
+          setSessionChecked(true); // Ainda marcamos como verificado, mesmo com erro
+        });
+    } catch (error) {
+      console.error('Error during session check:', error);
+      setSessionCheckError(error);
+      setSessionChecked(true);
+    }
+  }
+}, [isAuthReady]);
 
-  // Função para lidar com a inicialização do ToastContainer
-  const handleToastInit = () => {
+  console.log('AppInitializer state:', { 
+    isBootstrapReady, 
+    bootstrapError, 
+    criticalServicesReady,
+    hasCriticalFailure,
+    isAuthReady,
+    sessionChecked
+  });
 
-    coreLogger.logEvent('App', LOG_LEVELS.LIFECYCLE, 'ToastContainer initialized', {
-      timestamp: new Date().toISOString()
-    });
-    console.log('ToastContainer has been initialized');
-  };
+  // Se o bootstrap falhou, mostrar tela de erro
+  if (bootstrapError) {
+    return (
+      <InitialLoadingScreen 
+        type="error" 
+        message="Falha na inicialização da aplicação" 
+        details={bootstrapError.message || String(bootstrapError)}
+        retry={retryInitialization}
+      />
+    );
+  }
 
-  useEffect(() => {
+  // Se o bootstrap ainda está em andamento, mostrar tela de carregamento
+  if (!isBootstrapReady) {
+    return <InitialLoadingScreen type="bootstrap" message="Iniciando aplicação..." />;
+  }
 
-    coreLogger.logServiceInitStart('App', LOG_LEVELS.LIFECYCLE, 'Routes initialization', {
-      startTimestamp: new Date().toISOString(),
-      initialPath: location.pathname
-    });
+  // Se algum serviço crítico falhou, mostrar tela de erro
+  if (hasCriticalFailure) {
+    return (
+      <InitialLoadingScreen 
+        type="critical-error" 
+        message="Falha em serviços críticos" 
+        details="Não foi possível inicializar componentes essenciais da aplicação."
+        retry={retryInitialization}
+      />
+    );
+  }
 
-    // Registrar métricas de performance inicial
-    const initialLoadTime = performance.now() - startTime;
-    coreLogger.logServicePerformance('App', LOG_LEVELS.PERFORMANCE, 'Initial routes load', {
-      duration: `${Math.round(initialLoadTime)}ms`,
-      path: location.pathname
-    });
+  // Se auth service está pronto mas ainda não verificamos a sessão
+  if (isAuthReady && !sessionChecked) {
+    return <InitialLoadingScreen type="auth" message="Verificando sessão..." />;
+  }
 
-    return () => {
-      const totalLifetime = performance.now() - startTime;
-      coreLogger.logServiceInitComplete('App', LOG_LEVELS.LIFECYCLE, 'Routes cleanup', {
-        duration: `${Math.round(totalLifetime)}ms`,
-        endTimestamp: new Date().toISOString(),
-        finalPath: location.pathname
-      });
-    };
-  }, []);
+  // Se tivemos erro ao verificar a sessão
+  if (sessionCheckError) {
+    return (
+      <InitialLoadingScreen 
+        type="auth-error" 
+        message="Falha ao verificar sessão" 
+        details={sessionCheckError.message || String(sessionCheckError)}
+        retry={() => window.location.reload()}
+      />
+    );
+  }
 
-  // Log detalhado de mudanças de rota
-  useEffect(() => {
-    coreLogger.logEvent('App', LOG_LEVELS.STATE, 'Route navigation', {
-      path: location.pathname,
-      search: location.search,
-      timestamp: new Date().toISOString(),
-      referrer: document.referrer || 'direct',
-      hasAuthenticatedLayout: location.pathname !== '/login' && 
-                             location.pathname !== '/register' &&
-                             location.pathname !== '/'
-    });
-  }, [location]);
-
-  // // Função auxiliar para logging de erros de rota
-  // const handleRouteError = (error) => {
-  //   coreLogger.logServiceError('App', LOG_LEVELS.ERROR, 'Route error', {
-  //     error: error.message,
-  //     path: location.pathname,
-  //     stack: error.stack,
-  //     timestamp: new Date().toISOString()
-  //   });
-  // };
-
-  return (
-    <Container>
-      <ToastProvider>
-        <AppRoutes />
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          onInit={handleToastInit} // Passando a função para onInit
-        />
-      </ToastProvider>
-    </Container>
-  );
+  // Se todos os serviços críticos estão prontos e a sessão foi verificada, renderizar a aplicação
+  return children;
 };
+
+/**
+ * Componente principal da aplicação
+ * Gerencia os providers necessários e o roteamento
+ */
+function App() {
+  return (
+    <ServiceInitializationProvider>
+      <AppInitializer>
+        <Router>
+          <DebugProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <NotificationProvider>
+                  <ValidationProvider>
+                    <InviteProvider>
+                      <UserProvider>
+                        <InterestsProvider>
+                          <ConnectionProvider>
+                            <MessageProvider>
+                              <CaixinhaProvider>
+                                <DashboardProvider>
+                                  {process.env.NODE_ENV === 'development' && <DebugProviderBridge />}
+                                  <CookieConsentManager />
+                                  <AppRoutes />
+                                </DashboardProvider>
+                              </CaixinhaProvider>
+                            </MessageProvider>
+                          </ConnectionProvider>
+                        </InterestsProvider>
+                      </UserProvider>
+                    </InviteProvider>
+                  </ValidationProvider>
+                </NotificationProvider>
+              </AuthProvider>
+            </ToastProvider>
+          </DebugProvider>
+        </Router>
+      </AppInitializer>
+    </ServiceInitializationProvider>
+  );
+}
 
 export default App;

@@ -1,7 +1,8 @@
 // src/core/resilience/RetryManager.js
-import { SERVICE_METADATA, LOG_LEVELS } from '../../reducers/metadata/metadataReducer';
-import { coreLogger } from '../logging';
-import { CircuitState, ResilienceError } from './types';
+import { LOG_LEVELS } from '../constants/config';
+import { SERVICE_METADATA } from '../../reducers/metadata/metadataReducer';
+import { coreLogger } from '../logging/CoreLogger';
+import { CircuitState, ResilienceError } from './../constants/config';
 import { ResilienceConfig } from './ResilienceConfig';
 
 class RetryManager {

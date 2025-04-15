@@ -2,15 +2,18 @@ import React from 'react';
 import { Box, Avatar, IconButton, Tooltip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next'; // Importa a função de tradução
+import { serviceLocator } from '../../core/services/BaseService';
 
-const ProfileHeader = ({ user, onEditImage }) => {
+const ProfileHeader = ({ onEditImage }) => {
   const { t } = useTranslation(); // Obtém a função de tradução
+    const serviceStore = serviceLocator.get('store').getState()?.auth;
+    const { currentUser } = serviceStore;
 
   return (
     <Box display="flex" alignItems="center" justifyContent="center" position="relative" mb={2}>
       {/* Imagem do perfil */}
       <Avatar
-        src={user.fotoDoPerfil}
+        src={currentUser.fotoDoPerfil}
         sx={{
           width: 120,
           height: 120,

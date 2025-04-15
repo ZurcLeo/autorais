@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Alert, CircularProgress } from '@mui/material';
 import ProfileView from './ProfileView';
-import { useAuth } from '../../context/_AuthContext';
-import { useUser } from '../../context/UserContext';
+import { serviceLocator } from '../../core/services/BaseService';
+import { useUser } from '../../providers/UserProvider';
+import { useInterests } from '../../providers/InterestsProvider';
 
 const Profile = () => {
     const { uid } = useParams();
-    const { currentUser } = useAuth();
+    const serviceStore = serviceLocator.get('store').getState()?.auth;
+    const { currentUser } = serviceStore;
     const { getUserById } = useUser();
+    const {availableInterests} = useInterests();
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -38,7 +41,8 @@ const Profile = () => {
   
     return <ProfileView 
       userData={user} 
-      isOwnProfile={uid === currentUser?.uid} 
+      isOwnProfile={uid === currentUser?.uid}
+      interests={currentUser.interesses} 
     />;
   };
 
