@@ -71,24 +71,57 @@ export const InitializationState = {
 };
 
 /**
- * Estado inicial para o módulo de Caixinhas.
- * 
+ * Estado inicial do serviço de Caixinhas (CaixinhasService).
  * @namespace initialCaixinhaState
  * @type {Object}
  * @property {Array} caixinhas - Lista de caixinhas do usuário
  * @property {Object|null} currentCaixinha - Caixinha atualmente selecionada
- * @property {Array} contributions - Lista de contribuições para a caixinha atual
- * @property {boolean} loading - Indica se o módulo está carregando dados
+ * @property {Array} membros - Lista de membros da caixinha atual
+ * @property {Array} emprestimos - Lista de empréstimos da caixinha atual
+ * @property {Array} contribuicoes - Lista de contribuições para a caixinha atual
+ * @property {Array} transacoes - Lista de transações da caixinha atual
+ * @property {Object} relatorios - Objeto contendo relatórios da caixinha atual
  * @property {Object|null} error - Informações de erro, se houver
+ * @property {boolean} loading - Indica se o serviço está carregando dados
  * @property {string|null} lastUpdated - Timestamp da última atualização
  */
 export const initialCaixinhaState = {
+  // Lista de todas as caixinhas do usuário
   caixinhas: [],
+  
+  // Caixinha selecionada atualmente
   currentCaixinha: null,
+  
+  // Dados relacionados à caixinha selecionada
+  membros: [],
+  emprestimos: [],
   contributions: [],
-  loading: true,
+  transacoes: [],
+  
+  // Relatórios da caixinha
+  relatorios: {
+    geral: null,
+    contribuicoes: null,
+    participacao: null,
+    transacoes: null
+  },
+  
+  // Status e metadados
+  loading: false,
   error: null,
   lastUpdated: null,
+  
+  // Flags de status para operações
+  creating: false,
+  updating: false,
+  
+  // Paginação para listas grandes
+  pagination: {
+    totalItems: 0,
+    itemsPerPage: 10,
+    currentPage: 1,
+    totalPages: 1
+  }
 };
 
 /**
@@ -423,7 +456,7 @@ export const initialValidationState = {
 export const initialNotificationState = {
   notifications: [],
   unreadCount: 0,
-  notifLoading: true,
+  notifLoading: false,
   error: "",
   lastUpdated: ""
 };

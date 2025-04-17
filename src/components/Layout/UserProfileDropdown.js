@@ -100,8 +100,7 @@ const getMenuGroups = (t, currentUser) => [
 ];
 
 const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notification }) => {
-  const serviceStore = serviceLocator.get('store').getState()?.auth;
-  const { currentUser, authLoading } = serviceStore;
+  const {currentUser, authLoading} = useAuth()
   const { t } = useTranslation();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -110,7 +109,7 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
-  const { unreadCount, notifLoading } = useNotifications();
+  const { unreadCount } = useNotifications();
 
   // Memorizar os grupos de menu para evitar recriação a cada render
   const menuGroups = useMemo(() => getMenuGroups(t, currentUser), [t, currentUser]);
@@ -176,7 +175,7 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
     });
   };
 
-  if (authLoading || notifLoading) {
+  if (authLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Skeleton variant="circular" width={40} height={40} />

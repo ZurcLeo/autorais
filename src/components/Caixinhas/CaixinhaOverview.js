@@ -27,6 +27,7 @@ import {
   Drawer,
   useMediaQuery,
   useTheme,
+  CircularProgress,
 } from '@mui/material';
 import {
   AccountBalance as AccountBalanceIcon,
@@ -44,28 +45,55 @@ import {
   Settings as SettingsIcon,
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
+import { useCaixinha } from '../../providers/CaixinhaProvider';
 import { useTranslation } from 'react-i18next';
 import ActivityTimeline from './ActivityTimelineItem';
-import MembersList from './MembersList';
+import MembersManager from './MembersManager';
 import LoanManagement from './LoanManagement';
 import BankingManagement from './BankingManagement';
 import Reports from './Reports';
-import { serviceLocator } from '../../core/services/BaseService';
+import { useNotifications } from '../../providers/NotificationProvider';
+import CaixinhaList from './CaixinhaList';
+import CaixinhaWelcome from './CaixinhaWelcome';
 
-const CaixinhaOverview = ({ caixinha }) => {
+const CaixinhaOverview = () => {
+  // IMPORTANTE: Todos os Hooks devem ser chamados no topo, antes de qualquer lógica condicional
   const { t } = useTranslation();
+  const caixinhaContext = useCaixinha();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const caixinhaStore = serviceLocator.get('store').getState()?.caixinhas;
+  const { notifications } = useNotifications();
+  
+  // Estados - precisam ser declarados antes de qualquer retorno condicional
+  const [loading, setLoading] = useState(true);
+  const [selectedCaixinhaId, setSelectedCaixinhaId] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [expanded, setExpanded] = useState({});
   const [showNotifications, setShowNotifications] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [contributionDialog, setContributionDialog] = useState(false);
-  const [contributionAmount, setContributionAmount] = useState(caixinha?.contribuicaoMensal || '');
-
-  // Simulated data
+  const [contributionAmount, setContributionAmount] = useState('');
+  
+  // Verificação da estrutura dos dados e existência de caixinhas
+  const caixinhasArray = caixinhaContext.caixinhas?.caixinhas || [];
+  const hasCaixinhas = caixinhasArray.length > 0;
+  
+  // Efeito para selecionar a primeira caixinha quando os dados são carregados
+  useEffect(() => {
+    if (caixinhasArray.length > 0 && !selectedCaixinhaId) {
+      setSelectedCaixinhaId(caixinhasArray[0].id);
+      // Definir valor inicial de contribuição baseado na caixinha selecionada
+      if (caixinhasArray[0]?.contribuicaoMensal) {
+        setContributionAmount(caixinhasArray[0].contribuicaoMensal);
+      }
+    }
+    
+    // Fim do carregamento
+    setLoading(false);
+  }, [caixinhasArray, selectedCaixinhaId]);
+  
+  // Dados e funções auxiliares - também devem ser definidos antes dos retornos condicionais
   const balanceHistory = [
     { month: 'Jan', balance: 2500 },
     { month: 'Fev', balance: 3200 },
@@ -74,20 +102,17 @@ const CaixinhaOverview = ({ caixinha }) => {
     { month: 'Mai', balance: 5400 },
     { month: 'Jun', balance: 6200 },
   ];
-
-  const notifications = [
-    { type: 'payment', message: 'Nova contribuição recebida', time: '10min' },
-    { type: 'member', message: 'João aceitou seu convite', time: '2h' },
-    { type: 'alert', message: 'Distribuição agendada para amanhã', time: '5h' },
-  ];
-
-  const nextDistribution = {
+  
+  // Acessa a caixinha selecionada
+  const caixinha = hasCaixinhas 
+    ? (caixinhasArray.find(c => c.id === selectedCaixinhaId) || caixinhasArray[0])
+    : null;
+  
+  const nextDistribution = caixinha ? {
     date: new Date(new Date().setDate(new Date().getDate() + 15)),
     amount: caixinha?.saldoTotal || 0,
     member: 'Maria Silva'
-  };
-
-  console.log('caixinhas: ', caixinhaStore)
+  } : null;
 
   const toggleExpand = (section) => {
     setExpanded({ ...expanded, [section]: !expanded[section] });
@@ -157,6 +182,36 @@ const CaixinhaOverview = ({ caixinha }) => {
     );
   };
 
+  // Handler para mudar a caixinha selecionada
+  const handleCaixinhaSelect = (selectedCaixinha) => {
+    setSelectedCaixinhaId(selectedCaixinha.id);
+    // Reset para a visualização padrão ao trocar de caixinha
+    setActiveSection('overview');
+    // Atualizar valor de contribuição
+    if (selectedCaixinha?.contribuicaoMensal) {
+      setContributionAmount(selectedCaixinha.contribuicaoMensal);
+    }
+  };
+
+  // RENDERIZAÇÃO CONDICIONAL - Depois de declarar todos os Hooks e funções
+  
+  // Se estiver carregando, mostra um indicador de carregamento
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  
+  // Se não houver caixinhas, renderiza o componente de boas-vindas
+  if (!hasCaixinhas) {
+    return <CaixinhaWelcome />;
+  }
+
+  // FUNÇÕES DE RENDERIZAÇÃO - Definidas depois dos retornos condicionais, mas utilizando apenas
+  // variáveis e funções já declaradas anteriormente
+  
   const renderNotificationsDrawer = () => (
     <Drawer
       anchor="right"
@@ -388,140 +443,158 @@ const CaixinhaOverview = ({ caixinha }) => {
       case 'activity':
         return <ActivityTimeline caixinha={caixinha} />;
       case 'members':
-        return <MembersList caixinha={caixinha} />;
+        return <MembersManager caixinha={caixinha} />;
       case 'loans':
         return <LoanManagement caixinha={caixinha} />;
       case 'reports':
         return <Reports caixinha={caixinha} />;
       case 'banking':
-        return <BankingManagement caixinhaId={caixinha.id} />;
+        return <BankingManagement caixinhaId={caixinha?.id} />;
       default:
         return renderOverviewSection();
     }
   };
 
+  // RENDERIZAÇÃO PRINCIPAL - O componente só chega aqui se houver caixinhas
   return (
     <Box sx={{ p: 2, md: 3 }}>
-      {/* Header Section with Quick Stats */}
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: 'space-between', 
-        alignItems: isMobile ? 'flex-start' : 'center',
-        mb: 4 
-      }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-            {caixinha.name}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {caixinha.description}
-          </Typography>
-        </Box>
+      {/* Layout em Grid para acomodar lista de caixinhas + visualização principal */}
+      <Grid container spacing={3}>
+        {/* Lista de Caixinhas - Apenas mostrada se houver mais de uma caixinha */}
+        {caixinhasArray.length > 1 && (
+          <Grid item xs={12} md={3}>
+            <CaixinhaList 
+              caixinhas={caixinhasArray} 
+              selectedId={selectedCaixinhaId}
+              onSelect={handleCaixinhaSelect}
+            />
+          </Grid>
+        )}
         
-        <Box sx={{ 
-          display: 'flex', 
-          mt: isMobile ? 2 : 0,
-          gap: 1 
-        }}>
-          <IconButton
-            onClick={() => setShowNotifications(true)}
-            sx={{ position: 'relative' }}
-          >
-            <NotificationsIcon />
-            {notifications.length > 0 && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  width: 16,
-                  height: 16,
-                  bgcolor: 'error.main',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.65rem',
-                  color: 'white',
-                  fontWeight: 'bold',
+        {/* Conteúdo Principal - Ajusta largura baseado na presença da lista de caixinhas */}
+        <Grid item xs={12} md={caixinhasArray.length > 1 ? 9 : 12}>
+          {/* Header Section with Quick Stats */}
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: 'space-between', 
+            alignItems: isMobile ? 'flex-start' : 'center',
+            mb: 4 
+          }}>
+            <Box>
+              <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                {caixinha?.name}
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {caixinha?.description}
+              </Typography>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              mt: isMobile ? 2 : 0,
+              gap: 1 
+            }}>
+              <IconButton
+                onClick={() => setShowNotifications(true)}
+                sx={{ position: 'relative' }}
+              >
+                <NotificationsIcon />
+                {notifications.length > 0 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: 16,
+                      height: 16,
+                      bgcolor: 'error.main',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.65rem',
+                      color: 'white',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {notifications.length}
+                  </Box>
+                )}
+              </IconButton>
+              
+              <IconButton onClick={handleMenuOpen}>
+                <MoreVertIcon />
+              </IconButton>
+              
+              <Button
+                variant="contained"
+                startIcon={<AttachMoneyIcon />}
+                onClick={handleContribute}
+                sx={{ 
+                  borderRadius: 8,
+                  background: 'linear-gradient(45deg, #2196F3 30%, #3f51b5 90%)',
+                  boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.1)',
                 }}
               >
-                {notifications.length}
-              </Box>
-            )}
-          </IconButton>
-          
-          <IconButton onClick={handleMenuOpen}>
-            <MoreVertIcon />
-          </IconButton>
-          
-          <Button
-            variant="contained"
-            startIcon={<AttachMoneyIcon />}
-            onClick={handleContribute}
-            sx={{ 
-              borderRadius: 8,
-              background: 'linear-gradient(45deg, #2196F3 30%, #3f51b5 90%)',
-              boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            {t('contribute')}
-          </Button>
-        </Box>
-      </Box>
+                {t('contribute')}
+              </Button>
+            </Box>
+          </Box>
 
-      {/* Navigation Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs 
-          value={activeSection}
-          onChange={(_, newValue) => setActiveSection(newValue)}
-          variant={isMobile ? 'scrollable' : 'standard'}
-          scrollButtons={isMobile ? 'auto' : false}
-        >
-          <Tab 
-            icon={<TimelineIcon fontSize="small" />} 
-            label={t('overview')} 
-            value="overview"
-            iconPosition="start"
-          />
-          <Tab 
-            icon={<AssignmentIcon fontSize="small" />} 
-            label={t('activity')} 
-            value="activity"
-            iconPosition="start"
-          />
-          <Tab 
-            icon={<GroupIcon fontSize="small" />} 
-            label={t('members')} 
-            value="members"
-            iconPosition="start"
-          />
-          <Tab 
-            icon={<CreditCardIcon fontSize="small" />} 
-            label={t('loans')} 
-            value="loans"
-            iconPosition="start"
-          />
-          <Tab 
-            icon={<AssignmentIcon fontSize="small" />} 
-            label={t('reports')} 
-            value="reports"
-            iconPosition="start"
-          />
-          <Tab 
-            icon={<AccountBalanceIcon fontSize="small" />} 
-            label={t('banking.travaBancaria')} 
-            value="banking"
-            iconPosition="start"
-          />
-        </Tabs>
-      </Box>
+          {/* Navigation Tabs */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs 
+              value={activeSection}
+              onChange={(_, newValue) => setActiveSection(newValue)}
+              variant={isMobile ? 'scrollable' : 'standard'}
+              scrollButtons={isMobile ? 'auto' : false}
+            >
+              <Tab 
+                icon={<TimelineIcon fontSize="small" />} 
+                label={t('overview')} 
+                value="overview"
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<AssignmentIcon fontSize="small" />} 
+                label={t('activity')} 
+                value="activity"
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<GroupIcon fontSize="small" />} 
+                label={t('members')} 
+                value="members"
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<CreditCardIcon fontSize="small" />} 
+                label={t('loans')} 
+                value="loans"
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<AssignmentIcon fontSize="small" />} 
+                label={t('reports')} 
+                value="reports"
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<AccountBalanceIcon fontSize="small" />} 
+                label={t('banking.travaBancaria')} 
+                value="banking"
+                iconPosition="start"
+              />
+            </Tabs>
+          </Box>
 
-      {/* Main Content Area */}
-      <Box>
-        {renderContentBySection()}
-      </Box>
+          {/* Main Content Area */}
+          <Box>
+            {renderContentBySection()}
+          </Box>
+        </Grid>
+      </Grid>
 
       {/* Notifications Drawer */}
       {renderNotificationsDrawer()}

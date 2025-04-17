@@ -24,7 +24,7 @@ import {
   KeyboardArrowUp
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useBanking } from '../../hooks/banking/useBanking';
+import { useBanking } from '../../providers/BankingProvider';
 import BankAccountModal from './BankAccountModal';
 import PixPayment from '../Common/PixPayment';
 import { loadMercadoPago } from "@mercadopago/sdk-js";
@@ -210,14 +210,14 @@ const BankingHistory = ({ bankingHistory, onValidate }) => {
       }}>
         {t('banking.history')}
         <Chip 
-          label={`${bankingHistory.length} ${t('banking.accounts')}`}
+          label={`${bankingHistory?.length} ${t('banking.accounts')}`}
           size="small"
           sx={{ ml: 1 }}
         />
       </Typography>
       
       <List sx={{ width: '100%' }}>
-        {bankingHistory.map((entry) => (
+        {bankingHistory?.map((entry) => (
       <BankingHistoryItem 
       key={entry.id} 
       entry={entry} 
@@ -230,17 +230,17 @@ const BankingHistory = ({ bankingHistory, onValidate }) => {
 };
 
 const BankingManagement = ({ caixinhaId }) => {
-  const { bankingInfo, bankingHistory, fetchBankingInfo, fetchBankingHistory, setModalOpen } = useBanking();
+  const { bankingInfo, bankingHistory, refetchBankingInfo, refetchBankingHistory, setModalOpen } = useBanking();
   const { t } = useTranslation();
   const [selectedAccount, setSelectedAccount] = useState(null);
 
   useEffect(() => {
-    fetchBankingInfo(caixinhaId);
-    fetchBankingHistory(caixinhaId);
+    refetchBankingInfo(caixinhaId);
+    refetchBankingHistory(caixinhaId);
   }, [caixinhaId]);
 
   const handlePaymentComplete = () => {
-    fetchBankingHistory(caixinhaId); // Atualiza histórico ao concluir pagamento
+    refetchBankingHistory(caixinhaId); // Atualiza histórico ao concluir pagamento
     setSelectedAccount(null); // Fecha o modal
   };
 

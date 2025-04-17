@@ -22,6 +22,7 @@ import { CaixinhaProvider} from './providers/CaixinhaProvider';
 import {InitialLoadingScreen} from './components/Auth/InitialLoadingScreen.js';
 import { useServiceInitialization } from './core/initialization/ServiceInitializationProvider';
 import { debugServiceInstance } from './core/services/serviceDebug.js';
+import { BankingProvider } from './providers/BankingProvider/index.js';
 /**
  * Componente que renderiza a aplicação quando serviços críticos estão prontos
  * ou uma tela de carregamento quando estão inicializando
@@ -150,11 +151,13 @@ function App() {
                           <ConnectionProvider>
                             <MessageProvider>
                               <CaixinhaProvider>
+                                <BankingProvider>
                                 <DashboardProvider>
                                   {process.env.NODE_ENV === 'development' && <DebugProviderBridge />}
                                   <CookieConsentManager />
                                   <AppRoutes />
                                 </DashboardProvider>
+                                </BankingProvider>
                               </CaixinhaProvider>
                             </MessageProvider>
                           </ConnectionProvider>

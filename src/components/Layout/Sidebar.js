@@ -25,6 +25,7 @@ import { LOG_LEVELS } from '../../core/constants/config';
 import { useTranslation } from 'react-i18next';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { sidebarMenu } from './config/sidebarMenu';
+import { useAuth } from '../../providers/AuthProvider';
 
 const MODULE_NAME = 'Sidebar';
 
@@ -35,8 +36,7 @@ const Sidebar = ({
   sidebarWidth = 280, 
   collapsedWidth = 80 
 }) => {
-      const serviceStore = serviceLocator.get('store').getState()?.auth;
-      const { isAuthenticated, currentUser } = serviceStore;
+      const { isAuthenticated, currentUser } = useAuth()
   const { t } = useTranslation();
   const muiTheme = useMuiTheme();
   const [openSections, setOpenSections] = useState({

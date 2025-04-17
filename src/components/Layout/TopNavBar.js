@@ -24,20 +24,17 @@ import { coreLogger } from '../../core/logging';
 import { LOG_LEVELS } from '../../core/constants/config';
 import NavItem from './NavItem';
 import { GiConversation, GiThreeFriends } from 'react-icons/gi';
+import { useAuth } from '../../providers/AuthProvider';
 
 const MODULE_NAME = 'TopNavBar';
 
 const TopNavBar = ({ sidebarOpen, toggleSidebar, isMobile }) => {
-  const serviceStore = serviceLocator.get('store').getState()?.auth;
-  const notificationsService = serviceLocator.get('store').getState()?.notifications;
-
-  const { isAuthenticated } = serviceStore;
+  const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
   const [anchorElTheme, setAnchorElTheme] = useState(null);
   const isThemeMenuOpen = Boolean(anchorElTheme);
   const navigate = useNavigate();
-  const { unreadCount, notifLoading } = useNotifications();
   
 console.log('LOGANDO NO TOPNAV', useNotifications())
   const handleNavigation = (path) => {
@@ -81,7 +78,7 @@ console.log('LOGANDO NO TOPNAV', useNotifications())
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {isAuthenticated && !notifLoading && (
+          {isAuthenticated && (
             <>
               {!isMobile && (
                 <>
@@ -123,7 +120,7 @@ console.log('LOGANDO NO TOPNAV', useNotifications())
             </IconButton>
           </Tooltip>
 
-          <Menu
+          {/* <Menu
             id="theme-menu"
             anchorEl={anchorElTheme}
             open={isThemeMenuOpen}
@@ -143,13 +140,13 @@ console.log('LOGANDO NO TOPNAV', useNotifications())
             <MenuItem onClick={handleThemeMenuClose}>
               <ThemeControls />
             </MenuItem>
-          </Menu>
+          </Menu> */}
 
-          <Tooltip title={t('topnavbar.notifications')} arrow>
+          {/* <Tooltip title={t('topnavbar.notifications')} arrow>
             <IconButton size="large" color="inherit">
               <Badge
                 overlap="circular"
-                badgeContent={unreadCount > 0 ? unreadCount : null}
+                badgeContent={unreadCount}
                 color="error"
                 anchorOrigin={{
                   vertical: 'top',
@@ -159,7 +156,7 @@ console.log('LOGANDO NO TOPNAV', useNotifications())
                 <GiWorld />
               </Badge>
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
           {isAuthenticated ? <UserProfileDropdown /> : <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button
               color="inherit"

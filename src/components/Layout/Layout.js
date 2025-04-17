@@ -10,6 +10,7 @@ import { coreLogger } from '../../core/logging';
 import { LOG_LEVELS } from '../../core/constants/config';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from '../../providers/NotificationProvider';
+import { useAuth } from '../../providers/AuthProvider';
 
 const SIDEBAR_WIDTH = 300;
 const SIDEBAR_WIDTH_COLLAPSED = 90;
@@ -17,9 +18,7 @@ const MODULE_NAME = 'Layout';
 
 const Layout = ({ children }) => {
   const { t } = useTranslation();
-    const serviceStore = serviceLocator.get('store').getState()?.auth;
-    const { isAuthenticated, currentUser, authLoading } = serviceStore;
-  // const { userLoading } = useUser();
+  const { isAuthenticated, currentUser, authLoading } = useAuth();
   const { loading } = useInterests();
   const {notifLoading} = useNotifications
   const location = useLocation();

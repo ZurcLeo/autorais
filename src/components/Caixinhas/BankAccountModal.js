@@ -35,7 +35,7 @@ import {
   ArrowForward,
   InfoOutlined
 } from '@mui/icons-material';
-import { useBanking } from '../../hooks/banking/useBanking';
+import { useBanking } from '../../providers/BankingProvider';
 import { useTranslation } from 'react-i18next';
 
 // Tipos de conta bancária no Brasil

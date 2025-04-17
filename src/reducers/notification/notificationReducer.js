@@ -1,3 +1,4 @@
+// src/reducers/notification/notificationReducer.js
 import { NOTIFICATION_ACTIONS } from "../../core/constants/actions";
 import { initialNotificationState } from "../../core/constants/initialState";
 import { NOTIFICATION_CACHE_CONFIG } from "../../core/constants/config";
@@ -8,21 +9,24 @@ export const notificationReducer = (state = initialNotificationState, action) =>
     case NOTIFICATION_ACTIONS.FETCH_START:
       return {
         ...state,
-        notifLoading: true,
+        // Não defina notifLoading como true aqui para evitar flicker de UI
+        // quando temos dados em cache válidos
         error: null
       };
       
-      case NOTIFICATION_ACTIONS.FETCH_SUCCESS:
-        return {
-          ...state,
-          notifications: action.payload,
-          unreadCount: action.unreadCount,
-          notifLoading: false,
-          error: null,
-          lastUpdated: Date.now(),
-          nextFetchTime: Date.now() + NOTIFICATION_CACHE_CONFIG.STALE_TIME,
-          cacheExpiration: Date.now() + NOTIFICATION_CACHE_CONFIG.CACHE_TIME
-        };
+    case NOTIFICATION_ACTIONS.FETCH_SUCCESS:
+      return {
+        ...state,
+        notifications: action.payload,
+        unreadCount: action.unreadCount !== undefined 
+          ? action.unreadCount 
+          : action.payload ? action.payload.filter(n => !n.read).length : 0,
+        notifLoading: false,
+        error: null,
+        lastUpdated: Date.now(),
+        nextFetchTime: Date.now() + NOTIFICATION_CACHE_CONFIG.STALE_TIME,
+        cacheExpiration: Date.now() + NOTIFICATION_CACHE_CONFIG.CACHE_TIME
+      };
     
     case NOTIFICATION_ACTIONS.FETCH_FAILURE:
       return {
@@ -36,13 +40,20 @@ export const notificationReducer = (state = initialNotificationState, action) =>
       return {
         ...state,
         notifications: action.payload,
+        // Calcular contador de não lidos se não fornecido explicitamente
+        unreadCount: state.unreadCount !== undefined 
+          ? state.unreadCount 
+          : action.payload ? action.payload.filter(n => !n.read).length : 0,
         lastUpdated: Date.now()
       };
 
     case NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT:
       return {
         ...state,
-        unreadCount: action.payload,
+        // Usar o valor fornecido ou calcular a partir das notificações
+        unreadCount: action.payload !== undefined 
+          ? action.payload 
+          : state.notifications ? state.notifications.filter(n => !n.read).length : 0,
         lastUpdated: Date.now()
       };
 

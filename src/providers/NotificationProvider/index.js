@@ -1,4 +1,4 @@
-// src/providers/NotificationProvider.js
+// src/providers/NotificationProvider/index.js
 import React, {
     createContext,
     useReducer,
@@ -8,55 +8,173 @@ import React, {
     useMemo,
     useEffect
 } from 'react';
-import {NOTIFICATION_ACTIONS} from '../../core/constants/actions';
-import {NOTIFICATION_EVENTS} from '../../core/constants/events';
-import {initialNotificationState} from '../../core/constants/initialState';
-import {notificationReducer} from '../../reducers/notification/notificationReducer'; // Ajuste o caminho
-import {useNotificationPolling} from '../../hooks/notification/useNotificationPolling'; // Ajuste o caminho
-import {showToast, showPromiseToast} from '../../utils/toastUtils'; // Ajuste o caminho
-import {coreLogger} from '../../core/logging'; // Ajuste o caminho
-import {serviceEventHub, serviceLocator} from '../../core/services/BaseService'; // Ajuste o caminho
-import {LOG_LEVELS} from '../../core/constants/config'; // Import LOG_LEVELS
+import { NOTIFICATION_ACTIONS } from '../../core/constants/actions';
+import { NOTIFICATION_EVENTS } from '../../core/constants/events';
+import { initialNotificationState } from '../../core/constants/initialState';
+import { notificationReducer } from '../../reducers/notification/notificationReducer';
+import { useNotificationPolling } from '../../hooks/notification/useNotificationPolling';
+import { showToast, showPromiseToast } from '../../utils/toastUtils';
+import { coreLogger } from '../../core/logging';
+import { serviceEventHub, serviceLocator } from '../../core/services/BaseService';
+import { LOG_LEVELS } from '../../core/constants/config';
+import { globalCache } from '../../utils/cache/cacheManager';
+import { NOTIFICATION_CACHE_CONFIG } from '../../core/constants/config';
 
 const NotificationContext = createContext(null);
 
 const MODULE_NAME = 'notifications';
 
-const POLLING_INTERVAL = 30 * 1000; // 30 segundos
+// Intervalo de polling padrão: 30 segundos
+const DEFAULT_POLLING_INTERVAL = 30 * 1000;
+
+// Intervalo de polling quando o usuário está inativo: 2 minutos
+const INACTIVE_POLLING_INTERVAL = 2 * 60 * 1000;
+
+// Determina quanto tempo sem interação do usuário consideramos como "inativo"
+const USER_INACTIVITY_THRESHOLD = 5 * 60 * 1000; // 5 minutos
 
 export const NotificationProvider = ({children}) => {
     const [state, dispatch] = useReducer(notificationReducer, initialNotificationState);
     const [isInitialized, setIsInitialized] = useState(false);
-    const [notifError, setNotifError] = useState(null);  
-
-      let notificationService;
-      let serviceStore;
-      let serviceNot;
-      try {
+    const [notifError, setNotifError] = useState(null);
+    const [pollingInterval, setPollingInterval] = useState(DEFAULT_POLLING_INTERVAL);
+    const [lastUserActivity, setLastUserActivity] = useState(Date.now());
+    
+    // Referências aos serviços
+    let notificationService;
+    let serviceStore;
+    let serviceNot;
+    
+    try {
         notificationService = serviceLocator.get('notifications');
         serviceStore = serviceLocator.get('store').getState()?.auth;
         serviceNot = serviceLocator.get('store').getState()?.notifications;
-    
-      } catch (err) {
-        console.notifError('Error accessing services:', err);
+    } catch (err) {
+        console.error('Error accessing services:', err);
         setNotifError(err);
-      }
+    }
     
-      const { isAuthenticated, currentUser } = serviceStore || {};
-      const userId = currentUser?.uid;
+    const { isAuthenticated, currentUser } = serviceStore || {};
+    const userId = currentUser?.uid;
 
+    // Monitor de atividade do usuário
     useEffect(() => {
+        const updateLastActivity = () => {
+            setLastUserActivity(Date.now());
+            
+            // Se estava usando intervalo de inatividade, voltar ao intervalo normal
+            if (pollingInterval === INACTIVE_POLLING_INTERVAL) {
+                setPollingInterval(DEFAULT_POLLING_INTERVAL);
+                coreLogger.logEvent(
+                    MODULE_NAME,
+                    LOG_LEVELS.INFO,
+                    'Usuário ativo detectado, reduzindo intervalo de polling'
+                );
+            }
+        };
+        
+        // Eventos que indicam atividade do usuário
+        window.addEventListener('mousemove', updateLastActivity);
+        window.addEventListener('keydown', updateLastActivity);
+        window.addEventListener('click', updateLastActivity);
+        window.addEventListener('touchstart', updateLastActivity);
+        window.addEventListener('scroll', updateLastActivity);
+        
+        return () => {
+            window.removeEventListener('mousemove', updateLastActivity);
+            window.removeEventListener('keydown', updateLastActivity);
+            window.removeEventListener('click', updateLastActivity);
+            window.removeEventListener('touchstart', updateLastActivity);
+            window.removeEventListener('scroll', updateLastActivity);
+        };
+    }, [pollingInterval]);
+    
+    // Verificador de inatividade para ajustar polling
+    useEffect(() => {
+        const checkInactivity = () => {
+            const now = Date.now();
+            const inactiveTime = now - lastUserActivity;
+            
+            if (inactiveTime > USER_INACTIVITY_THRESHOLD && pollingInterval !== INACTIVE_POLLING_INTERVAL) {
+                setPollingInterval(INACTIVE_POLLING_INTERVAL);
+                coreLogger.logEvent(
+                    MODULE_NAME,
+                    LOG_LEVELS.INFO,
+                    'Usuário inativo detectado, aumentando intervalo de polling',
+                    { inactiveTime, threshold: USER_INACTIVITY_THRESHOLD }
+                );
+            }
+        };
+        
+        const intervalId = setInterval(checkInactivity, 60000); // Verificar a cada minuto
+        
+        return () => clearInterval(intervalId);
+    }, [lastUserActivity, pollingInterval]);
 
+    // Carregar dados do cache ao inicializar
+    useEffect(() => {
+        const loadCachedData = () => {
+            try {
+                // Verificar se há dados em cache
+                const cachedData = globalCache.getItem(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY);
+                const cachedUnreadCount = globalCache.getItem(NOTIFICATION_CACHE_CONFIG.UNREAD_KEY);
+                
+                if (cachedData) {
+                    // Usar dados em cache enquanto carrega dados novos
+                    dispatch({
+                        type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                        payload: cachedData,
+                        unreadCount: cachedUnreadCount || 0
+                    });
+                    
+                    coreLogger.logEvent(
+                        MODULE_NAME,
+                        LOG_LEVELS.INFO,
+                        'Dados de notificação carregados do cache',
+                        { 
+                            count: cachedData.length,
+                            unreadCount: cachedUnreadCount || 0
+                        }
+                    );
+                    
+                    // Se o cache está fresco, não precisamos buscar imediatamente
+                    if (!globalCache.isStale(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY)) {
+                        dispatch({ type: NOTIFICATION_ACTIONS.SET_LOADING, payload: false });
+                        return true;
+                    }
+                    
+                    return false; // Cache existe mas está obsoleto, precisa buscar novos dados
+                }
+                
+                return false; // Não há cache, precisa buscar dados
+            } catch (error) {
+                coreLogger.logEvent(
+                    MODULE_NAME, 
+                    LOG_LEVELS.ERROR,
+                    'Erro ao carregar dados do cache',
+                    { error: error.message }
+                );
+                return false;
+            }
+        };
+        
+        // Tentar carregar do cache primeiro
+        const cacheIsFresh = loadCachedData();
+        
         async function initNotifications() {
             if (isAuthenticated && currentUser) {
-                
                 try {
-                      await notificationService.fetchNotifications()
-
+                    // Se o cache não é fresco ou não existe, buscar do servidor
+                    if (!cacheIsFresh) {
+                        dispatch({ type: NOTIFICATION_ACTIONS.SET_LOADING, payload: true });
+                        await notificationService.fetchNotifications();
+                    }
+                    
                     setIsInitialized(true);
                 } catch (error) {
-                    console.error('Failed to initialize invite service:', error);
+                    console.error('Failed to initialize notification service:', error);
                     setIsInitialized(true);
+                    // Mesmo com erro, definimos como inicializado para evitar múltiplas tentativas
                 }
             }
         }
@@ -65,7 +183,7 @@ export const NotificationProvider = ({children}) => {
             initNotifications();
         }
 
-        return() => {
+        return () => {
             if (isInitialized) {
                 notificationService.stop();
                 setIsInitialized(false);
@@ -73,18 +191,42 @@ export const NotificationProvider = ({children}) => {
         };
     }, [isAuthenticated, currentUser, isInitialized]);
 
+    // Configurar handlers de eventos
     useEffect(() => {
         if (!isInitialized) 
             return;
+        
         try {
-
             const notificationFetchedUnsubscribe = serviceEventHub.on(
                 MODULE_NAME,
                 NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED,
                 (eventData) => {
-                    dispatch(
-                        {type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, payload: eventData.notification}
-                    );
+                    dispatch({
+                        type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                        payload: eventData.notification
+                    });
+                    
+                    // Atualizar cache com novos dados
+                    if (eventData.notification && Array.isArray(eventData.notification)) {
+                        globalCache.setItem(
+                            NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY,
+                            eventData.notification,
+                            { 
+                                cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                                staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                            }
+                        );
+                        
+                        const unreadCount = eventData.notification.filter(notif => !notif.read).length;
+                        globalCache.setItem(
+                            NOTIFICATION_CACHE_CONFIG.UNREAD_KEY,
+                            unreadCount,
+                            { 
+                                cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                                staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                            }
+                        );
+                    }
                 }
             );
 
@@ -93,12 +235,37 @@ export const NotificationProvider = ({children}) => {
                 MODULE_NAME,
                 NOTIFICATION_EVENTS.NOTIFICATION_CREATED,
                 (eventData) => {
-                    dispatch(
-                        {type: NOTIFICATION_ACTIONS.UPDATE_NOTIFICATIONS, payload: eventData.notification}
-                    );
+                    dispatch({
+                        type: NOTIFICATION_ACTIONS.UPDATE_NOTIFICATIONS, 
+                        payload: eventData.notification
+                    });
+                    
                     if (!eventData.notification.lida) {
                         dispatch({type: NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT});
                     }
+                    
+                    // Atualizar cache com nova notificação
+                    const cachedData = globalCache.getItem(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY) || [];
+                    const updatedCache = [eventData.notification, ...cachedData];
+                    
+                    globalCache.setItem(
+                        NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY,
+                        updatedCache,
+                        { 
+                            cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                            staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                        }
+                    );
+                    
+                    const unreadCount = updatedCache.filter(notif => !notif.read).length;
+                    globalCache.setItem(
+                        NOTIFICATION_CACHE_CONFIG.UNREAD_KEY,
+                        unreadCount,
+                        { 
+                            cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                            staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                        }
+                    );
                 }
             );
 
@@ -107,9 +274,37 @@ export const NotificationProvider = ({children}) => {
                 MODULE_NAME,
                 NOTIFICATION_EVENTS.NOTIFICATION_MARKED_READ,
                 (eventData) => {
-                    dispatch(
-                        {type: NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT, payload: eventData.notificationId}
-                    );
+                    dispatch({
+                        type: NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT, 
+                        payload: eventData.notificationId
+                    });
+                    
+                    // Atualizar cache para marcar notificação como lida
+                    const cachedData = globalCache.getItem(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY);
+                    if (cachedData && Array.isArray(cachedData)) {
+                        const updatedCache = cachedData.map(notif => 
+                            notif.id === eventData.notificationId ? {...notif, read: true} : notif
+                        );
+                        
+                        globalCache.setItem(
+                            NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY,
+                            updatedCache,
+                            { 
+                                cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                                staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                            }
+                        );
+                        
+                        const unreadCount = updatedCache.filter(notif => !notif.read).length;
+                        globalCache.setItem(
+                            NOTIFICATION_CACHE_CONFIG.UNREAD_KEY,
+                            unreadCount,
+                            { 
+                                cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                                staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                            }
+                        );
+                    }
                 }
             );
 
@@ -119,6 +314,16 @@ export const NotificationProvider = ({children}) => {
                 NOTIFICATION_EVENTS.ALL_NOTIFICATIONS_CLEARED,
                 () => {
                     dispatch({type: NOTIFICATION_ACTIONS.CLEAR_STATE});
+                    
+                    // Limpar cache
+                    globalCache.invalidate(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY);
+                    globalCache.invalidate(NOTIFICATION_CACHE_CONFIG.UNREAD_KEY);
+                    
+                    coreLogger.logEvent(
+                        MODULE_NAME,
+                        LOG_LEVELS.INFO,
+                        'Cache de notificações limpo'
+                    );
                 }
             );
 
@@ -129,7 +334,7 @@ export const NotificationProvider = ({children}) => {
                 'Serviço de notificações inicializado com sucesso'
             );
 
-            return() => {
+            return () => {
                 notificationCreatedUnsubscribe();
                 notificationFetchedUnsubscribe();
                 notificationMarkedReadUnsubscribe();
@@ -157,12 +362,10 @@ export const NotificationProvider = ({children}) => {
             });
             setIsInitialized(true); // Mesmo em caso de erro, marcamos como "tentou inicializar"
         }
-    }); // Dependência no userId para refazer a inicialização se o usuário mudar
+    }, [isInitialized]); // Dependência apenas em isInitialized para configurar os listeners uma vez
 
-    // Função para buscar notificações (mantida, mas agora depende da inicialização)
-    const fetchNotifications = useCallback(async () => {
-        // const notificationService = serviceLocator.get('notifications');
-
+    // Função para buscar notificações com uso inteligente de cache
+    const fetchNotifications = useCallback(async (forceRefresh = false) => {
         if (!isInitialized || !userId) {
             coreLogger.logEvent(
                 MODULE_NAME,
@@ -173,8 +376,34 @@ export const NotificationProvider = ({children}) => {
         }
 
         serviceEventHub.emit(MODULE_NAME, NOTIFICATION_ACTIONS.FETCH_START, {});
+        
+        // Verificar se cache está fresco e não estamos forçando atualização
+        if (!forceRefresh && !globalCache.isStale(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY)) {
+            coreLogger.logEvent(
+                MODULE_NAME,
+                LOG_LEVELS.INFO,
+                'Usando cache fresco para notificações',
+                { userId }
+            );
+            
+            // Usar dados em cache
+            const cachedData = globalCache.getItem(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY);
+            const cachedUnreadCount = globalCache.getItem(NOTIFICATION_CACHE_CONFIG.UNREAD_KEY);
+            
+            if (cachedData) {
+                dispatch({
+                    type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                    payload: cachedData,
+                    unreadCount: cachedUnreadCount || 0
+                });
+                
+                return { notifications: cachedData, unreadCount: cachedUnreadCount || 0 };
+            }
+        }
 
         try {
+            // Se cache está obsoleto ou foi solicitada atualização, buscar do servidor
+            dispatch({ type: NOTIFICATION_ACTIONS.SET_LOADING, payload: true });
             const notifications = await notificationService.fetchNotifications(userId);
             const unreadCount = notifications
                 .filter((notification) => !notification.lida)
@@ -190,20 +419,46 @@ export const NotificationProvider = ({children}) => {
                 }
             );
 
-            dispatch(
-                {type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, payload: notifications, unreadCount}
+            // Atualizar cache com dados novos
+            globalCache.setItem(
+                NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY,
+                notifications,
+                { 
+                    cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                    staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                }
             );
-            return {notifications, unreadCount};
+            
+            globalCache.setItem(
+                NOTIFICATION_CACHE_CONFIG.UNREAD_KEY,
+                unreadCount,
+                { 
+                    cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                    staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                }
+            );
+
+            dispatch({
+                type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                payload: notifications, 
+                unreadCount
+            });
+            
+            return { notifications, unreadCount };
         } catch (error) {
             coreLogger.logServiceError('notifications', error, {
                 context: 'fetchNotifications',
                 userId
             });
+            
             serviceEventHub.emit(
                 MODULE_NAME,
                 NOTIFICATION_ACTIONS.FETCH_FAILURE,
-                {payload: error.message}
+                { payload: error.message }
             );
+            
+            // Em caso de erro, definir loading como false
+            dispatch({ type: NOTIFICATION_ACTIONS.SET_LOADING, payload: false });
 
             if (!error.message.includes('Could not refresh token') && !error.message.includes('Session expired')) {
                 coreLogger.logServiceError('notifications', error, {
@@ -211,31 +466,30 @@ export const NotificationProvider = ({children}) => {
                     userId
                 });
             }
+            
             throw error;
         }
     }, [userId, dispatch, isInitialized]);
 
-    // Configurar polling
+    // Configurar polling adaptativo
     useNotificationPolling(
         userId, 
         fetchNotifications,
-        POLLING_INTERVAL
+        pollingInterval
     );
     
     // Marcar notificação como lida
     const markAsRead = useCallback(async (notificationId) => {
-        // const notificationService = serviceLocator.get('notifications');
-
         if (!isInitialized || !userId || !notificationId) {
             showToast(
                 'Dados de notificação inválidos ou serviço não inicializado',
-                {type: 'error'}
+                { type: 'error' }
             );
             coreLogger.logEvent(
                 MODULE_NAME,
                 LOG_LEVELS.WARNING,
                 'Tentativa de marcar notificação como lida sem inicialização ou dados completos',
-                {userId, notificationId}
+                { userId, notificationId }
             );
             return;
         }
@@ -254,21 +508,44 @@ export const NotificationProvider = ({children}) => {
                             : notification
                     );
 
-                dispatch(
-                    {type: NOTIFICATION_ACTIONS.UPDATE_NOTIFICATIONS, payload: updatedNotifications}
-                );
+                dispatch({
+                    type: NOTIFICATION_ACTIONS.UPDATE_NOTIFICATIONS, 
+                    payload: updatedNotifications
+                });
+                
                 dispatch({
                     type: NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT,
                     payload: Math.max(0, state.unreadCount - 1)
                 });
+                
+                // Atualizar cache imediatamente (update otimista)
+                globalCache.setItem(
+                    NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY,
+                    updatedNotifications,
+                    { 
+                        cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                        staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                    }
+                );
+                
+                globalCache.setItem(
+                    NOTIFICATION_CACHE_CONFIG.UNREAD_KEY,
+                    Math.max(0, state.unreadCount - 1),
+                    { 
+                        cacheTime: NOTIFICATION_CACHE_CONFIG.CACHE_TIME,
+                        staleTime: NOTIFICATION_CACHE_CONFIG.STALE_TIME
+                    }
+                );
 
                 await notificationService.markAsRead(notificationId);
+                
                 coreLogger.logEvent(
                     MODULE_NAME,
                     LOG_LEVELS.API_REQUEST_SUCCESS,
                     'Notificação marcada como lida',
-                    {notificationId}
+                    { notificationId }
                 );
+                
                 return 'Notificação marcada como lida';
             } catch (error) {
                 coreLogger.logServiceError('notifications', error, {
@@ -276,8 +553,9 @@ export const NotificationProvider = ({children}) => {
                     userId,
                     notificationId
                 });
+                
                 // Reverter o update otimista buscando novamente as notificações
-                fetchNotifications().catch(() => {
+                fetchNotifications(true).catch(() => {
                     coreLogger.logServiceError('notifications', error, {
                         context: 'markAsRead.revert',
                         userId,
@@ -303,42 +581,49 @@ export const NotificationProvider = ({children}) => {
 
     // Limpar todas as notificações
     const clearAllNotifications = useCallback(async () => {
-        // const notificationService = serviceLocator.get('notifications');
-
         if (!isInitialized || !userId) {
             showToast(
                 'Usuário não autenticado ou serviço não inicializado',
-                {type: 'error'}
+                { type: 'error' }
             );
+            
             coreLogger.logEvent(
                 MODULE_NAME,
                 LOG_LEVELS.WARNING,
                 'Tentativa de limpar notificações sem inicialização ou userId',
-                {userId}
+                { userId }
             );
+            
             return;
         }
 
         return showPromiseToast((async () => {
             try {
                 // Optimistic update
-                dispatch({type: NOTIFICATION_ACTIONS.UPDATE_NOTIFICATIONS, payload: []});
-                dispatch({type: NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT, payload: 0});
+                dispatch({ type: NOTIFICATION_ACTIONS.UPDATE_NOTIFICATIONS, payload: [] });
+                dispatch({ type: NOTIFICATION_ACTIONS.UPDATE_UNREAD_COUNT, payload: 0 });
+                
+                // Limpar cache imediatamente
+                globalCache.invalidate(NOTIFICATION_CACHE_CONFIG.NOTIFICATIONS_KEY);
+                globalCache.invalidate(NOTIFICATION_CACHE_CONFIG.UNREAD_KEY);
 
                 await notificationService.clearAllNotifications(userId);
+                
                 coreLogger.logEvent(
                     MODULE_NAME,
                     LOG_LEVELS.API_REQUEST_SUCCESS,
                     'Todas as notificações limpas'
                 );
+                
                 return 'Todas as notificações limpas';
             } catch (error) {
                 coreLogger.logServiceError('notifications', error, {
                     context: 'clearAllNotifications',
                     userId
                 });
+                
                 // Reverter atualizando com dados do servidor
-                fetchNotifications().catch(() => {
+                fetchNotifications(true).catch(() => {
                     coreLogger.logServiceError('notifications', error, {
                         context: 'clearAllNotifications.revert',
                         userId
@@ -354,6 +639,11 @@ export const NotificationProvider = ({children}) => {
         });
     }, [userId, fetchNotifications, dispatch, isInitialized]);
 
+    // Função para forçar atualização
+    const refreshNotifications = useCallback(() => {
+        return fetchNotifications(true); // Forçar refresh, ignorando cache
+    }, [fetchNotifications]);
+
     // Memoizar o valor do contexto
     const contextValue = useMemo(() => ({
         notifications: state.notifications,
@@ -362,8 +652,8 @@ export const NotificationProvider = ({children}) => {
         error: state.error,
         markAsRead,
         clearAllNotifications,
-        refreshNotifications: fetchNotifications,
-        isNotificationsInitialized: isInitialized, // Exponha o estado de inicialização
+        refreshNotifications,
+        isNotificationsInitialized: isInitialized,
     }), [
         state.notifications,
         state.unreadCount,
@@ -371,7 +661,7 @@ export const NotificationProvider = ({children}) => {
         state.error,
         markAsRead,
         clearAllNotifications,
-        fetchNotifications,
+        refreshNotifications,
         isInitialized
     ]);
 

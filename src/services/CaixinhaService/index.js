@@ -25,6 +25,8 @@ class CaixinhaService extends BaseService {
 
     this._log(`📊 Nova instância de ${MODULE_NAME} criada, instanceId: ${this.instanceId}`);
     this.apiService = serviceLocator.get('apiService');
+    this.authService = serviceLocator.get('auth');
+
   }
 
     // Método para obter o usuário atual - mesma abordagem do InviteService
@@ -51,7 +53,7 @@ class CaixinhaService extends BaseService {
       serviceName: MODULE_NAME,
       timestamp: new Date().toISOString()
     });
-
+    this.getCurrentUser()
     return this; // Indica sucesso para BaseService
   }
 
@@ -103,6 +105,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Lista de caixinhas e contagem total
    */
   async getCaixinhas(userId) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -117,15 +120,17 @@ class CaixinhaService extends BaseService {
           this._log('fetching caixinhas', { userId });
           
           const response = await this.apiService.get(`/api/caixinha/${userId}`);
-          const processedCaixinhas = Array.isArray(response.data)
-            ? response.data.map(this._processCaixinhaData)
-            : [];
+          const processedCaixinhas = response.data.data
+          // Array.isArray(response.data.data)
+          //   ? response.data.data.map(this._processCaixinhaData)
+          //   : [];
 
           const duration = performance.now() - startTime;
           this._logPerformance('getCaixinhas', duration, {
             userId,
             count: processedCaixinhas.length
           });
+          this._log('fetching caixotes', response);
 
           // Emitir evento de caixinhas obtidas
           this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CAIXINHAS_FETCHED, {
@@ -154,6 +159,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Dados da caixinha
    */
   async getCaixinhaById(id) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -190,6 +196,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Caixinha criada
    */
   async createCaixinha(data) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -235,6 +242,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Caixinha atualizada
    */
   async updateCaixinha(id, data) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -278,6 +286,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Resultado da exclusão
    */
   async deleteCaixinha(id) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -312,6 +321,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Resultado da adição
    */
   async addContribuicao(data) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -355,6 +365,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Array>} Lista de contribuições
    */
   async getContribuicoes(id) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -396,6 +407,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Resultado do convite
    */
   async inviteMember(caixinhaId, inviteData) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -439,6 +451,7 @@ class CaixinhaService extends BaseService {
    * @returns {Promise<Object>} Resultado da saída
    */
   async leaveCaixinha(caixinhaId, userId) {
+    this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
@@ -479,6 +492,7 @@ class CaixinhaService extends BaseService {
    * @returns {Object} Dados processados da caixinha
    */
   _processCaixinhaData = (caixinhaData) => {
+    this.getCurrentUser()
     // Se já for um objeto processado, retorne-o
     if (!caixinhaData._fieldsProto) {
       return caixinhaData;

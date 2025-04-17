@@ -3,6 +3,10 @@ import { initialCaixinhaState } from "../../core/constants/initialState";
 
 // Reducer for handling caixinha state changes
 export const caixinhaReducer = (state = initialCaixinhaState, action) => {
+  console.log(`[caixinhaReducer] Recebendo ação: ${action.type}`, {
+    payload: action.payload,
+    currentState: {...state}
+  });
     switch (action.type) {
       case CAIXINHA_ACTIONS.FETCH_START:
         return {

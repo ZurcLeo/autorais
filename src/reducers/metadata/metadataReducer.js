@@ -187,7 +187,6 @@ socketService: {
         return true;
     }
 },
-
     caixinhas: {
         description: 'Caixinhas management service',
         criticalPath: false,
@@ -199,6 +198,20 @@ socketService: {
             console.log('Initializing CaixinhasService...');
             await new Promise(resolve => setTimeout(resolve, 2600));
             console.log('CaixinhasService Ready.');
+            return true
+        }
+    },
+    banking: {
+        description: 'Banking management service',
+        criticalPath: false,
+        phase: 'FEATURES',
+        order: 13.5,
+        dependencies: ['auth', 'users'],
+        timeout: 7000,
+        initFn: async () => {
+            console.log('Initializing BankingService...');
+            await new Promise(resolve => setTimeout(resolve, 2600));
+            console.log('BankingService Ready.');
             return true
         }
     },

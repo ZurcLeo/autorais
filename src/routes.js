@@ -39,6 +39,8 @@ import { PrivateRoute } from './privateRoutes';
 import InvalidInvite from './components/Invites/InvalidInvite';
 import { serviceLocator } from './core/services/BaseService';
 import RBACPanel from './components/Admin/RBAC/RBACPanel';
+import Shop from './components/shop/Shop';
+import CaixinhaWelcome from './components/Caixinhas/CaixinhaWelcome';
 const MODULE_NAME = 'AppRoutes';
 
 const AdminRoute = ({ children }) => {
@@ -327,6 +329,8 @@ export const AppRoutes = () => {
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="invite/validate/:inviteId" element={<Register />} />
       <Route path="/invalid-invite" element={<InvalidInvite />} />
+      <Route path="/shop" element={<Shop />} />
+
       {/* <Route path="/complete-profile" element={<CompleteProfile />} /> */}
 
       <Route index element={<HomePage />} />
@@ -334,14 +338,17 @@ export const AppRoutes = () => {
       {/* Rotas protegidas */}
       <Route path="/" element={<Layout><Outlet /></Layout>}>
         <Route path="dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+        
         <Route path="notifications" element={<PrivateRoute element={<NotificationHistory />} />} />
         <Route path="profile/:uid" element={<PrivateRoute element={<Profile />} />} />
         <Route path="connections" element={<PrivateRoute element={<FriendsPage />} />} />
         <Route path="messages" element={<PrivateRoute element={<ChatLayout />} />}>
+
           <Route index element={<SelectConversation />} />
           <Route path=":uidDestinatario" element={<ChatWindow />} />
       </Route>
-        <Route path="caixinha" element={<PrivateRoute element={<CaixinhaOverview />} />} />
+        <Route path="caixinha" element={<PrivateRoute element={<CaixinhaWelcome />} />} />
+
         <Route path="vendedor" element={<PrivateRoute element={<SellerDashboard />} />} />
         {/* Rotas de Administração */}
         <Route path="admin">

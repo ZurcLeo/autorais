@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { LOG_LEVELS } from '../../core/constants/config';
-import { coreLogger } from '../../core/logging';
+import { coreLogger } from '../../core/logging/CoreLogger';
 
 const MODULE_NAME = 'CacheManager';
 // Default cache durations
@@ -121,7 +121,7 @@ export class CacheManager {
   subscribe(key, callback) {
     try {
       if (!key || typeof callback !== 'function') {
-        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Invalid subscription parameters', { key, callback });
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARNING, 'Invalid subscription parameters', { key, callback });
         throw new Error('Invalid subscription parameters');
       }
 
@@ -151,7 +151,7 @@ export class CacheManager {
   invalidate(key) {
     try {
       if (!key) {
-        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Cannot invalidate null or undefined key');
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARNING, 'Cannot invalidate null or undefined key');
         throw new Error('Key is null or undefined');
       }
 
@@ -189,7 +189,7 @@ export function useCachedResource(key, fetchFn, options = {}) {
   const fetch = useCallback(
     async (force = false) => {
       if (!key || !fetchFn) {
-        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, '[useCachedResource] Invalid key or fetch function');
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARNING, '[useCachedResource] Invalid key or fetch function');
         return;
       }
       // Check if we need to fetch
@@ -225,7 +225,7 @@ export function useCachedResource(key, fetchFn, options = {}) {
 
   useEffect(() => {
     if (!key) {
-      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, '[useCachedResource] Key is null or undefined');
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARNING, '[useCachedResource] Key is null or undefined');
       return;
     }
 
