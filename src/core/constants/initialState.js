@@ -92,6 +92,34 @@ export const initialCaixinhaState = {
 };
 
 /**
+ * Estado inicial do serviço Bancário (BankingService) - Versão Completa.
+ * @namespace initialBankingState
+ * @type {Object}
+ * @property {Object|null} bankingInfo - Informações bancárias da caixinha selecionada.
+ * @property {Array} bankingHistory - Histórico de transações bancárias da caixinha selecionada.
+ * @property {Object|null} transactionDetails - Detalhes da transação atualmente selecionada.
+ * @property {Object} transactionStatuses - Mapa de status de transações por ID.
+ * @property {Object} balances - Mapa de saldos por conta.
+ * @property {Array} transactionErrors - Lista de erros de transação.
+ * @property {Array} notifications - Lista de notificações bancárias.
+ * @property {boolean} loading - Indica se o serviço está realizando uma operação de carregamento.
+ * @property {Object|null} error - Informações de erro, se houver.
+ * @property {string|null} lastUpdated - Timestamp da última atualização do estado.
+ */
+export const initialBankingState = {
+  bankingInfo: null,
+  bankingHistory: [],
+  transactionDetails: null,
+  transactionStatuses: {},
+  balances: {},
+  transactionErrors: [],
+  notifications: [],
+  loading: false,
+  error: null,
+  lastUpdated: null
+};
+
+/**
  * Estado inicial do serviço de Autenticação (AuthService).
  * @namespace initialAuthState
  * @type {Object}

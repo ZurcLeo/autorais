@@ -205,7 +205,6 @@ class ServiceEventHub {
   }
 }
 
-// Singleton do ServiceEventHub
 export const serviceEventHub = new ServiceEventHub();
 
 class ServiceLocator {
@@ -256,8 +255,6 @@ getServices() {
   
 }
 export const serviceLocator = new ServiceLocator();
-// export { ServiceLocator }
-// Singleton do serviceLocator
 
 
 export class BaseService {

@@ -1,184 +1,142 @@
-import React, { useState, useCallback } from 'react';
-import { Container, Grid, Card, CardContent, Divider, Box, Typography } from '@mui/material';
+// src/components/Profile/ProfileView.jsx
+import React from 'react';
+import { Container, Grid, Card, CardContent, Divider, Box, Typography, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useInterests } from '../../providers/InterestsProvider';
-import { useUser } from '../../providers/UserProvider';
 import { useConnections } from '../../providers/ConnectionProvider';
+import { useMessages } from '../../providers/MessageProvider';
 import ProfileHeader from './ProfileHeader';
 import ProfileInfo from './ProfileInfo';
 import CompactInterestsDisplay from '../Interests/CompactInterestsDisplay';
-import ElosCoinsSection from './ElosCoinsSection';
 import FriendsSection from './FriendsSection';
-import ConversationsSection from './ConversationsSection';
-import ImageUploadAndCrop from '../../utils/ImageUploadAndCrop';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import MessageIcon from '@mui/icons-material/Message';
+import { useNavigate } from 'react-router-dom';
 
-const sampleTransactions = [
-    { date: '2023-08-10', time: '14:30', cost: '-50', action: 'Compra de Item A' },
-    { date: '2023-08-09', time: '09:15', cost: '+100', action: 'Venda de Item B' },
-    { date: '2023-08-08', time: '17:45', cost: '-30', action: 'Doação' },
-    { date: '2023-08-07', time: '12:00', cost: '+200', action: 'Pagamento Recebido' },
-    { date: '2023-08-06', time: '10:25', cost: '-70', action: 'Compra de Item C' },
-];
+const ProfileView = ({ userData }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { friends, bestFriends, addConnection, removeConnection, isConnected } = useConnections();
+  const { createConversation } = useMessages();
+  
+  const isFriend = isConnected(userData.uid);
 
-const ProfileView = ({ userData, isOwnProfile = false }) => {
-    const { t } = useTranslation();
-    const { friends, bestFriends } = useConnections();
-    const [openDialog, setOpenDialog] = useState(null);
-    const { updateUser, uploadProfilePicture } = useUser();
-    const [shouldReloadInterests, setShouldReloadInterests] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [isImageDialogOpen, setImageDialogOpen] = useState(false);
-    const { updateUserInterests } = useInterests();
-    const [transactions] = useState(sampleTransactions);
+  const handleSendMessage = async () => {
+    try {
+      const conversationId = await createConversation(userData.uid);
+      navigate(`/messages/${conversationId}`);
+    } catch (error) {
+      console.error('Erro ao iniciar conversa:', error);
+    }
+  };
 
-    const handleOpenImageEditor = () => {
-        if (!isOwnProfile) return;
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (e) => {
-            setSelectedImage(e.target.files[0]);
-            setImageDialogOpen(true);
-        };
-        input.click();
-    };
+  const handleConnectToggle = async () => {
+    try {
+      if (isFriend) {
+        await removeConnection(userData.uid);
+      } else {
+        await addConnection(userData.uid);
+      }
+    } catch (error) {
+      console.error('Erro ao gerenciar conexão:', error);
+    }
+  };
 
-    const handleSaveImage = async (file) => {
-        if (!isOwnProfile || !userData?.uid) return;
-        try {
-            await uploadProfilePicture(userData.uid, file);
-            setImageDialogOpen(false);
-            setShouldReloadInterests(true);
-        } catch (error) {
-            console.error(t('profile.failedToSaveImage'), error);
-        }
-    };
-
-    const handleSave = async (field, updatedValue) => {
-        if (!isOwnProfile || !userData?.uid) return;
-
-        try {
-            if (field === 'interesses') {
-                // A atualização dos interesses é feita diretamente no InterestsSection
-                console.log("Interesses salvos.");
-            } else {
-                const updatedUser = {
-                    ...userData,
-                    [field]: updatedValue,
-                    dataCriacao: userData.dataCriacao || new Date(),
-                };
-                await updateUser(userData.uid, updatedUser);
-            }
-            handleCloseDialog();
-        } catch (error) {
-            console.error(t('profile.failedToSave'), error);
-        }
-    };
-
-    const handleCloseDialog = () => setOpenDialog(null);
-
-    return (
-        <Container>
-            <Grid container spacing={3}>
-                {/* Card de perfil principal */}
-                <Grid item xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <ProfileHeader
-                                onEditImage={isOwnProfile ? handleOpenImageEditor : undefined}
-                            />
-                            <Divider sx={{ my: 2 }} />
-                            <ProfileInfo
-                                onSave={isOwnProfile ? handleSave : undefined}
-                                isEditable={isOwnProfile}
-                            />
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* Card de estatísticas e interesses */}
-                <Grid item xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            {/* Seção de interesses compacta */}
-                            <CompactInterestsDisplay
-                                isOwnProfile={isOwnProfile}
-                                onSave={isOwnProfile ? handleSave : undefined}
-                                openDialog={openDialog}
-                                setOpenDialog={setOpenDialog}
-                                maxVisible={7}
-                            />
-
-                            {/* Estatísticas do usuário */}
-                            <Box sx={{ mt: 3 }}>
-                                <Typography variant="h6" component="div" gutterBottom>
-                                    {t('profile.statistics')}
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {t('profile.memberSince')}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {userData?.dataCriacao 
-                                                ? new Date(userData.dataCriacao).toLocaleDateString() 
-                                                : t('common.notAvailable')}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {t('profile.accountType')}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {userData?.tipoDeConta || t('common.regular')}
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-
-                {/* Outras seções em cards separados */}
-                <Grid item xs={12}>
-                    <Card>
-                        <CardContent>
-                            <ElosCoinsSection transactions={transactions} onBuyElosCoins={() => {}} />
-                        </CardContent>
-                    </Card>
-                </Grid>
+  return (
+    <Container>
+      <Grid container spacing={3}>
+        {/* Card de perfil principal */}
+        <Grid item xs={12} md={7}>
+          <Card>
+            <CardContent>
+              <ProfileHeader userData={userData} />
+              <Divider sx={{ my: 2 }} />
+              <ProfileInfo userData={userData} isEditable={false} />
+              
+              {/* Botões de ação */}
+              <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+                <Button 
+                  variant={isFriend ? "outlined" : "contained"} 
+                  color={isFriend ? "warning" : "primary"}
+                  startIcon={<PersonAddIcon />}
+                  onClick={handleConnectToggle}
+                >
+                  {isFriend ? t('profile.removeFriend') : t('profile.addFriend')}
+                </Button>
                 
-                <Grid item xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <FriendsSection 
-                                user={userData}
-                                friends={friends}
-                                bestFriends={bestFriends} 
-                            />
-                        </CardContent>
-                    </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={6}>
-                    <Card>
-                        <CardContent>
-                            <ConversationsSection />
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
+                <Button 
+                  variant="contained" 
+                  color="success"
+                  startIcon={<MessageIcon />}
+                  onClick={handleSendMessage}
+                >
+                  {t('profile.sendMessage')}
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-            {isOwnProfile && (
-                <ImageUploadAndCrop
-                    open={isImageDialogOpen}
-                    image={selectedImage}
-                    onClose={() => setImageDialogOpen(false)}
-                    onSave={handleSaveImage}
+        {/* Card de interesses */}
+        <Grid item xs={12} md={5}>
+          <Card>
+            <CardContent>
+              {/* Seção de interesses somente leitura */}
+              <CompactInterestsDisplay
+                userData={userData}
+                isEditable={false}
+                maxVisible={7}
+              />
+
+              {/* Estatísticas visíveis do usuário */}
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="h6" component="div" gutterBottom>
+                  {t('profile.statistics')}
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('profile.memberSince')}
+                    </Typography>
+                    <Typography variant="body1">
+                      {userData?.dataCriacao 
+                        ? new Date(userData.dataCriacao).toLocaleDateString() 
+                        : t('common.notAvailable')}
+                    </Typography>
+                  </Grid>
+                  {userData.perfilPublico && (
+                    <Grid item xs={6}>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('profile.accountType')}
+                      </Typography>
+                      <Typography variant="body1">
+                        {userData?.tipoDeConta || t('common.regular')}
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Amigos - visíveis apenas se for amigo ou perfil público */}
+        {(isFriend || userData.perfilPublico) && (
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <FriendsSection 
+                  user={userData}
+                  friends={friends.filter(friend => friend.perfilPublico || isConnected(friend.uid))}
+                  bestFriends={bestFriends.filter(friend => friend.perfilPublico || isConnected(friend.uid))}
+                  canManageFriends={false}
                 />
-            )}
-        </Container>
-    );
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+      </Grid>
+    </Container>
+  );
 };
 
 export default ProfileView;

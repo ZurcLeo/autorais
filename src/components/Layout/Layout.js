@@ -9,6 +9,7 @@ import Sidebar from './Sidebar';
 import { coreLogger } from '../../core/logging';
 import { LOG_LEVELS } from '../../core/constants/config';
 import { useTranslation } from 'react-i18next';
+import { useNotifications } from '../../providers/NotificationProvider';
 
 const SIDEBAR_WIDTH = 300;
 const SIDEBAR_WIDTH_COLLAPSED = 90;
@@ -20,6 +21,7 @@ const Layout = ({ children }) => {
     const { isAuthenticated, currentUser, authLoading } = serviceStore;
   // const { userLoading } = useUser();
   const { loading } = useInterests();
+  const {notifLoading} = useNotifications
   const location = useLocation();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -28,7 +30,7 @@ const Layout = ({ children }) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'));
   
   // Definir quando os dados estão prontos para exibição
-  const isDataReady = !authLoading && 
+  const isDataReady = !authLoading && !notifLoading &&
     ((!loading.userInterests && !loading.availableInterests) || 
     !isAuthenticated) && 
     (!!currentUser || !isAuthenticated);

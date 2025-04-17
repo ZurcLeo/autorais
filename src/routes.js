@@ -21,13 +21,13 @@ import { Dashboard } from './components/Dashboard/Dashboard';
 import NotificationHistory from './components/Notification/NotificationHistory';
 import Profile from './components/Profiles/Profile';
 import FriendsPage from './components/Connections/FriendsPage';
-import CaixinhaPage from './components/Caixinhas/CaixinhaPage';
+import CaixinhaOverview from './components/Caixinhas/CaixinhaOverview';
 import PrivacyPolicy from './components/Pages/Privacy';
 import CookiePolicy from './components/Pages/Cookies';
 import TermsOfUse from './components/Pages/Terms';
 import HomePage from './components/Pages/HomePage';
 import SellerDashboard from './components/Dashboard/SellerDashboard';
-import AdminInterestsPanel from './components/Interests/Admin';
+import AdminInterestsPanel from './components/Admin/Interests';
 import { LOG_LEVELS } from './core/constants/config';
 import { coreLogger } from './core/logging';
 import { AccountCircleOutlined, DashboardCustomizeSharp } from '@mui/icons-material';
@@ -38,14 +38,15 @@ import { useToast } from './providers/ToastProvider';
 import { PrivateRoute } from './privateRoutes';
 import InvalidInvite from './components/Invites/InvalidInvite';
 import { serviceLocator } from './core/services/BaseService';
+import RBACPanel from './components/Admin/RBAC/RBACPanel';
 const MODULE_NAME = 'AppRoutes';
 
 const AdminRoute = ({ children }) => {
   const serviceStore = serviceLocator.get('store').getState()?.auth;
   
-  const { currentUser } = serviceStore;
+  const { currentUser, isAuthenticated } = serviceStore;
 
-  console.log('[ROUTES] AdminRoute', currentUser);
+  console.log('[ROUTES] AdminRoute', serviceStore);
   // Renderizar apenas se for admin ou proprietário
   if (!currentUser?.isOwnerOrAdmin) {
     return null;
@@ -139,6 +140,12 @@ const AccountConfirmation = ({ userFromService }) => {
     handleAdminModalClose();
   };
 
+  const handleAdminRBAC = () => {
+    console.log('[ACCOUNTCONFIRMATION] Admin RBAC button clicked');
+    navigate('/admin/rbac', { replace: true });
+    handleAdminModalClose();
+  };
+
   return (
     <Box
       sx={{
@@ -229,35 +236,42 @@ const AccountConfirmation = ({ userFromService }) => {
       </Grid>
 
       <Modal open={adminModalOpen} onClose={handleAdminModalClose}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <Tabs value={adminTabValue} onChange={handleAdminTabChange}>
-            <Tab label="Interesses" />
-            <Tab label="Usuarios" />
-          </Tabs>
-          {adminTabValue === 0 && (
-            <Box mt={2}>
-              <Typography>Administrar Interesses</Typography>
-              <Button onClick={handleAdminInterests}>Gerenciar</Button>
-            </Box>
-          )}
-          {adminTabValue === 1 && (
-            <Box mt={2}>
-              <Typography>Administrar Usuarios</Typography>
-            </Box>
-          )}
-        </Box>
-      </Modal>
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: 400,
+      bgcolor: 'background.paper',
+      boxShadow: 24,
+      p: 4,
+    }}
+  >
+    <Tabs value={adminTabValue} onChange={handleAdminTabChange}>
+      <Tab label="Interesses" />
+      <Tab label="Usuarios" />
+      <Tab label="RBAC" /> {/* Nova aba para RBAC */}
+    </Tabs>
+    {adminTabValue === 0 && (
+      <Box mt={2}>
+        <Typography>Administrar Interesses</Typography>
+        <Button onClick={handleAdminInterests}>Gerenciar</Button>
+      </Box>
+    )}
+    {adminTabValue === 1 && (
+      <Box mt={2}>
+        <Typography>Administrar Usuarios</Typography>
+      </Box>
+    )}
+    {adminTabValue === 2 && ( // Nova seção para RBAC
+      <Box mt={2}>
+        <Typography>Controle de Acesso Baseado em Roles (RBAC)</Typography>
+        <Button onClick={handleAdminRBAC}>Gerenciar</Button>
+      </Box>
+    )}
+  </Box>
+</Modal>
     </Box>
   );
 };
@@ -303,28 +317,6 @@ export const AppRoutes = () => {
     };
   }, [currentUser, location.pathname]);
 
-  // if (authLoading) {
-  //   console.log('[ROUTES] Auth loading, showing CircularProgress...');
-
-  //   return (
-  //     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-  //       <CircularProgress />
-  //       <Typography ml={2}>Verificando sessão...</Typography>
-  //     </Box>
-  //   );
-  // }
-
-  // if (userLoading) {
-  //   console.log('[ROUTES] User data loading, showing CircularProgress...');
-
-  //   return (
-  //     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-  //       <CircularProgress />
-  //       <Typography ml={2}>Carregando dados do usuário...</Typography>
-  //     </Box>
-  //   );
-  // }
-
   return (
     <Routes>
       {/* Rotas públicas */}
@@ -349,7 +341,7 @@ export const AppRoutes = () => {
           <Route index element={<SelectConversation />} />
           <Route path=":uidDestinatario" element={<ChatWindow />} />
       </Route>
-        <Route path="caixinha" element={<PrivateRoute element={<CaixinhaPage />} />} />
+        <Route path="caixinha" element={<PrivateRoute element={<CaixinhaOverview />} />} />
         <Route path="vendedor" element={<PrivateRoute element={<SellerDashboard />} />} />
         {/* Rotas de Administração */}
         <Route path="admin">
@@ -358,7 +350,13 @@ export const AppRoutes = () => {
               <AdminInterestsPanel />
             </AdminRoute>
           } />
+          <Route path="rbac" element={
+            <AdminRoute>
+              <RBACPanel />
+            </AdminRoute>
+          } />
         </Route>
+        
       </Route>
 
       {/* Rota de fallback */}

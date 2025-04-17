@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { serviceLocator } from '../../../core/services/BaseService';
+// import { serviceLocator } from '../../../core/services/BaseService';
 import { toast } from 'react-toastify';
 import CategoryForm from './CategoryForm';
 import {
@@ -18,12 +18,13 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete'; // Consider using a more appropriate icon for activate/deactivate
+import { useInterests } from '../../../providers/InterestsProvider';
 
 const CategoryList = ({ categories, onDataUpdated }) => {
   const [loading, setLoading] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
-  const interestsService = serviceLocator('interestsService')
+  const interestsService = useInterests();
 
   const startEditCategory = (category) => {
     setEditingCategoryId(category.id);

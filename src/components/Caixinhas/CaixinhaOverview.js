@@ -50,12 +50,13 @@ import MembersList from './MembersList';
 import LoanManagement from './LoanManagement';
 import BankingManagement from './BankingManagement';
 import Reports from './Reports';
+import { serviceLocator } from '../../core/services/BaseService';
 
 const CaixinhaOverview = ({ caixinha }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const caixinhaStore = serviceLocator.get('store').getState()?.caixinhas;
   const [activeSection, setActiveSection] = useState('overview');
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [expanded, setExpanded] = useState({});
@@ -85,6 +86,8 @@ const CaixinhaOverview = ({ caixinha }) => {
     amount: caixinha?.saldoTotal || 0,
     member: 'Maria Silva'
   };
+
+  console.log('caixinhas: ', caixinhaStore)
 
   const toggleExpand = (section) => {
     setExpanded({ ...expanded, [section]: !expanded[section] });

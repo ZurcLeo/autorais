@@ -37,9 +37,9 @@ const TopNavBar = ({ sidebarOpen, toggleSidebar, isMobile }) => {
   const [anchorElTheme, setAnchorElTheme] = useState(null);
   const isThemeMenuOpen = Boolean(anchorElTheme);
   const navigate = useNavigate();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, notifLoading } = useNotifications();
   
-console.log('LOGANDO NO TOPNAV', notificationsService)
+console.log('LOGANDO NO TOPNAV', useNotifications())
   const handleNavigation = (path) => {
     navigate(path);
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigation from TopNavBar', {
@@ -81,7 +81,7 @@ console.log('LOGANDO NO TOPNAV', notificationsService)
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {isAuthenticated && (
+          {isAuthenticated && !notifLoading && (
             <>
               {!isMobile && (
                 <>

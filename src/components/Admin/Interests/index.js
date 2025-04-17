@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { serviceLocator } from '../../../core/services/BaseService.js';
 import { toast } from 'react-toastify';
 import { CircularProgress, Box, Button } from '@mui/material';
-
 import CategoryList from './CategoryList';
 import CategoryForm from './CategoryForm';
 import InterestList from './InterestList';
 import InterestForm from './InterestForm';
 import InterestStats from './InterestStats';
-import MigrationTools from './MigrationTools';
+import MigrationTools from './MigrationTools.js';
 import AdminTabs from './AdminTabs.js';
+import { useInterests } from '../../../providers/InterestsProvider/index.js';
 
 const AdminInterestsPanel = () => {
-  const interestsService = serviceLocator('interestsService')
+  // const interestsService = serviceLocator('interests')
+  const interestsService = useInterests()
 
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);

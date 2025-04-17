@@ -1,67 +1,19 @@
-// ChatWindow.js - Com Integração de Status Online
+// ChatWindow.js - Versão Otimizada
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Box, TextField, Typography, Avatar, Paper, IconButton, Button, Badge } from '@mui/material';
+import { Box, TextField, Typography, Avatar, Paper, IconButton, Button } from '@mui/material';
 import { Send as SendIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useValidation } from '../../providers/ValidationProvider';
-import { useAuth } from '../../providers/AuthProvider';
 import { useMessages } from '../../providers/MessageProvider';
-import { useConnections } from '../../providers/ConnectionProvider';
-import { usePresence } from '../../hooks/auth/usePresence'; // Importar o hook de presença
-import { showToast } from '../../utils/toastUtils';
-import socket from '../../services/socketService';
 import { serviceLocator } from '../../core/services/BaseService';
+import { showToast } from '../../utils/toastUtils';
+import ModernChatInput from './ModernChatInput';
 
 const getOptimizedProfilePicture = (url) => {
   if (!url) return null;
   return url.includes('?') 
     ? `${url}&size=100` 
     : `${url}?size=100`;
-};
-
-// Componente para o indicador de online/offline
-const OnlineStatusIndicator = ({ isOnline, status }) => {
-  // Define as cores com base no status
-  let color = 'grey';
-  let statusText = 'Offline';
-  
-  if (isOnline) {
-    switch (status) {
-      case 'online':
-        color = '#44b700';
-        statusText = 'Online';
-        break;
-      case 'away':
-        color = '#ff9800';
-        statusText = 'Ausente';
-        break;
-      case 'busy':
-        color = '#f44336';
-        statusText = 'Ocupado';
-        break;
-      default:
-        color = '#44b700';
-        statusText = 'Online';
-    }
-  }
-  
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box
-        sx={{
-          width: 10,
-          height: 10,
-          borderRadius: '50%',
-          backgroundColor: color,
-          mr: 0.5
-        }}
-      />
-      <Typography variant="caption" color="text.secondary">
-        {statusText}
-      </Typography>
-    </Box>
-  );
 };
 
 // Componente para o indicador de digitação
@@ -83,7 +35,7 @@ const TypingIndicator = ({ isTyping, userName }) => {
 };
 
 // Componente para bolhas de mensagem com indicadores de status
-const MessageBubble = ({ message, isOwnMessage, senderName }) => {
+const MessageBubble = ({ message, isOwnMessage, senderName, onDelete }) => {
   const getStatusIcon = () => {
     if (!isOwnMessage) return null;
     
@@ -137,6 +89,22 @@ const MessageBubble = ({ message, isOwnMessage, senderName }) => {
             {getStatusIcon()}
           </Typography>
         </Box>
+        {isOwnMessage && !message.deleted && (
+          <IconButton 
+            size="small"
+            onClick={() => onDelete && onDelete(message.id)}
+            sx={{ 
+              position: 'absolute',
+              top: -10,
+              right: -10,
+              opacity: 0,
+              transition: '0.2s',
+              '&:hover': { opacity: 1 }
+            }}
+          >
+            ×
+          </IconButton>
+        )}
       </Paper>
     </Box>
   );
@@ -145,47 +113,37 @@ const MessageBubble = ({ message, isOwnMessage, senderName }) => {
 const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
+  const messageInputRef = useRef(null);
+  const chatEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  
+  // Serviços e estado
   const authStore = serviceLocator.get('store').getState()?.auth || {};
-  const messagesStore = serviceLocator.get('store').getState()?.messages || {};
   const connectionsStore = serviceLocator.get('store').getState()?.connections || {};
-
+  
   const { currentUser } = authStore;
   const userId = currentUser?.uid;
+  const { friends } = connectionsStore;
 
+  // Provider de mensagens centralizado
   const { 
     messages, 
-    conversations,
-    activeChat
-  } = messagesStore;
-
-  const {
+    activeChat,
+    typingStatus, 
+    fetchMessages, 
     createMessage, 
     updateMessageStatus,
     deleteMessage,
     setActiveChat,
-    fetchMessages
+    updateTypingStatus
   } = useMessages();
-
-  const { friends } = connectionsStore;
   
-  // Utilizar o hook de presença
-  const { 
-    isUserOnline,
-    getUserStatus,
-    refreshOnlineUsers
-  } = usePresence();
-
-  const { validateField, validateForm, errors, setFieldDirty } = useValidation();
-  const [messageText, setMessageText] = useState('');
+  // Estado local para o controle do formulário
   const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [remoteTyping, setRemoteTyping] = useState(false);
-  const [typingTimeout, setTypingTimeout] = useState(null);
-  const chatEndRef = useRef(null);
-  const messageInputRef = useRef(null);
-  const { uidDestinatario: uidDestinatarioURL } = useParams();
+  const [isLocalTyping, setIsLocalTyping] = useState(false);
   
+  // Parâmetros de rota e props
+  const { uidDestinatario: uidDestinatarioURL } = useParams();
   const uidDestinatario = uidDestinatarioProps || uidDestinatarioURL;
   
   // Gerar o ID da conversa com base nos IDs dos participantes
@@ -193,33 +151,47 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
     ? [userId, uidDestinatario].sort().join('_') 
     : null;
 
-  // Encontra o amigo atual usando o parâmetro da URL
+  // Encontra o amigo atual usando o uidDestinatario
   const friend = friends.find(f => f.id === uidDestinatario);
   
-  // Verificar status online do destinatário
-  const isDestinationOnline = isUserOnline(uidDestinatario);
-  const destinationStatus = getUserStatus(uidDestinatario);
-
-  // Atualizar o chat ativo quando mudar o destinatário
+  // Verificar se há digitação do outro usuário
+  const remoteTyping = typingStatus?.[conversationId]?.[uidDestinatario] || false;
+  
+  // ---- Efeitos ----
+  
+  // Efeito 1: Atualizar o chat ativo quando mudar o destinatário
   useEffect(() => {
     if (conversationId) {
+      console.log("[ChatWindow] Definindo chat ativo:", conversationId);
       setActiveChat(conversationId);
     }
+    
+    // Limpar timeout de digitação ao desmontar ou mudar de conversa
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      // Resetar estado de digitação local
+      if (isLocalTyping) {
+        updateTypingStatus(conversationId, false);
+        setIsLocalTyping(false);
+      }
+    };
   }, [conversationId, setActiveChat]);
-
-  // Carregar mensagens quando conversa mudar
+  
+  // Efeito 2: Carregar mensagens quando conversa mudar
   useEffect(() => {
-    if (userId && uidDestinatario) {
-      // Adicionado log para depuração
-      console.log("Carregando mensagens para conversa com:", uidDestinatario);
-      // Carregamos mensagens usando o ID do outro usuário
+    if (userId && uidDestinatario && conversationId) {
+      console.log("[ChatWindow] Carregando mensagens para:", uidDestinatario);
       fetchMessages(uidDestinatario);
-      
-      // Solicitar atualização de status para este usuário específico
-      refreshOnlineUsers([uidDestinatario]);
     }
-  }, [userId, uidDestinatario, fetchMessages, refreshOnlineUsers]);
-
+  }, [userId, uidDestinatario, conversationId, fetchMessages]);
+  
+  // Efeito 3: Scroll para o final quando novas mensagens chegam
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  
   // Filtra as mensagens para a conversa atual
   const chatHistory = React.useMemo(() => {
     if (!conversationId || !Array.isArray(messages)) return [];
@@ -241,156 +213,55 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
       return timeA - timeB;
     });
   }, [messages, conversationId, userId, uidDestinatario]);
-
-// // Marca mensagens como lidas quando visualizadas
-// useEffect(() => {
-//   const markAsRead = async () => {
-//     if (uidDestinatario && currentUser?.uid) {
-//       try {
-//         // Gerar ID da conversa ordenando os IDs dos usuários
-//         const conversationId = [currentUser.uid, uidDestinatario].sort().join('_');
-        
-//         // Filtrar mensagens não lidas
-//         const unreadMessages = chatHistory.filter(
-//           msg => !msg.lido && msg.uidRemetente === uidDestinatario
-//         );
-        
-//         // Se houver mensagens não lidas, marcá-las como lidas
-//         if (unreadMessages.length > 0) {
-//           console.log(`Marcando ${unreadMessages.length} mensagens como lidas`);
-          
-//           // O backend já cria a conversa se não existir
-//           // CORREÇÃO: Passar o userId como segundo parâmetro
-//           const result = await updateMessageStatus(conversationId, null, 'read');
-          
-//           // Notificar via socket apenas se algo foi atualizado
-//           unreadMessages.forEach(msg => {
-//             if (msg.id) {
-//               socket.emit('message_status_update', {
-//                 conversationId,
-//                 messageId: msg.id,
-//                 status: 'read',
-//                 timestamp: Date.now()
-//               });
-//             }
-//           });
-//         }
-//       } catch (error) {
-//         // Apenas logar o erro, não mostrar ao usuário
-//         console.log('Erro ao atualizar status de mensagem (não crítico):', error.message);
-//       }
-//     }
-//   };
   
-//   if (uidDestinatario && chatHistory.length > 0) {
-//     markAsRead();
-//   }
-// }, [chatHistory, uidDestinatario, currentUser, updateMessageStatus]);
-
-  // Inicializar socket e configurar listeners quando a conversa é carregada
-  useEffect(() => {
-    if (!userId || !uidDestinatario) return;
-
-    // Entrar na sala de chat específica para este par de usuários
-    socket.emit('join_chat', conversationId);
-
-    // Escutar por novas mensagens
-    socket.on('new_message', (newMessage) => {
-      // A lista de mensagens será atualizada via context
-      // Mas podemos usar isso para outras ações como notificações de som
-      if (newMessage.sender === uidDestinatario) {
-        const audio = new Audio('/message-notification.mp3');
-        audio.play().catch(e => console.log('Erro ao reproduzir som:', e));
-        
-        // Marcar mensagem como entregue automaticamente
-        if (newMessage.id && conversationId) {
-          updateMessageStatus(conversationId, newMessage.id, 'delivered');
-        }
-      }
-    });
-
-    // Escutar por status de digitação
-    socket.on('typing_status', (data) => {
-      // Verificar se a atualização é para a conversa atual
-      if (data.conversationId === conversationId) {
-        // Se não for do usuário atual, é do outro usuário
-        if (data.senderId !== userId) {
-          setRemoteTyping(data.isTyping);
-        }
-      }
-    });
-
-    // Escutar por atualizações de status de mensagem
-    socket.on('message_status_update', ({ conversationId: convId, messageId, status }) => {
-      if (convId === conversationId && messageId) {
-        updateMessageStatus(convId, messageId, status);
-      }
-    });
-
-    // Limpar listeners ao desmontar
-    return () => {
-      socket.off('new_message');
-      socket.off('typing_status');
-      socket.off('message_status_update');
-      socket.emit('leave_chat', conversationId);
-    };
-  }, [updateMessageStatus, userId, uidDestinatario, conversationId]);
-
-  // Efeito para lidar com o status de digitação
+  // Manipulação do estado de digitação
   const handleTyping = () => {
-    if (!isTyping) {
-      setIsTyping(true);
-      socket.emit('typing_status', {
-        conversationId, // Usar o conversationId em vez de senderId/recipientId
-        isTyping: true
-      });
+    // Se já estiver no estado de digitação, apenas atualizar o timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    } else {
+      // Caso contrário, ativar o estado de digitação
+      setIsLocalTyping(true);
+      updateTypingStatus(conversationId, true);
     }
     
-    // Limpar o timeout anterior se existir
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
-    
-    // Configurar novo timeout
-    const timeout = setTimeout(() => {
-      setIsTyping(false);
-      socket.emit('typing_status', {
-        conversationId,
-        isTyping: false
-      });
+    // Configurar novo timeout para desativar o estado de digitação
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsLocalTyping(false);
+      updateTypingStatus(conversationId, false);
+      typingTimeoutRef.current = null;
     }, 2000);
-    
-    setTypingTimeout(timeout);
   };
-
+  
   // Função para enviar mensagem
   const handleSendMessage = async () => {
     if (!message.trim() || !currentUser?.uid || !uidDestinatario) {
       showToast('Mensagem ou destinatário inválidos', { type: 'error' });
       return;
     }
-
+    
     try {
       // Criar objeto de mensagem padronizado
       const messageData = {
         conteudo: message.trim(),
         uidDestinatario,
         tipo: 'texto'
-      }
-
-      // Já temos o socket implementado no MessageService
-      // Não precisamos enviar novamente pelo socket aqui
-      // O service cuidará de enviar pelo socket ou REST conforme disponibilidade
+      };
+      
+      // Enviar a mensagem usando o provider centralizado
       await createMessage(messageData);
       
+      // Limpar campo de mensagem
       setMessage('');
       
       // Parar o indicador de digitação
-      setIsTyping(false);
-      socket.emit('typing_status', {
-        conversationId,  // Usar conversationId em vez de campos separados
-        isTyping: false
-      });
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+      
+      setIsLocalTyping(false);
+      updateTypingStatus(conversationId, false);
       
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
@@ -410,10 +281,11 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
       });
     }
   };
-
+  
+  // Função para excluir mensagem
   const handleDeleteMessage = async (messageId) => {
     if (!conversationId || !messageId) return;
-
+    
     try {
       await deleteMessage(conversationId, messageId);
       showToast('Mensagem apagada', { type: 'success' });
@@ -421,24 +293,20 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
       showToast('Não foi possível apagar a mensagem', { type: 'error' });
     }
   };
-
+  
+  // Lidar com tecla Enter para envio
   const handleKeyPress = useCallback((event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSendMessage();
     }
-  }, [message, handleSendMessage]);
-
-  // Scroll para o final quando novas mensagens chegam
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory]);
-
+  }, [message]);
+  
   // Se não encontrou o amigo e não temos um uidDestinatario, redirecionar para a lista de conversas
   if (!uidDestinatario) {
     return <Navigate to="/messages" />;
   }
-
+  
   // Se não encontrou o amigo específico, mostrar mensagem amigável
   if (!friend && uidDestinatario) {
     return (
@@ -467,13 +335,15 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
       </Box>
     );
   }
-
+  
+  // Renderização principal do chat
   return (
     <Box sx={{ 
       height: '100vh', 
       display: 'flex', 
       flexDirection: 'column'
     }}>
+      {/* Cabeçalho do chat */}
       <Box sx={{ 
         p: 2, 
         display: 'flex', 
@@ -487,37 +357,21 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
         >
           <ArrowBackIcon />
         </IconButton>
-        <Badge
-          overlap="circular"
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          badgeContent={
-            <Box
-              sx={{
-                width: 12,
-                height: 12,
-                borderRadius: '50%',
-                backgroundColor: isDestinationOnline ? '#44b700' : 'grey',
-                border: '2px solid white'
-              }}
-            />
-          }
+        <Avatar 
+          src={friend ? getOptimizedProfilePicture(friend.fotoDoPerfil) : null} 
+          sx={{ mr: 2 }}
         >
-          <Avatar 
-            src={friend ? getOptimizedProfilePicture(friend.fotoDoPerfil) : null} 
-            sx={{ mr: 2, width: 50, height: 50 }}
-          >
-            {friend && friend.nome ? friend.nome[0] : '?'}
-          </Avatar>
-        </Badge>
+          {friend && friend.nome ? friend.nome[0] : '?'}
+        </Avatar>
         <Box>
           <Typography variant="h6">{friend ? friend.nome : 'Carregando...'}</Typography>
-          <OnlineStatusIndicator 
-            isOnline={isDestinationOnline} 
-            status={destinationStatus?.status || 'offline'} 
-          />
+          <Typography variant="caption" color="text.secondary">
+            {friend && friend.online ? 'Online' : 'Offline'}
+          </Typography>
         </Box>
       </Box>
 
+      {/* Área de mensagens */}
       <Box sx={{ 
         flexGrow: 1, 
         overflowY: 'auto', 
@@ -538,15 +392,6 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
             <Typography variant="body1">
               Nenhuma mensagem ainda. Diga olá!
             </Typography>
-            {isDestinationOnline ? (
-              <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
-                {friend?.nome} está online agora!
-              </Typography>
-            ) : (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {friend?.nome} está offline. A mensagem será entregue quando estiver online.
-              </Typography>
-            )}
           </Box>
         ) : (
           chatHistory.map((msg, index) => {
@@ -558,7 +403,7 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
                 message={msg} 
                 isOwnMessage={isOwnMessage}
                 senderName={friend ? friend.nome : ''}
-                onDelete={isOwnMessage ? () => handleDeleteMessage(msg.id) : null}
+                onDelete={isOwnMessage ? handleDeleteMessage : null}
               />
             );
           })
@@ -567,40 +412,64 @@ const ChatWindow = ({ uidDestinatarioProps, friendName }) => {
         <div ref={chatEndRef} />
       </Box>
 
+      {/* Área de entrada de mensagem */}
       <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
-        <TextField
-          fullWidth
-          multiline
-          maxRows={4}
-          value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            setFieldDirty('conteudo'); // Marcar campo como "sujo" quando alterado
-          }}        
-          onKeyPress={handleKeyPress}
-          onKeyDown={handleTyping}
-          inputRef={messageInputRef}
-          placeholder={
-            isDestinationOnline 
-              ? t('chatWindow.typeYourMessage') || 'Digite sua mensagem...'
-              : `Enviar mensagem para ${friend?.nome} (offline)`
+  <ModernChatInput
+    friendName={friend ? friend.nome : ''}
+    onSendMessage={async (messageData) => {
+      if (!currentUser?.uid || !uidDestinatario) {
+        showToast('Destinatário inválido', { type: 'error' });
+        return;
+      }
+      
+      try {
+        // Adaptar formato da mensagem
+        const adaptedMessage = {
+          conteudo: messageData.text,
+          uidDestinatario,
+          tipo: messageData.attachments.length > 0 ? 'media' : 'texto',
+          anexos: messageData.attachments
+        };
+        
+        // Enviar a mensagem usando o provider centralizado
+        await createMessage(adaptedMessage);
+        
+        // Parar o indicador de digitação
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = null;
+        }
+        
+        setIsLocalTyping(false);
+        updateTypingStatus(conversationId, false);
+        
+      } catch (error) {
+        console.error('Erro ao enviar mensagem:', error);
+        
+        // Feedback ao usuário
+        const errorMessage = error.response?.data?.message || 
+                      error.message || 
+                      'Não foi possível enviar a mensagem. Tente novamente.';
+        
+        showToast(errorMessage, { 
+          type: 'error',
+          duration: 5000,
+          action: {
+            label: 'Tentar Novamente',
+            onClick: () => handleSendMessage()
           }
-          variant="outlined"
-          error={!!errors.get('conteudo')}
-          helperText={errors.get('conteudo')}
-          InputProps={{
-            endAdornment: (
-              <IconButton 
-                onClick={handleSendMessage} 
-                disabled={!message.trim()}
-                color="primary"
-              >
-                <SendIcon />
-              </IconButton>
-            ),
-          }}
-        />
-      </Box>
+        });
+      }
+    }}
+    isTyping={remoteTyping}
+    disabled={!uidDestinatario || !currentUser?.uid}
+    mentions={friends.map(friend => ({
+      id: friend.id,
+      name: friend.nome,
+      avatar: getOptimizedProfilePicture(friend.fotoDoPerfil)
+    }))}
+  />
+</Box>
     </Box>
   );
 };

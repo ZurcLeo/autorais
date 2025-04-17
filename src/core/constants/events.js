@@ -191,6 +191,58 @@ export const NOTIFICATION_EVENTS = {
 };
 
 /**
+ * Eventos relacionados ao gerenciamento bancário.
+ * @namespace BANKING_EVENTS
+ * @enum {string}
+ * @property {string} FETCH_START - Disparada quando inicia a busca de dados bancários.
+ * @property {string} BANKING_INFO_FETCHED - Disparada quando as informações bancárias são obtidas com sucesso.
+ * @property {string} BANKING_HISTORY_FETCHED - Disparada quando o histórico bancário é obtido com sucesso.
+ * @property {string} FETCH_FAILURE - Disparada quando ocorre uma falha na obtenção dos dados bancários.
+ * @property {string} REGISTER_START - Disparada quando inicia o registro de uma conta bancária.
+ * @property {string} ACCOUNT_REGISTERED - Disparada quando uma conta bancária é registrada com sucesso.
+ * @property {string} REGISTER_FAILURE - Disparada quando ocorre uma falha no registro de uma conta bancária.
+ * @property {string} VALIDATE_START - Disparada quando inicia a validação de uma conta bancária.
+ * @property {string} ACCOUNT_VALIDATED - Disparada quando uma conta bancária é validada com sucesso.
+ * @property {string} VALIDATE_FAILURE - Disparada quando ocorre uma falha na validação de uma conta bancária.
+ * @property {string} TRANSFER_START - Disparada quando inicia uma transferência de fundos.
+ * @property {string} FUNDS_TRANSFERRED - Disparada quando uma transferência de fundos é realizada com sucesso.
+ * @property {string} TRANSFER_FAILURE - Disparada quando ocorre uma falha na transferência de fundos.
+ * @property {string} CANCEL_START - Disparada quando inicia o cancelamento de uma transação.
+ * @property {string} TRANSACTION_CANCELED - Disparada quando uma transação é cancelada com sucesso.
+ * @property {string} CANCEL_FAILURE - Disparada quando ocorre uma falha no cancelamento de uma transação.
+ */
+export const BANKING_EVENTS = {
+  FETCH_START: 'banking/FETCH_START',
+  BANKING_INFO_FETCHED: 'banking/BANKING_INFO_FETCHED',
+  BANKING_HISTORY_FETCHED: 'banking/BANKING_HISTORY_FETCHED',
+  FETCH_FAILURE: 'banking/FETCH_FAILURE',
+  
+  REGISTER_START: 'banking/REGISTER_START',
+  ACCOUNT_REGISTERED: 'banking/ACCOUNT_REGISTERED',
+  REGISTER_FAILURE: 'banking/REGISTER_FAILURE',
+  
+  VALIDATE_START: 'banking/VALIDATE_START',
+  ACCOUNT_VALIDATED: 'banking/ACCOUNT_VALIDATED',
+  VALIDATE_FAILURE: 'banking/VALIDATE_FAILURE',
+  
+  TRANSFER_START: 'banking/TRANSFER_START',
+  FUNDS_TRANSFERRED: 'banking/FUNDS_TRANSFERRED',
+  TRANSFER_FAILURE: 'banking/TRANSFER_FAILURE',
+  
+  CANCEL_START: 'banking/CANCEL_START',
+  TRANSACTION_CANCELED: 'banking/TRANSACTION_CANCELED',
+  CANCEL_FAILURE: 'banking/CANCEL_FAILURE',
+  
+  CLEAR_BANKING_DATA: 'banking/CLEAR_BANKING_DATA',
+
+  TRANSACTION_DETAILS_FETCHED: 'banking/TRANSACTION_DETAILS_FETCHED',
+  TRANSACTION_STATUS_UPDATED: 'banking/TRANSACTION_STATUS_UPDATED',
+  BALANCE_UPDATED: 'banking/BALANCE_UPDATED',
+  INSUFFICIENT_FUNDS_ERROR: 'banking/INSUFFICIENT_FUNDS_ERROR',
+  BANKING_NOTIFICATION_RECEIVED: 'banking/BANKING_NOTIFICATION_RECEIVED'
+};
+
+/**
  * Eventos relacionados ao gerenciamento de perfis de usuário.
  * @namespace USER_EVENTS
  * @enum {string}

@@ -31,6 +31,66 @@ export const INIT_ACTIONS = {
 };
 
 /**
+ * Ações emitidas pelo BankingService para gerenciar o sistema bancário
+ * @namespace BANKING_ACTIONS
+ * @enum {string}
+ * @property {string} FETCH_START - Disparada quando inicia a busca de dados bancários.
+ * @property {string} FETCH_SUCCESS - Disparada quando os dados bancários são obtidos com sucesso.
+ * @property {string} FETCH_FAILURE - Disparada quando ocorre uma falha na obtenção dos dados bancários.
+ * @property {string} UPDATE_BANKING_INFO - Disparada para atualizar as informações bancárias de uma caixinha.
+ * @property {string} UPDATE_BANKING_HISTORY - Disparada para atualizar o histórico bancário de uma caixinha.
+ * @property {string} REGISTER_START - Disparada quando inicia o registro de uma conta bancária.
+ * @property {string} REGISTER_SUCCESS - Disparada quando uma conta bancária é registrada com sucesso.
+ * @property {string} REGISTER_FAILURE - Disparada quando ocorre uma falha no registro de uma conta bancária.
+ * @property {string} VALIDATE_START - Disparada quando inicia a validação de uma conta bancária.
+ * @property {string} VALIDATE_SUCCESS - Disparada quando uma conta bancária é validada com sucesso.
+ * @property {string} VALIDATE_FAILURE - Disparada quando ocorre uma falha na validação de uma conta bancária.
+ * @property {string} TRANSFER_START - Disparada quando inicia uma transferência de fundos.
+ * @property {string} TRANSFER_SUCCESS - Disparada quando uma transferência de fundos é realizada com sucesso.
+ * @property {string} TRANSFER_FAILURE - Disparada quando ocorre uma falha na transferência de fundos.
+ * @property {string} CANCEL_START - Disparada quando inicia o cancelamento de uma transação.
+ * @property {string} CANCEL_SUCCESS - Disparada quando uma transação é cancelada com sucesso.
+ * @property {string} CANCEL_FAILURE - Disparada quando ocorre uma falha no cancelamento de uma transação.
+ * @property {string} SET_ERROR - Disparada para definir um estado de erro no serviço bancário.
+ * @property {string} CLEAR_ERROR - Disparada para limpar o estado de erro no serviço bancário.
+ * @property {string} CLEAR_STATE - Disparada para limpar todos os dados bancários do estado da aplicação.
+ */
+export const BANKING_ACTIONS = {
+  FETCH_START: 'banking/FETCH_START',
+  FETCH_SUCCESS: 'banking/FETCH_SUCCESS',
+  FETCH_FAILURE: 'banking/FETCH_FAILURE',
+  
+  UPDATE_BANKING_INFO: 'banking/UPDATE_BANKING_INFO',
+  UPDATE_BANKING_HISTORY: 'banking/UPDATE_BANKING_HISTORY',
+  
+  REGISTER_START: 'banking/REGISTER_START',
+  REGISTER_SUCCESS: 'banking/REGISTER_SUCCESS',
+  REGISTER_FAILURE: 'banking/REGISTER_FAILURE',
+  
+  VALIDATE_START: 'banking/VALIDATE_START',
+  VALIDATE_SUCCESS: 'banking/VALIDATE_SUCCESS',
+  VALIDATE_FAILURE: 'banking/VALIDATE_FAILURE',
+  
+  TRANSFER_START: 'banking/TRANSFER_START',
+  TRANSFER_SUCCESS: 'banking/TRANSFER_SUCCESS',
+  TRANSFER_FAILURE: 'banking/TRANSFER_FAILURE',
+  
+  CANCEL_START: 'banking/CANCEL_START',
+  CANCEL_SUCCESS: 'banking/CANCEL_SUCCESS',
+  CANCEL_FAILURE: 'banking/CANCEL_FAILURE',
+  
+  SET_ERROR: 'banking/SET_ERROR',
+  CLEAR_ERROR: 'banking/CLEAR_ERROR',
+  CLEAR_STATE: 'banking/CLEAR_STATE',
+
+  TRANSACTION_DETAILS_FETCHED: 'banking/TRANSACTION_DETAILS_FETCHED',
+  TRANSACTION_STATUS_UPDATED: 'banking/TRANSACTION_STATUS_UPDATED',
+  BALANCE_UPDATED: 'banking/BALANCE_UPDATED',
+  TRANSACTION_ERROR: 'banking/TRANSACTION_ERROR',
+  NOTIFICATION_RECEIVED: 'banking/NOTIFICATION_RECEIVED'
+};
+
+/**
  * Ações emitidas pelo InvitesService para gerenciar o sistema de convites da aplicação.
  * @namespace INVITATION_ACTIONS
  * @enum {string}

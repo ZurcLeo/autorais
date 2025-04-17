@@ -14,10 +14,10 @@ const DashboardContext = createContext(null); // Inicializa com null
 export const DashboardProvider = ({ children }) => {
     const [state, dispatch] = useReducer(dashboardReducer, initialDashboardState);
     const serviceStore = serviceLocator.get('store').getState()?.auth;
-    const messageStore = serviceLocator.get('messages');
-    const notificationStore = serviceLocator.get('notifications');
-    const connectionsStore = serviceLocator.get('connections');
-    const caixinhaStore = serviceLocator.get('caixinhas');
+    const messageStore = serviceLocator.get('store').getState()?.messages;
+    const notificationStore = serviceLocator.get('store').getState()?.notifications;
+    const connectionsStore = serviceLocator.get('store').getState()?.connections;
+    const caixinhaStore = serviceLocator.get('store').getState()?.caixinhas;
 
     const { currentUser } = serviceStore;
     const userId = currentUser?.uid; // Obtém o userId de forma segura

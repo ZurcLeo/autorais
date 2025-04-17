@@ -1,47 +1,41 @@
-// ConversationList.js - Adaptado para o Novo Sistema
-import React, {useEffect} from 'react';
+// ConversationList.js - Versão Otimizada com Atualização Automática
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, List, ListItem, ListItemAvatar, ListItemText, Avatar, Typography, Badge, Skeleton, Divider } from '@mui/material';
-import { useConnections } from '../../providers/ConnectionProvider';
+import { 
+  Box, 
+  List, 
+  ListItem, 
+  ListItemAvatar, 
+  ListItemText, 
+  Avatar, 
+  Typography, 
+  Badge, 
+  Skeleton, 
+  Divider 
+} from '@mui/material';
 import { useMessages } from '../../providers/MessageProvider';
-import { useAuth } from '../../providers/AuthProvider';
 import { serviceLocator } from '../../core/services/BaseService';
 
 const ConversationsList = () => {
   const navigate = useNavigate();
   const { uidDestinatario } = useParams();
-  // const { markMessagesAsRead } = useMessages();
+  
+  // Obter estado do store (sem implementar lógica duplicada)
   const authStore = serviceLocator.get('store').getState()?.auth || {};
-  const messagesStore = serviceLocator.get('store').getState()?.messages || {};
   const connectionsStore = serviceLocator.get('store').getState()?.connections || {};
+  
+  // Obter dados do provider de mensagens centralizado
+  const { 
+    conversations, 
+    messages,
+    isLoading,
+    activeChat
+  } = useMessages();
   
   const { currentUser } = authStore;
   const { friends } = connectionsStore;
-  const { conversations, isLoading } = messagesStore;
-
-console.log('ConversationsList: ', authStore, messagesStore, connectionsStore)
-
-  // useEffect(() => {
-  //   const markAsRead = async () => {
-  //     if (currentUser?.uid && uidDestinatario) {
-  //       try {
-  //         // Gerar ID da conversa ordenando os IDs dos usuários
-  //         const conversationId = [currentUser.uid, uidDestinatario].sort().join('_');
-          
-  //         // O backend cuidará da verificação de existência e criação se necessário
-  //         await markMessagesAsRead(conversationId);
-  //       } catch (error) {
-  //         // Apenas logar o erro, não mostrar ao usuário
-  //         console.log('Erro ao marcar mensagens como lidas (não crítico):', error.message);
-  //       }
-  //     }
-  //   };
-  
-  //   if (uidDestinatario) {
-  //     markAsRead();
-  //   }
-  // }, [uidDestinatario, currentUser, markMessagesAsRead]);
-
+    
+  // Função auxiliar para otimizar URLs de imagens
   const getOptimizedProfilePicture = (url) => {
     if (!url) return null;
     return url.includes('?') 
@@ -106,33 +100,95 @@ console.log('ConversationsList: ', authStore, messagesStore, connectionsStore)
     ));
   };
 
-  // Obter dados das conversas a partir do novo formato
+  // Este é o useMemo otimizado que agora procurará mensagens existentes
+  // quando as conversações não tiverem informações completas
   const conversationData = React.useMemo(() => {
     // Se não temos dados de conversas, usar amigos como fallback
     if (!conversations || conversations.length === 0) {
-      return friends.map(friend => ({
-        id: [currentUser?.uid, friend.id].sort().join('_'),
-        otherUserId: friend.id,
-        otherUserName: friend.nome,
-        otherUserPhoto: friend.fotoDoPerfil,
-        lastMessage: {
-          text: '',
-          timestamp: null
-        },
-        unreadCount: 0
-      }));
+      return friends.map(friend => {
+        // ID da conversa
+        const convId = [currentUser?.uid, friend.id].sort().join('_');
+        
+        // Importante: Verificar se existem mensagens entre estes usuários,
+        // mesmo que a conversa não esteja listada
+        const existingMessages = messages.filter(msg => 
+          (msg.uidRemetente === currentUser?.uid && msg.uidDestinatario === friend.id) ||
+          (msg.uidRemetente === friend.id && msg.uidDestinatario === currentUser?.uid)
+        );
+        
+        // Ordenar por timestamp e pegar a mais recente (se existir)
+        let lastMessage = null;
+        if (existingMessages.length > 0) {
+          const sortedMessages = [...existingMessages].sort((a, b) => {
+            return new Date(b.timestamp) - new Date(a.timestamp);
+          });
+          
+          lastMessage = {
+            text: sortedMessages[0].conteudo || sortedMessages[0].content,
+            sender: sortedMessages[0].uidRemetente,
+            timestamp: sortedMessages[0].timestamp
+          };
+        }
+        
+        return {
+          id: convId,
+          otherUserId: friend.id,
+          otherUserName: friend.nome,
+          otherUserPhoto: friend.fotoDoPerfil,
+          lastMessage: lastMessage || {
+            text: '',
+            timestamp: null
+          },
+          // Contar mensagens não lidas
+          unreadCount: existingMessages.filter(msg => 
+            msg.uidRemetente === friend.id && !msg.lido && !msg.visto
+          ).length
+        };
+      });
     }
 
-    // Caso contrário, usar dados das conversas
+    // Caso contrário, usar dados das conversas e enriquecer com dados mais recentes
     return conversations.map(conv => {
       // Encontrar dados do amigo para enriquecer informações
       const friend = friends.find(f => f.id === conv.otherUserId || f.id === conv.with);
+      
+      // Verificar se temos mensagens mais recentes que as informadas pela conversa
+      const existingMessages = messages.filter(msg => 
+        msg.conversationId === conv.id ||
+        ((msg.uidRemetente === currentUser?.uid && msg.uidDestinatario === conv.otherUserId) ||
+         (msg.uidRemetente === conv.otherUserId && msg.uidDestinatario === currentUser?.uid))
+      );
+      
+      let lastMessage = conv.lastMessage;
+      
+      // Se houver mensagens, verificar se alguma é mais recente que a última conhecida
+      if (existingMessages.length > 0) {
+        const sortedMessages = [...existingMessages].sort((a, b) => {
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        });
+        
+        const convLastMessageTime = conv.lastMessage?.timestamp 
+          ? new Date(conv.lastMessage.timestamp) 
+          : new Date(0);
+          
+        const newestMessageTime = new Date(sortedMessages[0].timestamp);
+        
+        // Se a mensagem mais recente for mais nova que a da conversa, usá-la
+        if (newestMessageTime > convLastMessageTime) {
+          lastMessage = {
+            text: sortedMessages[0].conteudo || sortedMessages[0].content,
+            sender: sortedMessages[0].uidRemetente,
+            timestamp: sortedMessages[0].timestamp
+          };
+        }
+      }
       
       return {
         ...conv,
         otherUserId: conv.otherUserId || conv.with,
         otherUserName: conv.otherUserName || conv.withName || (friend ? friend.nome : 'Usuário'),
-        otherUserPhoto: conv.otherUserPhoto || conv.withPhoto || (friend ? friend.fotoDoPerfil : null)
+        otherUserPhoto: conv.otherUserPhoto || conv.withPhoto || (friend ? friend.fotoDoPerfil : null),
+        lastMessage
       };
     }).sort((a, b) => {
       // Ordenar por timestamp da última mensagem (mais recentes primeiro)
@@ -140,7 +196,7 @@ console.log('ConversationsList: ', authStore, messagesStore, connectionsStore)
       const timeB = b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0;
       return timeB - timeA;
     });
-  }, [conversations, friends, currentUser]);
+  }, [conversations, friends, currentUser, messages]);
 
   return (
     <Box sx={{ 
