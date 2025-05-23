@@ -54,7 +54,7 @@ export const MessageProvider = ({ children }) => {
         if (!conversations || !Array.isArray(conversations)) {
           console.warn('[MessageProvider] Formato inválido de conversas:', conversations);
           dispatch({ 
-            type: MESSAGE_ACTIONS.FETCH_SUCCESS, 
+            type: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS, 
             payload: { messages: [] } 
           });
           dispatch({ 
@@ -90,7 +90,7 @@ export const MessageProvider = ({ children }) => {
         
         if (Array.isArray(messages)) {
           dispatch({ 
-            type: MESSAGE_ACTIONS.FETCH_SUCCESS, 
+            type: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS, 
             payload: { messages } 
           });
         }
@@ -118,7 +118,7 @@ export const MessageProvider = ({ children }) => {
         
         // Inicializar com arrays vazios mesmo em caso de erro
         dispatch({ 
-          type: MESSAGE_ACTIONS.FETCH_SUCCESS, 
+          type: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS, 
           payload: { messages: [] } 
         });
         
@@ -247,19 +247,19 @@ export const MessageProvider = ({ children }) => {
     const subscriptions = [
       // Eventos de mensagens
       serviceEventHub.on(
-        MODULE_NAME, 
-        MESSAGE_EVENTS.FETCH_SUCCESS, 
+        'messages', 
+        MESSAGE_EVENTS.FETCH_MESSAGE_SUCCESS, 
         (data) => {
           dispatch({ 
-            type: MESSAGE_ACTIONS.FETCH_SUCCESS, 
+            type: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS, 
             payload: { messages: data.messages || [] } 
           });
-          console.log('[MessageProvider] Evento FETCH_SUCCESS recebido');
+          console.log('[MessageProvider] Evento FETCH_MESSAGE_SUCCESS recebido');
         }
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.FETCH_FAILURE, 
         (data) => {
           dispatch({ 
@@ -271,7 +271,7 @@ export const MessageProvider = ({ children }) => {
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.UPDATE_MESSAGES, 
         (data) => {
           if (data.message) {
@@ -294,7 +294,7 @@ export const MessageProvider = ({ children }) => {
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.RECONCILE_MESSAGE, 
         (data) => {
           dispatch({ 
@@ -306,7 +306,7 @@ export const MessageProvider = ({ children }) => {
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.UPDATE_UNREAD_COUNT, 
         (data) => {
           dispatch({ 
@@ -318,7 +318,7 @@ export const MessageProvider = ({ children }) => {
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.UPDATE_LATEST_MESSAGE, 
         (data) => {
           dispatch({ 
@@ -330,7 +330,7 @@ export const MessageProvider = ({ children }) => {
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.SET_ERROR, 
         (data) => {
           dispatch({ 
@@ -342,7 +342,7 @@ export const MessageProvider = ({ children }) => {
       ),
       
       serviceEventHub.on(
-        MODULE_NAME, 
+        'messages', 
         MESSAGE_EVENTS.MESSAGES_CLEARED, 
         () => {
           dispatch({ type: MESSAGE_ACTIONS.CLEAR_STATE });

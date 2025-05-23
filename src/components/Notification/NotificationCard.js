@@ -12,7 +12,8 @@ import {
   IconButton, 
   Tooltip, 
   Collapse, 
-  Grid 
+  Grid,
+  useTheme
 } from '@mui/material';
 import { 
   Done as DoneIcon, 
@@ -40,7 +41,7 @@ const NotificationCard = React.memo(({
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [exiting, setExiting] = useState(false);
-  
+  const theme = useTheme()
   // Referência para o elemento do cartão
   const cardRef = useRef(null);
   
@@ -129,7 +130,7 @@ const NotificationCard = React.memo(({
                   top: 0, 
                   bottom: 0, 
                   width: 4, 
-                  bgcolor: 'primary.main' 
+                  bgcolor: theme.palette.primary.main,
                 }} 
               />
             )}

@@ -170,7 +170,7 @@ export const InitializationPhase = {
     FEATURES: {
         order: 4,
         name: 'FEATURES',
-        services: ['caixinhas', 'banking'],
+        services: ['caixinhas', 'caixinhaInvites', 'banking', 'loans', 'disputes'],
         required: false
     },
     PRESENTATION: {
@@ -370,12 +370,14 @@ export const CRITICAL_SERVICES = {
     INTERESTS: 4,
     INVITES: 4,
     USERPREFERENCES: 4,
+    LOANS: 4,
+    DISPUTES: 4,
     SOCKET: 3,
     NOTIFICATIONS: 3,
     CONNECTIONS: 3,
     MESSAGES: 3,
-    SOCKET: 3,
     CAIXINHAS: 2,
+    CAIXINHAINVITE: 2,
     BANKING: 2,
     DASHBOARD: 1,
 };

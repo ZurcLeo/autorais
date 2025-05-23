@@ -1,4 +1,4 @@
-// components/Chat/ModernChatInput.js
+// src/components/Messages/ModernChatInput.js
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
@@ -8,10 +8,12 @@ import {
   Tooltip,
   ClickAwayListener,
   Chip,
-  CircularProgress
+  CircularProgress,
+  Typography,
+  alpha
 } from '@mui/material';
 
-// Ícones
+// Icons
 import SendIcon from '@mui/icons-material/Send';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -22,15 +24,28 @@ import CancelIcon from '@mui/icons-material/Cancel';
 // Emoji picker
 import EmojiPicker from 'emoji-picker-react';
 
-// Componente principal simplificado
+/**
+ * Modern chat input component with emoji picker, file attachments, and audio recording
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {Function} props.onSendMessage - Callback when message is sent
+ * @param {String} props.friendName - Name of the friend for placeholder text
+ * @param {Boolean} props.isTyping - Whether the recipient is typing
+ * @param {Boolean} props.disabled - Whether the input is disabled
+ * @param {Function} props.onTyping - Callback when user is typing
+ * @param {Array} props.mentions - Array of users that can be mentioned
+ * @returns {React.ReactElement} Rendered component
+ */
 const ModernChatInput = ({
   onSendMessage,
   friendName,
   isTyping = false,
   disabled = false,
-  onTyping = () => {}
+  onTyping = () => {},
+  mentions = []
 }) => {
-  // Estados
+  // States
   const [message, setMessage] = useState('');
   const [rows, setRows] = useState(1);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -42,10 +57,9 @@ const ModernChatInput = ({
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
   const photoInputRef = useRef(null);
-  const emojiPickerRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // Lista de respostas rápidas contextuais
+  // Quick replies that adapt to context
   const quickReplies = [
     'Olá!',
     'Tudo bem?',
@@ -54,42 +68,42 @@ const ModernChatInput = ({
     'Desculpe, estou ocupado agora'
   ];
 
-  // Calcular número de linhas com base no conteúdo
+  // Calculate optimal number of rows based on content
   useEffect(() => {
     const lineCount = (message.match(/\n/g) || []).length + 1;
-    setRows(Math.min(lineCount, 4)); // Limitar a 4 linhas
+    setRows(Math.min(lineCount, 4)); // Limit to 4 rows maximum
   }, [message]);
 
-  // Funções de manipulação
+  // Handle sending messages
   const handleSendMessage = async () => {
     if (!message.trim() && attachments.length === 0) return;
 
     try {
       setIsSending(true);
 
-      // Preparar dados da mensagem
+      // Prepare message data
       const messageData = {
         text: message.trim(),
         attachments: attachments.map(file => ({
           name: file.name,
           type: file.type,
-          file: file // Enviar o objeto de arquivo
+          file: file
         })),
         timestamp: new Date().toISOString()
       };
 
-      // Enviar mensagem via callback
+      // Send message via callback
       await onSendMessage(messageData);
 
-      // Limpar após envio bem-sucedido
+      // Clear after successful send
       setMessage('');
       setAttachments([]);
       setShowEmojiPicker(false);
 
-      // Focar o input novamente
+      // Focus input again
       inputRef.current?.focus();
       
-      // Limpar status de digitação
+      // Clear typing status
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = null;
@@ -97,12 +111,13 @@ const ModernChatInput = ({
       }
       
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+      console.error('Error sending message:', error);
     } finally {
       setIsSending(false);
     }
   };
 
+  // Handle keyboard shortcuts
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -110,67 +125,67 @@ const ModernChatInput = ({
     }
   };
 
+  // Handle emoji selection
   const handleEmojiSelect = (emojiData) => {
     setMessage(prev => prev + emojiData.emoji);
     inputRef.current?.focus();
   };
 
+  // Handle file selection
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
     setAttachments(prev => [...prev, ...files]);
     event.target.value = '';
   };
 
+  // Handle photo capture
   const handlePhotoCapture = (event) => {
     const files = Array.from(event.target.files);
     setAttachments(prev => [...prev, ...files]);
     event.target.value = '';
   };
 
+  // Remove attachment
   const removeAttachment = (index) => {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Handle quick reply selection
   const handleQuickReply = (reply) => {
     setMessage(reply);
-    // Opcional: Focar o input após selecionar resposta rápida
     inputRef.current?.focus();
   };
 
+  // Toggle audio recording
   const toggleRecording = () => {
-    // Implementação real usaria a Web Audio API para gravação
     setIsRecording(!isRecording);
     
     if (isRecording) {
-      // Simular finalização de gravação de áudio (em uma implementação real)
-      // Aqui você adicionaria a lógica para processar o áudio gravado
+      // Simulate finishing audio recording (in a real implementation)
       setTimeout(() => {
-        // Adicionar arquivo de áudio simulado
+        // Add simulated audio file
         const audioBlob = new Blob(['dummy audio data'], { type: 'audio/mp3' });
-        const audioFile = new File([audioBlob], 'gravacao.mp3', { type: 'audio/mp3' });
+        const audioFile = new File([audioBlob], 'recording.mp3', { type: 'audio/mp3' });
         setAttachments(prev => [...prev, audioFile]);
       }, 500);
     }
   };
   
-  // Manipulação do estado de digitação
+  // Handle typing notification
   const handleTyping = () => {
-    // Notificar que o usuário está digitando
     onTyping(true);
     
-    // Se já estiver com um timeout de digitação, limpar e criar um novo
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
     
-    // Configurar novo timeout para desativar o estado de digitação
     typingTimeoutRef.current = setTimeout(() => {
       onTyping(false);
       typingTimeoutRef.current = null;
     }, 2000);
   };
 
-  // Fechar emoji picker ao clicar fora
+  // Close emoji picker when clicking outside
   const handleClickAway = () => {
     setShowEmojiPicker(false);
   };
@@ -178,23 +193,25 @@ const ModernChatInput = ({
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <Box sx={{ position: 'relative', width: '100%' }}>
-        {/* Emoji Picker */}
+        {/* Emoji Picker Overlay */}
         {showEmojiPicker && (
           <Box
-            ref={emojiPickerRef}
             sx={{
               position: 'absolute',
               bottom: '100%',
               right: 0,
               mb: 1,
-              zIndex: 10
+              zIndex: 10,
+              boxShadow: 3,
+              borderRadius: 1,
+              overflow: 'hidden'
             }}
           >
             <EmojiPicker onEmojiClick={handleEmojiSelect} width={320} height={400} />
           </Box>
         )}
 
-        {/* Respostas rápidas */}
+        {/* Quick Replies */}
         <Box
           sx={{
             display: 'flex',
@@ -212,29 +229,33 @@ const ModernChatInput = ({
               size="small"
               onClick={() => handleQuickReply(reply)}
               sx={{
-                borderRadius: '16px',
+                borderRadius: 4,
                 transition: 'all 0.2s',
+                bgcolor: 'background.paper',
+                borderColor: 'divider',
                 '&:hover': {
-                  backgroundColor: 'primary.main',
-                  color: 'white'
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText'
                 }
               }}
             />
           ))}
         </Box>
 
-        {/* Área de preview de arquivos */}
+        {/* Attachment Previews */}
         {attachments.length > 0 && (
           <Paper
-            elevation={1}
             sx={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: 0.5,
+              gap: 1,
               p: 1,
               mb: 1,
-              borderRadius: 1
+              borderRadius: 1,
+              bgcolor: 'background.paper'
             }}
+            elevation={0}
+            variant="outlined"
           >
             {attachments.map((file, index) => (
               <Box
@@ -244,7 +265,8 @@ const ModernChatInput = ({
                   borderRadius: 1,
                   border: '1px solid',
                   borderColor: 'divider',
-                  p: 0.5
+                  p: 0.5,
+                  bgcolor: alpha('#000', 0.03)
                 }}
               >
                 {file.type.startsWith('image/') ? (
@@ -261,9 +283,10 @@ const ModernChatInput = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: 'grey.100',
+                      bgcolor: 'background.default',
                       color: 'text.secondary',
-                      borderRadius: 1
+                      borderRadius: 1,
+                      flexDirection: 'column'
                     }}
                   >
                     {file.type.startsWith('audio/') ? (
@@ -271,6 +294,9 @@ const ModernChatInput = ({
                     ) : (
                       <AttachFileIcon color="primary" />
                     )}
+                    <Typography variant="caption" sx={{ mt: 0.5, fontSize: '0.6rem' }}>
+                      {file.name.length > 10 ? file.name.substring(0, 7) + '...' : file.name}
+                    </Typography>
                   </Box>
                 )}
                 <IconButton
@@ -279,35 +305,36 @@ const ModernChatInput = ({
                     position: 'absolute',
                     top: -8,
                     right: -8,
-                    backgroundColor: 'background.paper',
+                    bgcolor: 'background.paper',
                     border: '1px solid',
                     borderColor: 'divider',
+                    width: 20,
+                    height: 20,
                     '&:hover': {
-                      backgroundColor: 'error.light',
-                      color: 'white'
+                      bgcolor: 'error.main',
+                      color: 'error.contrastText'
                     }
                   }}
                   onClick={() => removeAttachment(index)}
                 >
-                  <CancelIcon fontSize="small" />
+                  <CancelIcon sx={{ fontSize: 14 }} />
                 </IconButton>
               </Box>
             ))}
           </Paper>
         )}
 
-        {/* Input principal */}
+        {/* Main Input Area */}
         <Paper
           variant="outlined"
           sx={{
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
-            borderRadius: 2,
+            borderRadius: 3,
             boxShadow: showEmojiPicker ? 2 : 0,
-            transition: (theme) => theme.transitions.create(['box-shadow']),
-            backgroundColor: (theme) => 
-              theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.background.default
+            transition: 'box-shadow 0.2s ease',
+            bgcolor: 'background.paper'
           }}
         >
           <Box
@@ -317,44 +344,59 @@ const ModernChatInput = ({
               p: 0.5
             }}
           >
-            {/* Campo de texto */}
+            {/* Text Field */}
             <TextField
               fullWidth
               multiline
               rows={rows}
-              placeholder={`Mensagem para ${friendName || 'amigo'}...`}
+              placeholder={`Message to ${friendName || 'friend'}...`}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               onKeyDown={handleTyping}
               inputRef={inputRef}
               disabled={disabled || isSending}
-              variant="standard" // Sem bordas adicionais
+              variant="standard"
               InputProps={{
-                disableUnderline: true, // Remove a linha inferior
-                sx: { px: 1 } // Padding horizontal
+                disableUnderline: true,
+                sx: { 
+                  px: 1,
+                  color: 'text.primary',
+                  '& ::placeholder': {
+                    color: 'text.secondary',
+                    opacity: 0.7
+                  }
+                }
               }}
               sx={{ flexGrow: 1 }}
             />
 
-            {/* Botão de emoji */}
+            {/* Emoji Button */}
             <Tooltip title="Emojis">
               <IconButton
                 size="small"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 color={showEmojiPicker ? 'primary' : 'default'}
                 disabled={disabled || isSending}
+                sx={{
+                  mx: 0.5,
+                  color: showEmojiPicker ? 'primary.main' : 'action.active'
+                }}
               >
                 <EmojiEmotionsIcon />
               </IconButton>
             </Tooltip>
 
-            {/* Botão para anexar arquivos */}
-            <Tooltip title="Anexar arquivo">
+            {/* Attach File Button */}
+            <Tooltip title="Attach file">
               <IconButton
                 size="small"
                 component="label"
                 disabled={disabled || isSending}
+                sx={{ 
+                  mx: 0.5,
+                  color: 'action.active'
+                }}
               >
                 <AttachFileIcon />
                 <input
@@ -367,12 +409,16 @@ const ModernChatInput = ({
               </IconButton>
             </Tooltip>
 
-            {/* Botão de câmera */}
-            <Tooltip title="Tirar foto">
+            {/* Camera Button */}
+            <Tooltip title="Take photo">
               <IconButton
                 size="small"
                 component="label"
                 disabled={disabled || isSending}
+                sx={{ 
+                  mx: 0.5,
+                  color: 'action.active'
+                }}
               >
                 <PhotoCameraIcon />
                 <input
@@ -386,14 +432,24 @@ const ModernChatInput = ({
               </IconButton>
             </Tooltip>
 
-            {/* Botão de envio ou gravação */}
-            <Box sx={{ ml: 0.5 }}>
+            {/* Send Button / Record Button */}
+            <Box sx={{ mx: 0.5 }}>
               {message.trim() || attachments.length > 0 ? (
-                <Tooltip title="Enviar mensagem">
+                <Tooltip title="Send message">
                   <IconButton
                     color="primary"
                     onClick={handleSendMessage}
                     disabled={disabled || isSending}
+                    sx={{
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      '&:hover': {
+                        bgcolor: 'primary.dark'
+                      },
+                      '&.Mui-disabled': {
+                        bgcolor: 'action.disabledBackground'
+                      }
+                    }}
                   >
                     {isSending ? (
                       <CircularProgress size={24} color="inherit" />
@@ -403,12 +459,20 @@ const ModernChatInput = ({
                   </IconButton>
                 </Tooltip>
               ) : (
-                <Tooltip title={isRecording ? "Parar gravação" : "Gravar áudio"}>
+                <Tooltip title={isRecording ? "Stop recording" : "Record audio"}>
                   <IconButton
                     color={isRecording ? "error" : "primary"}
                     onClick={toggleRecording}
                     disabled={disabled || isSending}
                     sx={{
+                      bgcolor: isRecording ? 'error.main' : 'primary.main',
+                      color: isRecording ? 'error.contrastText' : 'primary.contrastText',
+                      '&:hover': {
+                        bgcolor: isRecording ? 'error.dark' : 'primary.dark'
+                      },
+                      '&.Mui-disabled': {
+                        bgcolor: 'action.disabledBackground'
+                      },
                       animation: isRecording ? 'pulse 1.5s infinite' : 'none',
                       '@keyframes pulse': {
                         '0%': {

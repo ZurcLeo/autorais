@@ -22,16 +22,28 @@ export const ConnectionProvider = ({ children }) => {
    try {
     connectionService = serviceLocator.get('connections');
      serviceStore = serviceLocator.get('store').getState()?.auth;
-     serviceCon = serviceLocator.get('store').getState()?.connections;
+     serviceCon = serviceLocator.get('store').getState()?.notifications;
  
    } catch (err) {
-     console.connectionsError('Error accessing services:', err);
+     console.error('Error accessing services:', err);
      setConnectionsError(err);
    }
  
    const { isAuthenticated, currentUser } = serviceStore || {};
    
- console.log('impressaono servico de conexoes: ', connectionService);
+   useEffect(() => {
+    console.log("ConnectionProvider local state changed:", state);
+  }, [state]);
+
+  const isConnected = useCallback((userId) => {
+    if (!userId) return false;
+    
+    // Verificar em ambas as listas (amigos e melhores amigos)
+    return state.friends.some(friend => friend.id === userId || friend.uid === userId) || 
+           state.bestFriends.some(friend => friend.id === userId || friend.uid === userId);
+  }, [state.friends, state.bestFriends]);
+
+ console.log('impressaono servico de conexoes: ', serviceCon);
   // // Inicializar o serviço de conexões
   useEffect(() => {
     async function initConnections() {
@@ -68,10 +80,11 @@ export const ConnectionProvider = ({ children }) => {
       'connections', 
       CONNECTION_EVENTS.CONNECTIONS_FETCHED, 
       (data) => {
+        console.log('useConnections()', data)
         dispatch({ 
-          type: CONNECTION_ACTIONS.FETCH_SUCCESS, 
-          payload: data 
-        });
+          type: CONNECTION_ACTIONS.FETCH_CONNECTION_SUCCESS,
+          payload: data
+      });
       }
     );
     
@@ -431,68 +444,68 @@ export const ConnectionProvider = ({ children }) => {
     );
   }, [currentUser, dispatch]);
 
-const createConnectionRequest = useCallback(async (targetUserId) => {
-  if (!currentUser || !targetUserId) {
-    showToast('Dados de usuário inválidos', { type: 'error' });
-    return;
-  }
-  
-  return showPromiseToast(
-    (async () => {
-      try {
-        await connectionService.createConnectionRequest(targetUserId);
-        return 'Solicitação de conexão enviada';
-      } catch (error) {
-        // Tratar diferentes tipos de erros com base nos códigos
-        if (error.code === 'ALREADY_CONNECTED') {
-          // Já são amigos - podemos navegar para o perfil ou destacar na lista
-          dispatch({
-            type: CONNECTION_ACTIONS.HIGHLIGHT_CONNECTION,
-            payload: { connectionId: targetUserId }
-          });
-          
-          // Mensagem informativa
-          throw new Error('Vocês já são amigos.');
-        } 
-        else if (error.code === 'REQUEST_ALREADY_SENT') {
-          // Solicitação já enviada - podemos destacar a solicitação pendente
-          dispatch({
-            type: CONNECTION_ACTIONS.HIGHLIGHT_OUTGOING_REQUEST,
-            payload: { requestId: error.requestId }
-          });
-          
-          // Mensagem informativa
-          throw new Error('Você já enviou uma solicitação para este usuário.');
-        }
-        else if (error.code === 'REQUEST_ALREADY_RECEIVED') {
-          // O outro usuário já enviou uma solicitação - podemos destacar na lista de pendentes
-          dispatch({
-            type: CONNECTION_ACTIONS.HIGHLIGHT_INCOMING_REQUEST,
-            payload: { requestId: error.requestId }
-          });
-          
-          // Abrir modal ou navegar para a seção de solicitações pendentes
-          dispatch({
-            type: CONNECTION_ACTIONS.SHOW_PENDING_REQUESTS_MODAL,
-            payload: { highlightRequestId: error.requestId }
-          });
-          
-          // Mensagem informativa
-          throw new Error('Este usuário já enviou uma solicitação para você. Você pode aceitá-la na sua lista de solicitações pendentes.');
-        }
-        else {
-          // Erro genérico
-          throw new Error('Falha ao enviar solicitação de conexão');
-        }
-      }
-    })(),
-    {
-      loading: 'Enviando solicitação de conexão...',
-      success: 'Solicitação de conexão enviada',
-      error: (error) => error.message // Usar a mensagem de erro específica
+  const createConnectionRequest = useCallback(async (targetUserId) => {
+    if (!currentUser || !targetUserId) {
+      showToast('Dados de usuário inválidos', { type: 'error' });
+      return;
     }
-  );
-}, [currentUser, dispatch]);
+    
+    return showPromiseToast(
+      (async () => {
+        try {
+          await connectionService.createConnectionRequest(targetUserId);
+          return 'Solicitação de conexão enviada';
+        } catch (error) {
+          // Tratar diferentes tipos de erros com base nos códigos
+          if (error.code === 'ALREADY_CONNECTED') {
+            // Já são amigos - podemos navegar para o perfil ou destacar na lista
+            dispatch({
+              type: CONNECTION_ACTIONS.HIGHLIGHT_CONNECTION,
+              payload: { connectionId: targetUserId }
+            });
+            
+            // Mensagem informativa
+            throw new Error('Vocês já são amigos.');
+          } 
+          else if (error.code === 'REQUEST_ALREADY_SENT') {
+            // Solicitação já enviada - podemos destacar a solicitação pendente
+            dispatch({
+              type: CONNECTION_ACTIONS.HIGHLIGHT_OUTGOING_REQUEST,
+              payload: { requestId: error.requestId }
+            });
+            
+            // Mensagem informativa
+            throw new Error('Você já enviou uma solicitação para este usuário.');
+          }
+          else if (error.code === 'REQUEST_ALREADY_RECEIVED') {
+            // O outro usuário já enviou uma solicitação - podemos destacar na lista de pendentes
+            dispatch({
+              type: CONNECTION_ACTIONS.HIGHLIGHT_INCOMING_REQUEST,
+              payload: { requestId: error.requestId }
+            });
+            
+            // Abrir modal ou navegar para a seção de solicitações pendentes
+            dispatch({
+              type: CONNECTION_ACTIONS.SHOW_PENDING_REQUESTS_MODAL,
+              payload: { highlightRequestId: error.requestId }
+            });
+            
+            // Mensagem informativa
+            throw new Error('Este usuário já enviou uma solicitação para você. Você pode aceitá-la na sua lista de solicitações pendentes.');
+          }
+          else {
+            // Erro genérico
+            throw new Error('Falha ao enviar solicitação de conexão');
+          }
+        }
+      })(),
+      {
+        loading: 'Enviando solicitação de conexão...',
+        success: 'Solicitação de conexão enviada',
+        error: (error) => error.message // Usar a mensagem de erro específica
+      }
+    );
+  }, [currentUser, dispatch]);
   
   // Buscar usuários
   const searchUsers = useCallback(async (query) => {
@@ -526,7 +539,6 @@ const createConnectionRequest = useCallback(async (targetUserId) => {
       });
     }
   }, []);
-
 
     // Implementação do hook useSmartSearch
     const searchTimeoutRef = useRef(null);
@@ -636,8 +648,17 @@ const createConnectionRequest = useCallback(async (targetUserId) => {
 
   // Memoizar o valor do contexto
   const contextValue = useMemo(() => ({
-    ...state,
+    state,
+    bestFriends: state.bestFriends,
+    friends: state.friends,
+    cacheStatus: state.cacheStatus,
+    connectionHistory: state.connectionHistory,
+    loading: state.loading,
+    pendingRequests: state.pendingRequests,
+    receivedRequests: state.receivedRequests,
+    sentRequests: state.sentRequests,
     isInitialized,
+    isConnected,
     addBestFriend,
     removeBestFriend,
     deleteConnection,
@@ -653,6 +674,7 @@ const createConnectionRequest = useCallback(async (targetUserId) => {
   }), [
     state,
     isInitialized,
+    isConnected,
     addBestFriend,
     removeBestFriend,
     deleteConnection,

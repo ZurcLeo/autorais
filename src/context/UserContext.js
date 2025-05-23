@@ -46,7 +46,7 @@
 //         error: null
 //       };
       
-//     case USER_ACTIONS.FETCH_SUCCESS:
+//     case USER_ACTIONS.FETCH_USER_SUCCESS:
 //       return {
 //         ...state,
 //         currentUser: action.payload,
@@ -134,7 +134,7 @@
         
 //         if (userData) {
 //           dispatch({ 
-//             type: USER_ACTIONS.FETCH_SUCCESS, 
+//             type: USER_ACTIONS.FETCH_USER_SUCCESS, 
 //             payload: userData 
 //           });
 //           setUserReady(true);

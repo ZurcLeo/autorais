@@ -11,10 +11,10 @@ export const setupMessageMappings = (eventBridgeService) => {
   eventActionBridgeService.registerMappings([
     {
       serviceName: 'messages',
-      eventType: MESSAGE_EVENTS.FETCH_SUCCESS,
-      actionType: MESSAGE_ACTIONS.FETCH_SUCCESS,
+      eventType: MESSAGE_EVENTS.FETCH_MESSAGE_SUCCESS,
+      actionType: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS,
       transformer: (eventData) => {
-        console.log('FETCH_SUCCESS eventData:', eventData);
+        console.log('FETCH_MESSAGE_SUCCESS eventData:', eventData);
         return ({
           messages: eventData?.messages || [],
           conversationId: eventData?.conversationId

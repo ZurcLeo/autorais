@@ -14,6 +14,8 @@ import { authReducer } from '../../reducers/auth/authReducer';
 import { setupCaixinhaMappings } from './caixinhaMappings';
 import { setupNotificationMappings } from './notificationMappings';
 import { caixinhaReducer } from '../../reducers/caixinha/caixinhaReducer';
+import { caixinhaInviteReducer } from '../../reducers/caixinhaInvite/caixinhaInviteReducer';
+import { setupCaixinhaInviteMappings } from './caixinhaInviteMappings';
 import { connectionReducer } from '../../reducers/connection/connectionReducer';
 import { interestsReducer } from '../../reducers/interests/interestsReducer';
 import { messageReducer } from '../../reducers/messages/messageReducer';
@@ -22,7 +24,10 @@ import { notificationReducer } from '../../reducers/notification/notificationRed
 import { userReducer } from '../../reducers/user/userReducer';
 import {userPrefsReducer} from '../../reducers/userPrefs/userPrefsReducer';
 import { validationReducer } from '../../reducers/validation/validationReducer';
-import { coreLogger } from '../../core/logging';
+import { loanReducer } from '../../reducers/loan/loanReducer';
+import { setupLoanMappings } from './loanMappings';
+import { disputeReducer } from '../../reducers/dispute/disputeReducer';
+import { setupDisputeMappings } from './disputeMappings';
 import {inviteReducer} from '../../reducers/invites/inviteReducer';
 import { SERVICE_ACTIONS } from '../../core/constants/actions';
 // import { setupAppMappings } from './actionMappings';
@@ -67,6 +72,9 @@ class StoreService extends BaseService {
             services: servicesReducer,
             auth: authReducer,
             caixinhas: caixinhaReducer,
+            caixinhasInvite: caixinhaInviteReducer,
+            loans: loanReducer,
+            disputes: disputeReducer,
             connections: connectionReducer,
             interests: interestsReducer,
             user: userReducer,
@@ -198,6 +206,9 @@ class StoreService extends BaseService {
         setupMessageMappings(eventActionBridgeService);
         setupUserPrefsMappings(eventActionBridgeService);
         setupCaixinhaMappings(eventActionBridgeService);
+        setupCaixinhaInviteMappings(eventActionBridgeService);
+        setupLoanMappings(eventActionBridgeService);
+        setupDisputeMappings(eventActionBridgeService);
         eventActionBridgeService._activateAllMappings();
         this._log("Mapeamentos registrados para usuário:", eventActionBridgeService.mappings);
 

@@ -13,7 +13,7 @@ import {
 import { NotificationsNone as NotificationIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useCaixinhaInvite } from '../../providers/CaixinhaInviteProvider';
-import CaixinhaInviteRequest from '../Caixinhas/CaixinhaInviteRequest';
+import CaixinhaInviteRequest from './CaixinhaInviteRequest';
 
 /**
  * Componente que gerencia e exibe notificações de convites para caixinhas

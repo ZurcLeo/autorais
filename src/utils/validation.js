@@ -50,43 +50,47 @@ export const validateCaixinhaData = (data) => {
     errors.description = 'Descrição não pode exceder 500 caracteres';
   }
 
-  // Validação do adminId
-  if (!data.adminId || typeof data.adminId !== 'string') {
-    errors.adminId = 'ID do administrador é obrigatório';
-  }
-
-  // Validação dos membros
-  if (data.members && !Array.isArray(data.members)) {
-    errors.members = 'Lista de membros deve ser um array';
-  }
+  // Validação do adminId - removido pois será adicionado pelo serviço
+  // if (!data.adminId || typeof data.adminId !== 'string') {
+  //   errors.adminId = 'ID do administrador é obrigatório';
+  // }
 
   // Validação da contribuição mensal
-  if (!isPositiveNumber(data.contribuicaoMensal)) {
+  const contribuicaoMensal = Number(data.contribuicaoMensal);
+  if (isNaN(contribuicaoMensal) || contribuicaoMensal <= 0) {
     errors.contribuicaoMensal = 'Valor da contribuição mensal deve ser um número positivo';
   }
 
   // Validação do dia de vencimento
-  if (!Number.isInteger(data.diaVencimento) || data.diaVencimento < 1 || data.diaVencimento > 31) {
+  const diaVencimento = Number(data.diaVencimento);
+  if (isNaN(diaVencimento) || diaVencimento < 1 || diaVencimento > 31) {
     errors.diaVencimento = 'Dia de vencimento deve ser um número entre 1 e 31';
   }
 
   // Validação de multa e juros
-  if (data.valorMulta && !isPositiveNumber(data.valorMulta)) {
-    errors.valorMulta = 'Valor da multa deve ser um número positivo';
+  if (data.valorMulta) {
+    const valorMulta = Number(data.valorMulta);
+    if (isNaN(valorMulta) || valorMulta < 0) {
+      errors.valorMulta = 'Valor da multa deve ser um número positivo';
+    }
   }
 
-  if (data.valorJuros && !isPositiveNumber(data.valorJuros)) {
-    errors.valorJuros = 'Valor dos juros deve ser um número positivo';
+  if (data.valorJuros) {
+    const valorJuros = Number(data.valorJuros);
+    if (isNaN(valorJuros) || valorJuros < 0) {
+      errors.valorJuros = 'Valor dos juros deve ser um número positivo';
+    }
   }
 
   // Validação do tipo de distribuição
-  const tiposDistribuicaoValidos = ['padrão', 'proporcional', 'personalizado'];
+  const tiposDistribuicaoValidos = ['padrão', 'proporcional', 'personalizado', 'ordem', 'sorteio'];
   if (!tiposDistribuicaoValidos.includes(data.distribuicaoTipo)) {
     errors.distribuicaoTipo = 'Tipo de distribuição inválido';
   }
 
   // Validação da duração
-  if (!Number.isInteger(data.duracaoMeses) || data.duracaoMeses < 1 || data.duracaoMeses > 60) {
+  const duracaoMeses = Number(data.duracaoMeses);
+  if (isNaN(duracaoMeses) || !Number.isInteger(duracaoMeses) || duracaoMeses < 1 || duracaoMeses > 60) {
     errors.duracaoMeses = 'Duração deve ser um número inteiro entre 1 e 60 meses';
   }
 

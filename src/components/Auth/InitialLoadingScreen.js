@@ -16,11 +16,11 @@ export const InitialLoadingScreen = ({ type, message, details, retry }) => {
       {(type === 'error' || type === 'critical-error') && (
         <ErrorOutline color="error" sx={{ fontSize: 40 }} />
       )}
-      <Typography variant="h6" sx={{ mt: 2 }}>
+      <Typography variant="h6" color="secondary" sx={{ mt: 2 }}>
         {message}
       </Typography>
       {details && (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, maxWidth: '500px', textAlign: 'center' }}>
+        <Typography variant="body2" color="secondary" sx={{ mt: 1, maxWidth: '500px', textAlign: 'center' }}>
           {details}
         </Typography>
       )}

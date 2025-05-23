@@ -1,19 +1,16 @@
 import React from 'react';
 import { Box, Avatar, IconButton, Tooltip } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next'; // Importa a função de tradução
-import { serviceLocator } from '../../core/services/BaseService';
+import { useTranslation } from 'react-i18next';
 
-const ProfileHeader = ({ onEditImage }) => {
-  const { t } = useTranslation(); // Obtém a função de tradução
-    const serviceStore = serviceLocator.get('store').getState()?.auth;
-    const { currentUser } = serviceStore;
+const ProfileHeader = ({ userData, onEditImage }) => {
+  const { t } = useTranslation();
 
   return (
     <Box display="flex" alignItems="center" justifyContent="center" position="relative" mb={2}>
       {/* Imagem do perfil */}
       <Avatar
-        src={currentUser.fotoDoPerfil}
+        src={userData?.fotoDoPerfil || process.env.REACT_APP_PLACE_HOLDER_IMG}
         sx={{
           width: 120,
           height: 120,
@@ -27,24 +24,26 @@ const ProfileHeader = ({ onEditImage }) => {
         }}
       />
 
-      {/* Botão de editar */}
-      <Tooltip title={t('profileHeader.editProfileImage')} arrow>
-        <IconButton
-          onClick={onEditImage}
-          sx={{
-            position: 'absolute',
-            bottom: 8,
-            right: 8,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            '&:hover': {
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            },
-            color: '#fff',
-          }}
-        >
-          <EditIcon />
-        </IconButton>
-      </Tooltip>
+      {/* Botão de editar - apenas mostra se for possível editar */}
+      {onEditImage && (
+        <Tooltip title={t('profileHeader.editProfileImage')} arrow>
+          <IconButton
+            onClick={onEditImage}
+            sx={{
+              position: 'absolute',
+              bottom: 8,
+              right: 8,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              },
+              color: '#fff',
+            }}
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+      )}
     </Box>
   );
 };

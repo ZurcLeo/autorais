@@ -35,6 +35,7 @@ const calculateDuration = (message, type) => {
 
 // Toast básico
 export const showToast = (message, options = {}) => {
+
   const {
     type = 'info',
     autoClose,
@@ -44,6 +45,7 @@ export const showToast = (message, options = {}) => {
     onClose,
     ...restOptions
   } = options;
+  console.log("Mensagem recebida pelo CustomToast:", message);
 
   // Determinar tempo de exibição
   const autoCloseTime = autoClose !== undefined

@@ -1,5 +1,4 @@
-// Melhorias no componente FriendCard para melhor UX
-import React, { useState, memo, useEffect } from 'react';
+import React, { useState, memo } from 'react';
 import {
   Card,
   CardContent,
@@ -9,11 +8,9 @@ import {
   IconButton,
   Box,
   Tooltip,
-  Collapse,
   Chip,
   Button,
   Divider,
-  Stack,
   Avatar,
   Badge,
   CircularProgress
@@ -30,14 +27,12 @@ import {
   HourglassTop as PendingIcon,
   CheckCircle as AcceptIcon
 } from '@mui/icons-material';
-import { serviceLocator } from '../../core/services/BaseService';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMessages } from '../../providers/MessageProvider';
-import { useConnections } from '../../providers/ConnectionProvider';
 
 /**
- * Componente que exibe um cartão de amigo com status de conexão melhorado
+ * Componente de cartão de amigo adaptado para o novo sistema de temas
  */
 const FriendCard = memo(({ 
   friends, 
@@ -51,39 +46,17 @@ const FriendCard = memo(({
   onAcceptRequest
 }) => {
   const { t } = useTranslation();
-  const authStore = serviceLocator.get('store').getState()?.auth || {};
-  const { currentUser } = authStore;
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [actionError, setActionError] = useState(null);
   const navigate = useNavigate();
   const { setActiveChat } = useMessages();
-  const { highlightedRequestId } = useConnections();
   
- const messageStore = serviceLocator.get('store').getState()?.messages || {};
-// const invitesStore = serviceLocator.get('store').getState()?.invites || {};
-
-console.log('setActiveChat check: ', messageStore)
   // Estados e propriedades
   const friendData = friends || {};
   const interesses = friendData.interesses || [];
-  
-
   const mockFoto = process.env.REACT_APP_CLAUD_PROFILE_IMG;
-  // Verificar se este cartão está destacado (para casos de solicitações)
-  const isHighlighted = highlightedRequestId === friendData.id;
-  
-  // Efeito para animação de destaque
-  useEffect(() => {
-    if (isHighlighted) {
-      // Adicionar classe para destaque visual
-      const timer = setTimeout(() => {
-        // Remover destaque após 3 segundos
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isHighlighted]);
-  
+  console.log('friend data no friend card:', friendData)
   // Processar interesses para exibição
   const flattenedInterests = Array.isArray(interesses) 
     ? interesses 
@@ -100,81 +73,83 @@ console.log('setActiveChat check: ', messageStore)
     navigate(`/profile/${friendData.id || friendData.uid}`);
   };
 
-  const conversationId = [currentUser?.uid, friendData.id].sort().join('_');
-  
   const handleStartChat = () => {
+    // Usar ID do usuário atual do provider de autenticação
+    const currentUser = { uid: 'current-user-id' }; // Exemplo - substituir pela lógica real
+    const conversationId = [currentUser?.uid, friendData.id].sort().join('_');
     setActiveChat(conversationId);
     navigate(`/messages/${friendData.id || friendData.uid}`);
   };
   
-  const handleToggleBestFriend = () => {
+  const handleToggleBestFriend = async () => {
     if (onToggleBestFriend) {
-      setLoading(true);
-      onToggleBestFriend(isBestFriend)
-        .finally(() => setLoading(false));
+      try {
+        setLoading(true);
+        await onToggleBestFriend(isBestFriend);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (onDelete) {
-      setLoading(true);
-      onDelete()
-        .finally(() => setLoading(false));
+      try {
+        setLoading(true);
+        await onDelete();
+      } finally {
+        setLoading(false);
+      }
     }
   };
   
-  const handleAddFriend = () => {
+  const handleAddFriend = async () => {
     if (onAddFriend) {
-      setLoading(true);
-      setActionError(null);
-      
-      onAddFriend()
-        .catch(error => {
-          setActionError(error.message);
-        })
-        .finally(() => setLoading(false));
+      try {
+        setLoading(true);
+        setActionError(null);
+        await onAddFriend();
+      } catch (error) {
+        setActionError(error.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   
-  const handleAcceptRequest = () => {
+  const handleAcceptRequest = async () => {
     if (onAcceptRequest) {
-      setLoading(true);
-      onAcceptRequest()
-        .finally(() => setLoading(false));
+      try {
+        setLoading(true);
+        await onAcceptRequest();
+      } finally {
+        setLoading(false);
+      }
     }
   };
   
-  // Renderizar o cartão com status visual melhorado
   return (
-    <Card 
-      elevation={2}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'transform 0.3s, box-shadow 0.3s',
-        position: 'relative',
-        borderRadius: 2,
-        overflow: 'hidden',
-        borderColor: isHighlighted ? 'primary.main' : 'transparent',
-        borderWidth: isHighlighted ? 2 : 0,
-        borderStyle: 'solid',
-        '&:hover': {
-          transform: 'translateY(-8px)',
-          boxShadow: 6
-        }
-      }}
-    >
+    <Card sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      transition: 'all 0.3s ease',
+      position: 'relative',
+      borderRadius: 2,
+      overflow: 'hidden',
+      '&:hover': {
+        transform: 'translateY(-8px)',
+        boxShadow: 3
+      }
+    }}>
       {/* Badge para melhor amigo */}
       {isBestFriend && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 10,
-            right: 10,
-            zIndex: 1
-          }}
-        >
+        <Box sx={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          zIndex: 1
+        }}>
           <Badge 
             color="warning" 
             badgeContent={<StarIcon fontSize="small" />}
@@ -185,14 +160,12 @@ console.log('setActiveChat check: ', messageStore)
       
       {/* Badge para solicitação pendente */}
       {hasPendingRequest && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 10,
-            right: 10,
-            zIndex: 1
-          }}
-        >
+        <Box sx={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          zIndex: 1
+        }}>
           <Chip 
             icon={<PendingIcon />}
             label={t('friendCard.pendingRequest')}
@@ -204,14 +177,12 @@ console.log('setActiveChat check: ', messageStore)
       
       {/* Badge para solicitação recebida */}
       {hasIncomingRequest && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 10,
-            right: 10,
-            zIndex: 1
-          }}
-        >
+        <Box sx={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          zIndex: 1
+        }}>
           <Chip 
             icon={<AcceptIcon />}
             label={t('friendCard.incomingRequest')}
@@ -263,11 +234,7 @@ console.log('setActiveChat check: ', messageStore)
           <Typography 
             variant="caption" 
             color="error" 
-            sx={{ 
-              display: 'block', 
-              mb: 2,
-              fontSize: '0.75rem'
-            }}
+            sx={{ display: 'block', mb: 2 }}
           >
             {actionError}
           </Typography>
@@ -338,7 +305,7 @@ console.log('setActiveChat check: ', messageStore)
                   {loading ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <StarIcon sx={{ color: isBestFriend ? 'gold' : 'inherit' }} />
+                    <StarIcon sx={{ color: isBestFriend ? 'warning.main' : 'inherit' }} />
                   )}
                 </IconButton>
               </Tooltip>

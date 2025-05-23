@@ -150,7 +150,7 @@ class NotificationService extends BaseService {
         });
         
         // Emitir evento de notificações obtidas
-        this._emitEvent(this.serviceName, NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED, {
+        this._emitEvent(NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED, {
           userId,
           notifications,
           count: notifications?.length || 0,
@@ -211,7 +211,7 @@ class NotificationService extends BaseService {
         });
         
         // Emitir evento de notificação criada
-        this._emitEvent(this.serviceName, NOTIFICATION_EVENTS.NOTIFICATION_CREATED, {
+        this._emitEvent(NOTIFICATION_EVENTS.NOTIFICATION_CREATED, {
           userId,
           notification,
           timestamp: Date.now()
@@ -272,7 +272,7 @@ class NotificationService extends BaseService {
           });
         
         // Emitir evento de notificação marcada como lida
-        this._emitEvent(this.serviceName, NOTIFICATION_EVENTS.NOTIFICATION_MARKED_READ, {
+        this._emitEvent(NOTIFICATION_EVENTS.NOTIFICATION_MARKED_READ, {
           userId,
           notificationId,
           result,
@@ -317,7 +317,7 @@ class NotificationService extends BaseService {
         this._logPerformance('clearAllNotifications', duration, { userId });
         
         // Emitir evento de todas as notificações limpas
-        this._emitEvent(this.serviceName, NOTIFICATION_EVENTS.ALL_NOTIFICATIONS_CLEARED, {
+        this._emitEvent(NOTIFICATION_EVENTS.ALL_NOTIFICATIONS_CLEARED, {
           userId,
           result,
           timestamp: Date.now()
@@ -364,7 +364,7 @@ class NotificationService extends BaseService {
         });
         
         // Emitir evento de notificações não lidas obtidas
-        this._emitEvent(this.serviceName, NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED, {
+        this._emitEvent(NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED, {
           userId,
           notifications,
           count: notifications?.length || 0,

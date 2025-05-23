@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { serviceLocator } from '../../../core/services/BaseService';
 import { toast } from 'react-toastify';
 import {
@@ -9,102 +9,286 @@ import {
   Grid,
   Box,
   CircularProgress,
+  Typography,
+  Divider,
+  Paper,
+  Tooltip,
+  IconButton,
+  Fade,
 } from '@mui/material';
+import {
+  Save as SaveIcon,
+  Add as AddIcon,
+  Cancel as CancelIcon,
+  Info as InfoIcon,
+  CheckCircle as CheckCircleIcon,
+} from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+// Esquema de validação
+const validationSchema = Yup.object({
+  name: Yup.string()
+    .required('Nome é obrigatório')
+    .max(50, 'Nome deve ter no máximo 50 caracteres'),
+  description: Yup.string()
+    .max(200, 'Descrição deve ter no máximo 200 caracteres'),
+});
 
 const CategoryForm = ({ initialValues, onSubmit, onCancel }) => {
-  const [category, setCategory] = useState(initialValues || { name: '', description: '', active: true });
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
-  const interestsService = serviceLocator('interestsService')
-  
+  const [showSuccess, setShowSuccess] = useState(false);
+  const interestsService = serviceLocator.get('interests');
+
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      description: '',
+      active: true,
+      ...initialValues
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        if (initialValues?.id) {
+          await interestsService.updateCategory(initialValues.id, values);
+          toast.success('Categoria atualizada com sucesso!');
+        } else {
+          await interestsService.createCategory(values);
+          toast.success('Categoria criada com sucesso!');
+        }
+        
+        setShowSuccess(true);
+        setTimeout(() => {
+          onSubmit({ ...values });
+          onCancel();
+        }, 1000);
+      } catch (error) {
+        console.error('Erro ao salvar categoria:', error);
+        toast.error(error.message || 'Erro ao salvar categoria. Tente novamente.');
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
+  // Reset form when initialValues change
   useEffect(() => {
-    setCategory(initialValues || { name: '', description: '', active: true });
+    formik.resetForm({
+      values: {
+        name: '',
+        description: '',
+        active: true,
+        ...initialValues
+      }
+    });
   }, [initialValues]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setCategory(prevCategory => ({
-      ...prevCategory,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!category.name) {
-      toast.warning('Nome da categoria é obrigatório');
-      return;
-    }
-    setLoading(true);
-    try {
-      if (initialValues?.id) {
-        await interestsService.updateCategory(initialValues.id, category);
-        toast.success('Categoria atualizada com sucesso!');
-      } else {
-        await interestsService.createCategory(category);
-        toast.success('Categoria criada com sucesso!');
+  const handleCancel = useCallback(() => {
+    if (formik.dirty) {
+      if (window.confirm('Tem certeza que deseja cancelar? As alterações não serão salvas.')) {
+        onCancel();
       }
-      onSubmit(category);
+    } else {
       onCancel();
-    } catch (error) {
-      console.error('Erro ao salvar categoria:', error);
-      toast.error('Erro ao salvar categoria. Tente novamente.');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [formik.dirty, onCancel]);
+
+  if (showSuccess) {
+    return (
+      <Fade in={showSuccess}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 4,
+            textAlign: 'center',
+            height: '100%'
+          }}
+        >
+          <CheckCircleIcon
+            sx={{
+              fontSize: 60,
+              color: theme.palette.success.main,
+              mb: 2
+            }}
+          />
+          <Typography variant="h6" gutterBottom>
+            {initialValues?.id ? 'Categoria atualizada!' : 'Categoria criada!'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Redirecionando...
+          </Typography>
+        </Box>
+      </Fade>
+    );
+  }
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      <Grid container spacing={2} alignItems="center">
+    <Paper
+      component="form"
+      onSubmit={formik.handleSubmit}
+      sx={{
+        mt: 2,
+        p: 3,
+        borderRadius: 2,
+        boxShadow: theme.shadows[2],
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          boxShadow: theme.shadows[4]
+        }
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2
+        }}
+      >
+        <Typography variant="h6" component="h2">
+          {initialValues?.id ? 'Editar Categoria' : 'Nova Categoria'}
+        </Typography>
+        <Tooltip title="Informações">
+          <IconButton>
+            <InfoIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+      
+      <Divider sx={{ mb: 3 }} />
+      
+      <Grid container spacing={3}>
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Nome"
+            label="Nome da categoria"
             name="name"
-            value={category.name}
-            onChange={handleChange}
-            placeholder="Nome da categoria"
-            required
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.name && Boolean(formik.errors.name)}
+            helperText={formik.touched.name && formik.errors.name}
+            placeholder="Ex: Esportes, Tecnologia..."
+            variant="outlined"
+            InputProps={{
+              endAdornment: formik.values.name && !formik.errors.name ? (
+                <CheckCircleIcon color="success" fontSize="small" />
+              ) : null
+            }}
+            autoFocus
           />
         </Grid>
+        
         <Grid item xs={12}>
           <TextField
             fullWidth
             multiline
-            rows={2}
+            minRows={3}
+            maxRows={6}
             label="Descrição"
             name="description"
-            value={category.description}
-            onChange={handleChange}
-            placeholder="Descrição (opcional)"
+            value={formik.values.description}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.description && Boolean(formik.errors.description)}
+            helperText={formik.touched.description && formik.errors.description}
+            placeholder="Descreva esta categoria (opcional)"
+            variant="outlined"
+            inputProps={{
+              maxLength: 200
+            }}
+            FormHelperTextProps={{
+              sx: { textAlign: 'right' }
+            }}
           />
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block', textAlign: 'right', mt: 0.5 }}
+          >
+            {formik.values.description.length}/200 caracteres
+          </Typography>
         </Grid>
+        
         {initialValues?.id && (
           <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Switch
                   name="active"
-                  checked={category.active}
-                  onChange={handleChange}
+                  checked={formik.values.active}
+                  onChange={formik.handleChange}
+                  color="primary"
                 />
               }
-              label="Status"
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography>Status</Typography>
+                  <Tooltip title="Categorias inativas não serão exibidas para os usuários">
+                    <InfoIcon fontSize="small" sx={{ ml: 1, color: 'action.active' }} />
+                  </Tooltip>
+                </Box>
+              }
+              sx={{ userSelect: 'none' }}
             />
           </Grid>
         )}
+        
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button type="submit" variant="contained" color="primary" disabled={loading}>
-              {loading ? <CircularProgress size={24} /> : initialValues?.id ? 'Salvar' : 'Adicionar'}
-            </Button>
-            <Button type="button" onClick={onCancel} variant="outlined" disabled={loading}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              justifyContent: 'flex-end',
+              pt: 2,
+              borderTop: `1px solid ${theme.palette.divider}`
+            }}
+          >
+            <Button
+              type="button"
+              onClick={handleCancel}
+              variant="outlined"
+              disabled={loading}
+              startIcon={<CancelIcon />}
+              sx={{ minWidth: 120 }}
+            >
               Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={loading || !formik.dirty}
+              startIcon={
+                loading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : initialValues?.id ? (
+                  <SaveIcon />
+                ) : (
+                  <AddIcon />
+                )
+              }
+              sx={{ minWidth: 140 }}
+            >
+              {loading ? (
+                'Salvando...'
+              ) : initialValues?.id ? (
+                'Salvar Alterações'
+              ) : (
+                'Criar Categoria'
+              )}
             </Button>
           </Box>
         </Grid>
       </Grid>
-    </Box>
+    </Paper>
   );
 };
 

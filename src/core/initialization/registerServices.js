@@ -18,6 +18,9 @@ import { NotificationService } from '../../services/NotificationService';
 import { ConnectionService } from '../../services/ConnectionService';
 import { MessageService } from '../../services/MessageService';
 import { CaixinhaService } from '../../services/CaixinhaService'
+import { CaixinhaInviteService } from '../../services/CaixinhaInviteService';
+import { LoanService } from '../../services/LoanService';
+import { DisputeService } from '../../services/DisputeService';
 
 // Definição de serviços por fase
 const SERVICES_DEFINITION = {
@@ -40,7 +43,10 @@ const SERVICES_DEFINITION = {
     { name: 'messages', ServiceClass: MessageService }
   ],
   FEATURES: [
-    { name: 'caixinhas', ServiceClass: CaixinhaService }
+    { name: 'caixinhas', ServiceClass: CaixinhaService },
+    { name: 'caixinhaInvite', ServiceClass: CaixinhaInviteService },
+    { name: 'loans', ServiceClass: LoanService },
+    { name: 'disputes', ServiceClass: DisputeService}
   ]
 };
 

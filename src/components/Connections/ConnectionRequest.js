@@ -22,7 +22,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Skeleton,
   Badge,
   Collapse,
   useMediaQuery
@@ -32,7 +31,6 @@ import {
   CheckCircle as AcceptIcon,
   Cancel as RejectIcon,
   Block as BlockIcon,
-  ArrowForward as ViewProfileIcon,
   Visibility as VisibilityIcon,
   PersonAdd as ConnectionIcon,
   KeyboardArrowDown as ExpandMoreIcon,
@@ -85,10 +83,9 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
   // Verificar se há solicitações
   if (!connections || connections.length === 0) {
     return (
-                <Alert severity="info" sx={{ backgroundColor: 'lightblue', color: 'darkblue' }}>
-      
-                    {t('connectionRequest.noRequests')}
-                </Alert>
+      <Alert severity="info" sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
+        {t('connectionRequest.noRequests')}
+      </Alert>
     );
   }
 
@@ -288,33 +285,24 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
               sx={{
                 mb: 3,
                 opacity: ['accepted', 'rejected', 'blocked'].includes(status) ? 0.75 : 1,
-                transition: 'all 0.3s ease',
-                animation: isNew ? `${theme.transitions.create('transform', {
-                  duration: theme.transitions.duration.standard,
-                  easing: theme.transitions.easing.easeInOut
-                })} 0.5s ease` : 'none',
-                '@keyframes fadeIn': {
-                  '0%': { opacity: 0, transform: 'translateY(10px)' },
-                  '100%': { opacity: 1, transform: 'translateY(0)' }
-                }
+                transition: 'all 0.3s ease'
               }}
             >
               <Paper
                 elevation={isNew ? 3 : 1}
                 sx={{
                   overflow: 'hidden',
-                  borderRadius: '12px',
+                  borderRadius: 2,
                   transition: 'all 0.3s ease',
-                  boxShadow: isNew 
-                    ? '0 4px 12px rgba(25, 118, 210, 0.2)' 
-                    : '0 2px 8px rgba(0,0,0,0.1)',
+                  boxShadow: isNew ? 3 : 1,
                   '&:hover': {
                     transform: 'translateY(-3px)',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.15)'
+                    boxShadow: 3
                   },
-                  border: isNew ? '1px solid' : 'none',
+                  border: isNew ? 1 : 'none',
                   borderColor: 'primary.light',
-                  position: 'relative'
+                  position: 'relative',
+                  bgcolor: 'background.paper'
                 }}
               >
                 {isNew && (
@@ -350,7 +338,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                     badgeContent={
                       status === 'accepted' ? (
                         <Tooltip title={t('connectionRequest.connected')}>
-                          <AcceptIcon sx={{ color: 'success.main', backgroundColor: 'white', borderRadius: '50%' }} />
+                          <AcceptIcon sx={{ color: 'success.main', bgcolor: 'background.paper', borderRadius: '50%' }} />
                         </Tooltip>
                       ) : null
                     }
@@ -362,7 +350,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                         sx={{ 
                           width: 72, 
                           height: 72,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          boxShadow: 1,
                           transition: 'transform 0.2s',
                           '&:hover': {
                             transform: 'scale(1.05)'
@@ -382,10 +370,10 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                           component="span" 
                           fontWeight="bold"
                           sx={{ 
-                            color: theme.palette.text.primary,
+                            color: 'text.primary',
                             transition: 'color 0.2s',
                             '&:hover': {
-                              color: theme.palette.primary.main,
+                              color: 'primary.main',
                               cursor: 'pointer'
                             }
                           }}
@@ -412,7 +400,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                         <Typography 
                           component="span" 
                           variant="body2" 
-                          color="textPrimary" 
+                          color="text.primary" 
                           display="block"
                           sx={{ mb: 0.5 }}
                         >
@@ -421,7 +409,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                         
                         <Typography 
                           variant="caption" 
-                          color="textSecondary" 
+                          color="text.secondary" 
                           sx={{ 
                             display: 'flex',
                             alignItems: 'center',
@@ -438,13 +426,12 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                             <Box sx={{ 
                               mt: 1, 
                               p: 2, 
-                              bgcolor: theme.palette.background.paper, 
+                              bgcolor: 'background.default', 
                               borderRadius: 2,
                               borderLeft: '3px solid',
                               borderColor: 'primary.light',
-                              boxShadow: 'inset 0 0 6px rgba(0,0,0,0.05)'
                             }}>
-                              <Typography variant="body2" color="textSecondary">
+                              <Typography variant="body2" color="text.secondary">
                                 "{connection.message}"
                               </Typography>
                             </Box>
@@ -452,7 +439,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                             
                           <Typography 
                             variant="caption" 
-                            color="textSecondary" 
+                            color="text.secondary" 
                             display="block" 
                             sx={{ mt: 1 }}
                           >
@@ -491,7 +478,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                   />
                 </ListItem>
                 
-                <Divider sx={{ opacity: 0.6 }} />
+                <Divider />
                 
                 <Box sx={{ 
                   display: 'flex', 
@@ -500,7 +487,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                   flexDirection: isMobile ? 'column' : 'row',
                   gap: isMobile ? 1 : 0,
                   p: 2,
-                  bgcolor: theme.palette.background.default
+                  bgcolor: 'background.default'
                 }}>
                   {status === 'pending' ? (
                     <ButtonGroup 
@@ -518,10 +505,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                         sx={{ 
                           py: 1,
                           px: 2,
-                          width: isMobile ? '100%' : 'auto',
-                          '&:active': {
-                            transform: 'scale(0.98)'
-                          }
+                          width: isMobile ? '100%' : 'auto'
                         }}
                       >
                         {t('connectionRequest.acceptButton')}
@@ -536,17 +520,14 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                         sx={{ 
                           py: 1,
                           px: 2,
-                          width: isMobile ? '100%' : 'auto',
-                          '&:active': {
-                            transform: 'scale(0.98)'
-                          }
+                          width: isMobile ? '100%' : 'auto'
                         }}
                       >
                         {t('connectionRequest.rejectButton')}
                       </Button>
                     </ButtonGroup>
                   ) : (
-                    <Typography variant="body2" color="textSecondary">
+                    <Typography variant="body2" color="text.secondary">
                       {t(`connectionRequest.${status}Status`)}
                     </Typography>
                   )}
@@ -567,12 +548,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                           disabled={isLoading}
                           startIcon={<VisibilityIcon />}
                           size="small"
-                          sx={{ 
-                            borderRadius: '20px',
-                            '&:active': {
-                              transform: 'scale(0.98)'
-                            }
-                          }}
+                          sx={{ borderRadius: 5 }}
                         >
                           {t('connectionRequest.viewProfileButton')}
                         </Button>
@@ -588,12 +564,7 @@ const ConnectionRequest = ({ connections = [], onConnectionUpdate }) => {
                             aria-label={t('connectionRequest.blockUser', {name: connection.senderName})}
                             size="small"
                             disabled={isLoading}
-                            sx={{ 
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                              '&:active': {
-                                transform: 'scale(0.95)'
-                              }
-                            }}
+                            sx={{ boxShadow: 1 }}
                           >
                             {isLoading ? <CircularProgress size={20} /> : <BlockIcon />}
                           </IconButton>

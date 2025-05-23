@@ -13,7 +13,7 @@ export const setupConnectionMappings = (eventBridgeService) => {
     {
       serviceName: 'connections',
       eventType: CONNECTION_EVENTS.CONNECTIONS_FETCHED,
-      actionType: CONNECTION_ACTIONS.FETCH_SUCCESS,
+      actionType: CONNECTION_ACTIONS.FETCH_CONNECTION_SUCCESS,
       transformer: (eventData) => {
         console.log('Transformer sendo chamado para CONNECTIONS_FETCHED', eventData);
         

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   List,
   ListItem,
@@ -19,7 +19,8 @@ import {
   InputAdornment,
   FormControl,
   Select,
-  Paper
+  Paper,
+  CircularProgress
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -27,39 +28,48 @@ import {
   Star as StarIcon,
   MoreVert as MoreVertIcon,
   Search as SearchIcon,
+  ListAltOutlined as ListItemIcon,
   ArrowUpward as ArrowUpwardIcon,
   ArrowDownward as ArrowDownwardIcon,
   FilterList as FilterListIcon,
   PersonOff as PersonOffIcon,
   AdminPanelSettings as AdminIcon,
-  CheckCircle as ActiveIcon
+  CheckCircle as ActiveIcon,
+  Refresh as RefreshIcon,
+  Cancel as CancelIcon,
+  Email as EmailIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { coreLogger } from '../../core/logging';
+import { LOG_LEVELS } from '../../core/constants/config';
 
+const MODULE_NAME = 'MembersList';
+const imgMock = process.env.REACT_APP_PLACE_HOLDER_IMG;
 /**
  * Componente de apresentação para exibir a lista de membros da caixinha
  * 
  * @param {Object} props
- * @param {Array} props.members - Lista de membros da caixinha
- * @param {Array} props.pendingInvites - Lista de convites pendentes (opcional)
+ * @param {Array} props.members - Lista de membros e convites combinados
+ * @param {string} props.caixinhaId - ID da caixinha
  * @param {Function} props.onEdit - Handler para edição de membro
  * @param {Function} props.onRemove - Handler para remoção de membro
- * @param {Function} props.onPromote - Handler para promover a administrador (opcional)
- * @param {Function} props.onSendReminder - Handler para reenviar convite (opcional)
- * @param {Function} props.onCancelInvite - Handler para cancelar convite (opcional)
+ * @param {Function} props.onPromote - Handler para promover a administrador
+ * @param {Function} props.onSendReminder - Handler para reenviar convite
+ * @param {Function} props.onCancelInvite - Handler para cancelar convite
  * @param {Boolean} props.isAdmin - Se o usuário atual é administrador da caixinha
  * @param {String} props.currentUserId - ID do usuário atual
  */
 export const MembersList = ({
   members = [],
-  pendingInvites = [],
+  caixinhaId,
   onEdit,
   onRemove,
   onPromote,
   onSendReminder,
   onCancelInvite,
   isAdmin = false,
-  currentUserId
+  currentUserId,
+  loading = false
 }) => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,29 +78,32 @@ export const MembersList = ({
   const [filterStatus, setFilterStatus] = useState('all');
   const [anchorEl, setAnchorEl] = useState(null);
   const [actionMemberId, setActionMemberId] = useState(null);
+  const [actionItemType, setActionItemType] = useState(null);
+  const [actionInProgress, setActionInProgress] = useState(false);
+
+  // Log para debugging
+  React.useEffect(() => {
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'MembersList initialized', {
+      membersCount: members.length,
+      caixinhaId,
+      isAdmin,
+      currentUserId
+    });
+  }, [members.length, caixinhaId, isAdmin, currentUserId]);
 
   // Ordenação e filtragem combinados
-  const processedMembers = React.useMemo(() => {
-    // Combinar membros e convites pendentes para exibição unificada
-    const allMemberItems = [
-      ...members.map(member => ({ 
-        ...member, 
-        type: 'member',
-        status: member.active ? 'active' : 'inactive'
-      })),
-      ...pendingInvites.map(invite => ({ 
-        id: invite.id,
-        nome: invite.nome || invite.email, 
-        email: invite.email,
-        type: 'pending',
-        status: 'pending',
-        invitedAt: invite.createdAt, 
-        inviteId: invite.id
-      }))
-    ];
+  const processedMembers = useMemo(() => {
+    // Log para debugging da entrada de dados
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Processing members data', {
+      count: members.length,
+      searchTerm,
+      filterStatus,
+      sortField,
+      sortDirection
+    });
 
     // Aplicar filtragem
-    const filtered = allMemberItems.filter(item => {
+    const filtered = members.filter(item => {
       // Filtragem por termo de busca
       const matchesSearch = 
         searchTerm === '' || 
@@ -100,8 +113,9 @@ export const MembersList = ({
       // Filtragem por status
       const matchesStatus = 
         filterStatus === 'all' || 
-        item.status === filterStatus ||
-        (filterStatus === 'invited' && item.type === 'pending');
+        (filterStatus === 'pending' && item.type === 'caixinha_invite') ||
+        (filterStatus === 'active' && item.status === 'active') ||
+        (filterStatus === 'inactive' && item.status === 'inactive');
       
       return matchesSearch && matchesStatus;
     });
@@ -118,10 +132,15 @@ export const MembersList = ({
           compareResult = (a.email || '').localeCompare(b.email || '');
           break;
         case 'status':
-          compareResult = (a.status || '').localeCompare(b.status || '');
+          const statusA = a.type === 'caixinha_invite' ? 'pending' : a.status || '';
+          const statusB = b.type === 'caixinha_invite' ? 'pending' : b.status || '';
+
+          compareResult = statusA.localeCompare(statusB);
           break;
         case 'joinDate':
-          compareResult = new Date(a.joinedAt || 0) - new Date(b.joinedAt || 0);
+          const dateA = a.joinedAt || a.invitedAt || a.createdAt || 0;
+          const dateB = b.joinedAt || b.invitedAt || b.createdAt || 0;
+          compareResult = new Date(dateA) - new Date(dateB);
           break;
         default:
           compareResult = 0;
@@ -129,7 +148,7 @@ export const MembersList = ({
       
       return sortDirection === 'asc' ? compareResult : -compareResult;
     });
-  }, [members, pendingInvites, searchTerm, sortField, sortDirection, filterStatus]);
+  }, [members, searchTerm, sortField, sortDirection, filterStatus]);
 
   // Manipuladores de interação
   const handleSort = (field) => {
@@ -141,44 +160,90 @@ export const MembersList = ({
     }
   };
 
-  const handleOpenActionMenu = (event, memberId) => {
+  const handleOpenActionMenu = (event, id, type) => {
     setAnchorEl(event.currentTarget);
-    setActionMemberId(memberId);
+    setActionMemberId(id);
+    
+    // Determinar o tipo de item (membro ou convite)
+    const actionItem = members.find(item => {
+      if (type === 'caixinha_invite') {
+        return item.caxinhaInviteId === id;
+      }
+      return item.id === id;
+    });
+    
+    setActionItemType(actionItem?.type || 'member');
   };
 
   const handleCloseActionMenu = () => {
     setAnchorEl(null);
     setActionMemberId(null);
+    setActionItemType(null);
   };
 
-  const handleAction = (action) => {
-    switch (action) {
-      case 'edit':
-        onEdit && onEdit(actionMemberId);
-        break;
-      case 'remove':
-        onRemove && onRemove(actionMemberId);
-        break;
-      case 'promote':
-        onPromote && onPromote(actionMemberId);
-        break;
-      case 'reminder':
-        onSendReminder && onSendReminder(actionMemberId);
-        break;
-      case 'cancel':
-        onCancelInvite && onCancelInvite(actionMemberId);
-        break;
-      default:
-        break;
-    }
+  // Função para converter timestamp do Firestore para objeto Date
+const convertFirestoreTimestampToDate = (timestamp) => {
+  // Verifica se o timestamp tem o formato Firestore (_seconds e _nanoseconds)
+  if (timestamp && timestamp._seconds) {
+    return new Date(timestamp._seconds * 1000);
+  }
+  // Fallback para outros formatos de data
+  return new Date(timestamp);
+};
+
+  const handleAction = async (action) => {
+    setActionInProgress(true);
     
-    handleCloseActionMenu();
+    try {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, `Executing action: ${action}`, {
+        memberId: actionMemberId,
+        type: actionItemType,
+        caixinhaId
+      });
+      
+      switch (action) {
+        case 'edit':
+          onEdit && await onEdit(actionMemberId);
+          break;
+        case 'remove':
+          onRemove && await onRemove(actionMemberId);
+          break;
+        case 'promote':
+          onPromote && await onPromote(actionMemberId);
+          break;
+        case 'reminder':
+          onSendReminder && await onSendReminder(actionMemberId, caixinhaId);
+          break;
+        case 'cancel':
+          onCancelInvite && await onCancelInvite(actionMemberId, caixinhaId);
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error executing action: ${action}`, {
+        memberId: actionMemberId,
+        error: error.message
+      });
+    } finally {
+      setActionInProgress(false);
+      handleCloseActionMenu();
+    }
   };
 
   // Renderização do status do membro
   const renderMemberStatus = (memberItem) => {
-    if (memberItem.type === 'pending') {
-      return (
+    // Convite pendente via email
+    if (memberItem.type === 'caixinha_invite') {
+      return memberItem.email && !memberItem.targetId ? (
+        <Chip
+          size="small"
+          icon={<EmailIcon />}
+          label={t('membersList.invitedByEmail')}
+          color="warning"
+          variant="outlined"
+        />
+      ) : (
         <Chip
           size="small"
           label={t('membersList.invited')}
@@ -188,6 +253,7 @@ export const MembersList = ({
       );
     }
     
+    // Administrador
     if (memberItem.isAdmin) {
       return (
         <Chip
@@ -200,6 +266,7 @@ export const MembersList = ({
       );
     }
     
+    // Membro ativo
     if (memberItem.status === 'active') {
       return (
         <Chip
@@ -212,6 +279,7 @@ export const MembersList = ({
       );
     }
     
+    // Membro inativo por padrão
     return (
       <Chip
         size="small"
@@ -222,6 +290,15 @@ export const MembersList = ({
       />
     );
   };
+
+  // Se estiver carregando, mostrar indicador de progresso
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   // Se não houver membros após filtragem
   if (processedMembers.length === 0) {
@@ -235,6 +312,8 @@ export const MembersList = ({
       </Paper>
     );
   }
+
+console.log('invitedOninvitedOninvitedOn:', processedMembers)
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -269,7 +348,7 @@ export const MembersList = ({
             <MenuItem value="all">{t('membersList.allMembers')}</MenuItem>
             <MenuItem value="active">{t('membersList.activeOnly')}</MenuItem>
             <MenuItem value="inactive">{t('membersList.inactiveOnly')}</MenuItem>
-            <MenuItem value="invited">{t('membersList.invitedOnly')}</MenuItem>
+            <MenuItem value="pending">{t('membersList.invitedOnly')}</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -331,79 +410,97 @@ export const MembersList = ({
       {/* Lista de membros */}
       <Paper elevation={1}>
         <List disablePadding>
-          {processedMembers.map((memberItem, index) => (
-            <React.Fragment key={memberItem.id || `pending-${memberItem.inviteId}`}>
-              <ListItem
-                sx={{
-                  bgcolor: memberItem.id === currentUserId ? 'action.selected' : 'inherit',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                  }
-                }}
-              >
-                <ListItemAvatar>
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                    badgeContent={memberItem.isAdmin ? <AdminIcon color="primary" fontSize="small" /> : null}
-                  >
-                    <Avatar 
-                      src={memberItem.fotoPerfil}
-                      alt={memberItem.nome}
-                      sx={{
-                        bgcolor: memberItem.type === 'pending' ? 'warning.light' : 'primary.light',
-                      }}
+          {processedMembers.map((memberItem, index) => {
+            // Determinar se este item é um convite
+            const isInvite = memberItem.type === 'caixinha_invite';
+            // ID do item (convite ou membro)
+            const itemId = isInvite ? memberItem.caxinhaInviteId : memberItem.id;
+            // Destacar usuário atual na lista
+            const isCurrentUser = !isInvite && memberItem.id === currentUserId;
+            
+            return (
+              <React.Fragment key={itemId || `member-${index}`}>
+                <ListItem
+                  sx={{
+                    bgcolor: isCurrentUser ? 'action.selected' : 'inherit',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    }
+                  }}
+                >
+                  <ListItemAvatar>
+                    <Badge
+                      overlap="circular"
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                      badgeContent={memberItem.isAdmin ? <AdminIcon color="primary" fontSize="small" /> : null}
                     >
-                      {memberItem.nome?.[0] || '?'}
-                    </Avatar>
-                  </Badge>
-                </ListItemAvatar>
-                
-                <ListItemText
-                  primary={memberItem.nome || memberItem.email}
-                  secondary={
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {memberItem.email}
-                      </Typography>
-                      
-                      {memberItem.type === 'pending' && (
+                      <Avatar 
+                        src={memberItem.fotoPerfil && memberItem.fotoPerfil.startsWith('http') ? memberItem.fotoPerfil : imgMock}
+                        alt={memberItem.nome}
+                        sx={{
+                          bgcolor: isInvite ? 'warning.light' : 'primary.light',
+                        }}
+                      >
+                        {memberItem.nome?.[0] || '?'}
+                      </Avatar>
+                    </Badge>
+                  </ListItemAvatar>
+                  
+                  <ListItemText
+                    primary={memberItem.nome || memberItem.email}
+                    secondary={
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {memberItem.email}
+                        </Typography>
+                        
+                        {isInvite && memberItem.invitedAt && (
                         <Typography variant="caption" color="text.secondary">
                           {t('membersList.invitedOn', { 
-                            date: new Date(memberItem.invitedAt).toLocaleDateString() 
+                            date: convertFirestoreTimestampToDate(memberItem.invitedAt).toLocaleDateString('pt-BR') 
                           })}
                         </Typography>
                       )}
-                    </Box>
-                  }
-                />
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-                  {renderMemberStatus(memberItem)}
-                </Box>
-                
-                <ListItemSecondaryAction>
-                  {/* Exibir menu de ações apenas para admins ou para o próprio usuário */}
-                  {(isAdmin || memberItem.id === currentUserId) && (
-                    <>
-                      <IconButton
-                        edge="end"
-                        onClick={(e) => handleOpenActionMenu(
-                          e, 
-                          memberItem.type === 'pending' ? memberItem.inviteId : memberItem.id
-                        )}
-                        size="small"
+                      </Box>
+                    }
+                    secondaryTypographyProps={{ component: 'div' }}
+                  />
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+                    {renderMemberStatus(memberItem)}
+                  </Box>
+                  
+                  <ListItemSecondaryAction>
+                    {/* Exibir menu de ações apenas para admins ou para o próprio usuário */}
+                    {(isAdmin || isCurrentUser || (isInvite && memberItem.senderId === currentUserId)) && (
+                      <Tooltip 
+                        title={
+                          isInvite
+                            ? t('membersList.inviteOptions')
+                            : t('membersList.memberOptions')
+                        }
                       >
-                        <MoreVertIcon />
-                      </IconButton>
-                    </>
-                  )}
-                </ListItemSecondaryAction>
-              </ListItem>
-              
-              {index < processedMembers.length - 1 && <Divider component="li" />}
-            </React.Fragment>
-          ))}
+                        <IconButton
+                          edge="end"
+                          onClick={(e) => handleOpenActionMenu(e, itemId, memberItem.type)}
+                          size="small"
+                          disabled={actionInProgress}
+                        >
+                          {actionInProgress && actionMemberId === itemId ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <MoreVertIcon />
+                          )}
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </ListItemSecondaryAction>
+                </ListItem>
+                
+                {index < processedMembers.length - 1 && <Divider component="li" />}
+              </React.Fragment>
+            );
+          })}
         </List>
       </Paper>
 
@@ -413,52 +510,52 @@ export const MembersList = ({
         open={Boolean(anchorEl)}
         onClose={handleCloseActionMenu}
       >
-        {/* Buscar o membro ou convite atual para determinar as opções de menu */}
-        {(() => {
-          const currentItem = actionMemberId && (
-            processedMembers.find(m => 
-              (m.type === 'pending' && m.inviteId === actionMemberId) || 
-              m.id === actionMemberId
-            )
-          );
-          
-          if (!currentItem) return null;
-          
-          // Menu para convites pendentes
-          if (currentItem.type === 'pending') {
-            return (
-              <>
-                <MenuItem onClick={() => handleAction('reminder')}>
-                  {t('membersList.resendInvite')}
-                </MenuItem>
-                <MenuItem onClick={() => handleAction('cancel')}>
-                  {t('membersList.cancelInvite')}
-                </MenuItem>
-              </>
-            );
-          }
-          
-          // Menu para membros regulares
-          return (
-            <>
-              <MenuItem onClick={() => handleAction('edit')}>
-                {t('membersList.editMember')}
+        {/* Opções de menu com base no tipo de item (membro ou convite) */}
+        {actionItemType === 'caixinha_invite' ? (
+          <>
+            <MenuItem onClick={() => handleAction('reminder')} disabled={actionInProgress}>
+              <ListItemIcon>
+                <RefreshIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>{t('membersList.resendInvite')}</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleAction('cancel')} disabled={actionInProgress}>
+              <ListItemIcon>
+                <CancelIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>{t('membersList.cancelInvite')}</ListItemText>
+            </MenuItem>
+          </>
+        ) : (
+          <>
+            {isAdmin && (
+              <MenuItem onClick={() => handleAction('edit')} disabled={actionInProgress}>
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{t('membersList.editMember')}</ListItemText>
               </MenuItem>
-              
-              {isAdmin && !currentItem.isAdmin && currentItem.id !== currentUserId && (
-                <MenuItem onClick={() => handleAction('promote')}>
-                  {t('membersList.promoteToAdmin')}
-                </MenuItem>
-              )}
-              
-              {(isAdmin || currentItem.id === currentUserId) && (
-                <MenuItem onClick={() => handleAction('remove')}>
-                  {t('membersList.removeMember')}
-                </MenuItem>
-              )}
-            </>
-          );
-        })()}
+            )}
+            
+            {isAdmin && !members.find(m => m.id === actionMemberId)?.isAdmin && actionMemberId !== currentUserId && (
+              <MenuItem onClick={() => handleAction('promote')} disabled={actionInProgress}>
+                <ListItemIcon>
+                  <StarIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{t('membersList.promoteToAdmin')}</ListItemText>
+              </MenuItem>
+            )}
+            
+            {(isAdmin || actionMemberId === currentUserId) && (
+              <MenuItem onClick={() => handleAction('remove')} disabled={actionInProgress}>
+                <ListItemIcon>
+                  <DeleteIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{t('membersList.removeMember')}</ListItemText>
+              </MenuItem>
+            )}
+          </>
+        )}
       </Menu>
     </Box>
   );

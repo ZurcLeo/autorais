@@ -26,7 +26,6 @@ class CaixinhaService extends BaseService {
     this._log(`📊 Nova instância de ${MODULE_NAME} criada, instanceId: ${this.instanceId}`);
     this.apiService = serviceLocator.get('apiService');
     this.authService = serviceLocator.get('auth');
-
   }
 
     // Método para obter o usuário atual - mesma abordagem do InviteService
@@ -119,7 +118,7 @@ class CaixinhaService extends BaseService {
         try {
           this._log('fetching caixinhas', { userId });
           
-          const response = await this.apiService.get(`/api/caixinha/${userId}`);
+          const response = await this.apiService.get(`/api/caixinha/user/${userId}`);
           const processedCaixinhas = response.data.data
           // Array.isArray(response.data.data)
           //   ? response.data.data.map(this._processCaixinhaData)
@@ -133,7 +132,7 @@ class CaixinhaService extends BaseService {
           this._log('fetching caixotes', response);
 
           // Emitir evento de caixinhas obtidas
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CAIXINHAS_FETCHED, {
+          this._emitEvent(CAIXINHA_EVENTS.CAIXINHAS_FETCHED, {
             userId,
             caixinhas: processedCaixinhas,
             count: processedCaixinhas.length
@@ -155,27 +154,27 @@ class CaixinhaService extends BaseService {
 
   /**
    * Obtém uma caixinha específica pelo ID
-   * @param {string} id - ID da caixinha
+   * @param {string} caixinhaId - ID da caixinha
    * @returns {Promise<Object>} Dados da caixinha
    */
-  async getCaixinhaById(id) {
+  async getCaixinhaById(caixinhaId) {
     this.getCurrentUser()
     return this._executeWithRetry(
       async () => {
         const startTime = performance.now();
         
         try {
-          this._log('fetching caixinha by id', { id });
+          this._log('fetching caixinha by caixinhaId', { caixinhaId });
           
-          const response = await this.apiService.get(`/api/caixinha/${id}`);
+          const response = await this.apiService.get(`/api/caixinha/id/${caixinhaId}`);
           const processedCaixinha = this._processCaixinhaData(response.data);
 
           const duration = performance.now() - startTime;
-          this._logPerformance('getCaixinhaById', duration, { id });
+          this._logPerformance('getCaixinhaById', duration, { caixinhaId });
 
           // Emitir evento de caixinha obtida
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CAIXINHA_FETCHED, {
-            caixinhaId: id,
+          this._emitEvent(CAIXINHA_EVENTS.CAIXINHA_FETCHED, {
+            caixinhaId,
             caixinha: processedCaixinha
           });
 
@@ -218,7 +217,7 @@ class CaixinhaService extends BaseService {
           });
 
           // Emitir evento de caixinha criada
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CAIXINHA_CREATED, {
+          this._emitEvent(CAIXINHA_EVENTS.CAIXINHA_CREATED, {
             caixinhaId: processedCaixinha.id,
             adminId: data.adminId,
             caixinha: processedCaixinha
@@ -263,7 +262,7 @@ class CaixinhaService extends BaseService {
           });
 
           // Emitir evento de caixinha atualizada
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CAIXINHA_UPDATED, {
+          this._emitEvent(CAIXINHA_EVENTS.CAIXINHA_UPDATED, {
             caixinhaId: id,
             updatedFields: Object.keys(data),
             caixinha: processedCaixinha
@@ -279,6 +278,47 @@ class CaixinhaService extends BaseService {
       'updateCaixinha'
     );
   }
+
+/**
+ * Obtém os membros de uma caixinha específica
+ * @param {string} caixinhaId - ID da caixinha
+ * @returns {Promise<Array>} Lista de membros
+ */
+async getMembers(caixinhaId) {
+  this.getCurrentUser();
+  return this._executeWithRetry(
+    async () => {
+      const startTime = performance.now();
+      
+      try {
+        this._log('fetching members', { caixinhaId });
+        
+        const response = await this.apiService.get(`/api/caixinha/membros/${caixinhaId}`);
+        const members = response.data || [];
+
+        const duration = performance.now() - startTime;
+        this._logPerformance('getMembers', duration, {
+          caixinhaId,
+          count: members.length
+        });
+
+        // Emitir evento de membros obtidos
+        this._emitEvent(CAIXINHA_EVENTS.MEMBERS_FETCHED, {
+          caixinhaId,
+          members,
+          count: members.length
+        });
+
+        return members;
+      } catch (error) {
+        const duration = performance.now() - startTime;
+        this._logError(error, 'getMembers', duration);
+        throw error;
+      }
+    },
+    'getMembers'
+  );
+}
 
   /**
    * Exclui uma caixinha
@@ -300,7 +340,7 @@ class CaixinhaService extends BaseService {
           this._logPerformance('deleteCaixinha', duration, { id });
 
           // Emitir evento de caixinha excluída
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CAIXINHA_DELETED, {
+          this._emitEvent(CAIXINHA_EVENTS.CAIXINHA_DELETED, {
             caixinhaId: id
           });
 
@@ -342,7 +382,7 @@ class CaixinhaService extends BaseService {
           });
 
           // Emitir evento de contribuição adicionada
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CONTRIBUICAO_ADDED, {
+          this._emitEvent(CAIXINHA_EVENTS.CONTRIBUICAO_ADDED, {
             caixinhaId: data.caixinhaId,
             userId: data.userId,
             contribuicao: response.data
@@ -383,7 +423,7 @@ class CaixinhaService extends BaseService {
           });
 
           // Emitir evento de contribuições obtidas
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.CONTRIBUICOES_FETCHED, {
+          this._emitEvent(CAIXINHA_EVENTS.CONTRIBUICOES_FETCHED, {
             caixinhaId: id,
             contribuicoes,
             count: contribuicoes.length
@@ -427,7 +467,7 @@ class CaixinhaService extends BaseService {
           });
 
           // Emitir evento de membro convidado
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.MEMBER_INVITED, {
+          this._emitEvent(CAIXINHA_EVENTS.MEMBER_INVITED, {
             caixinhaId,
             inviteData,
             result: response.data
@@ -468,7 +508,7 @@ class CaixinhaService extends BaseService {
           });
 
           // Emitir evento de membro saindo
-          this._emitEvent(this.serviceName, CAIXINHA_EVENTS.MEMBER_LEFT, {
+          this._emitEvent(CAIXINHA_EVENTS.MEMBER_LEFT, {
             caixinhaId,
             userId,
             result: response.data
@@ -492,20 +532,30 @@ class CaixinhaService extends BaseService {
    * @returns {Object} Dados processados da caixinha
    */
   _processCaixinhaData = (caixinhaData) => {
-    this.getCurrentUser()
+    this.getCurrentUser();
     // Se já for um objeto processado, retorne-o
     if (!caixinhaData._fieldsProto) {
       return caixinhaData;
     }
-
+  
     const fields = caixinhaData._fieldsProto;
-
+    
+    // Processar membros de forma mais robusta
+    let members = [];
+    if (fields.members?.arrayValue?.values) {
+      members = fields.members.arrayValue.values.map(v => v.stringValue || v.mapValue);
+    } else if (fields.members?.mapValue?.fields) {
+      // Lidar com o caso em que members é um mapa em vez de array
+      const memberMap = fields.members.mapValue.fields;
+      members = Object.keys(memberMap).map(key => memberMap[key]);
+    }
+  
     return {
       id: caixinhaData._ref?._path?.segments?.slice(-1)[0] || '',
       nome: fields.nome?.stringValue || '',
       descricao: fields.descricao?.stringValue || '',
       adminId: fields.adminId?.stringValue || '',
-      membros: fields.membros?.arrayValue?.values?.map(v => v.stringValue) || [],
+      members: members,
       contribuicaoMensal: Number(fields.contribuicaoMensal?.doubleValue || 0),
       diaVencimento: Number(fields.diaVencimento?.integerValue || 1),
       valorMulta: Number(fields.valorMulta?.doubleValue || 0),

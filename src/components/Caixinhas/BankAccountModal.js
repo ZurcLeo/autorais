@@ -21,19 +21,17 @@ import {
   IconButton,
   Paper,
   Tooltip,
-  Fade,
-  Zoom
+  Fade
 } from '@mui/material';
 import {
   AccountBalance,
   Person,
   Pix,
-  Help,
+  InfoOutlined,
   Check,
   Close,
   ArrowBack,
-  ArrowForward,
-  InfoOutlined
+  ArrowForward
 } from '@mui/icons-material';
 import { useBanking } from '../../providers/BankingProvider';
 import { useTranslation } from 'react-i18next';
@@ -73,7 +71,7 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
     case 0:
       return (
         <Box>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
             {t('banking.bankSelectionTitle')}
           </Typography>
           <Autocomplete
@@ -91,7 +89,7 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
                 helperText={errors.bankName}
                 InputProps={{
                   ...params.InputProps,
-                  startAdornment: <AccountBalance color="action" sx={{ mr: 1 }} />
+                  startAdornment: <AccountBalance sx={{ mr: 1, color: 'text.secondary' }} />
                 }}
               />
             )}
@@ -102,7 +100,7 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
     case 1:
       return (
         <Box>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
             {t('banking.accountDetailsTitle')}
           </Typography>
           <TextField
@@ -154,7 +152,7 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
     case 2:
       return (
         <Box>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
             {t('banking.holderDetailsTitle')}
           </Typography>
           <TextField
@@ -168,7 +166,7 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
             error={!!errors.accountHolder}
             helperText={errors.accountHolder}
             InputProps={{
-              startAdornment: <Person color="action" sx={{ mr: 1 }} />,
+              startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />,
               endAdornment: formData.accountHolder && <ValidationIcon isValid={!errors.accountHolder} />
             }}
           />
@@ -178,14 +176,16 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
     case 3:
       return (
         <Box>
-          <Typography variant="subtitle1" gutterBottom>
-            {t('banking.pixDetailsTitle')}
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Typography variant="subtitle1">
+              {t('banking.pixDetailsTitle')}
+            </Typography>
             <Tooltip title={t('banking.pixInfoTooltip')}>
               <IconButton size="small">
                 <InfoOutlined fontSize="small" />
               </IconButton>
             </Tooltip>
-          </Typography>
+          </Box>
           <FormControl fullWidth margin="normal">
             <InputLabel>{t('banking.pixKeyType')}</InputLabel>
             <Select
@@ -211,7 +211,7 @@ const StepContent = ({ step, formData, handleInputChange, handleBankSelect, bank
               error={!!errors.pixKey}
               helperText={errors.pixKey}
               InputProps={{
-                startAdornment: <Pix color="action" sx={{ mr: 1 }} />,
+                startAdornment: <Pix sx={{ mr: 1, color: 'text.secondary' }} />,
                 endAdornment: formData.pixKey && <ValidationIcon isValid={!errors.pixKey} />
               }}
             />
@@ -245,7 +245,7 @@ const BankAccountModal = ({ caixinhaId }) => {
 
   // Busca lista de bancos da Brasil API
   useEffect(() => {
-    if (isModalOpen && banks.length === 0) { // Garante que os bancos são buscados uma vez
+    if (isModalOpen && banks.length === 0) {
       const fetchBanks = async () => {
         setLoading(true);
         try {
@@ -253,8 +253,8 @@ const BankAccountModal = ({ caixinhaId }) => {
           const data = await response.json();
   
           const sortedBanks = data
-            .filter(bank => bank.code) // Apenas bancos com código
-            .sort((a, b) => parseInt(a.code) - parseInt(b.code)); // Ordena pelo código
+            .filter(bank => bank.code)
+            .sort((a, b) => parseInt(a.code) - parseInt(b.code));
   
           setBanks(sortedBanks.map(bank => ({
             code: bank.code,
@@ -328,7 +328,6 @@ const BankAccountModal = ({ caixinhaId }) => {
         bankName: String(newValue.name),
       }));
     } else {
-      // Reseta os valores caso nenhum banco seja selecionado
       setFormData((prev) => ({
         ...prev,
         bankCode: '',
@@ -351,22 +350,22 @@ const BankAccountModal = ({ caixinhaId }) => {
   };
 
   const handleSubmit = async () => {
-    if (loading) return; // Impede múltiplas chamadas
+    if (loading) return;
     if (!validateStep(activeStep)) return;
   
-    setLoading(true); // Define o estado de carregamento
+    setLoading(true);
     try {
       const formattedData = {
         ...formData,
         pixKey: formData.pixKey ? formatPixKey(formData.pixKey, formData.pixKeyType) : '',
       };
   
-      await registerBankAccount(caixinhaId, formattedData); // Chama o registro
-      setModalOpen(false); // Fecha o modal após sucesso
+      await registerBankAccount(caixinhaId, formattedData);
+      setModalOpen(false);
     } catch (err) {
-      setError(t('banking.errors.registerAccountFailed')); // Mostra erro
+      setError(t('banking.errors.registerAccountFailed'));
     } finally {
-      setLoading(false); // Sempre redefine o estado de carregamento
+      setLoading(false);
     }
   };  
   
@@ -383,25 +382,26 @@ const BankAccountModal = ({ caixinhaId }) => {
       onClose={() => setModalOpen(false)}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        sx: {
+      sx={{
+        '& .MuiDialog-paper': {
           borderRadius: 2,
           minHeight: '50vh'
         }
       }}
     >
-      <DialogTitle>
-        <Typography variant="h5" component="div">
-          {t('banking.registerAccount')}
-        </Typography>
-        <Stepper activeStep={activeStep} alternativeLabel sx={{ mt: 2 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </DialogTitle>
+      
+<DialogTitle>
+  <Typography variant="h5" component="div">
+    {t('banking.registerAccount')}
+  </Typography>
+  <Stepper activeStep={activeStep} alternativeLabel sx={{ mt: 2 }}>
+    {steps.map((label) => (
+      <Step key={label}>
+        <StepLabel>{label}</StepLabel>
+      </Step>
+    ))}
+  </Stepper>
+</DialogTitle>
 
       <DialogContent>
         {error && (
@@ -411,7 +411,7 @@ const BankAccountModal = ({ caixinhaId }) => {
         )}
 
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -429,43 +429,42 @@ const BankAccountModal = ({ caixinhaId }) => {
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3 }}>
-  <Button
-    onClick={() => setModalOpen(false)}
-    startIcon={<Close />}
-    disabled={loading} // Desativa botão enquanto carrega
-  >
-    {t('common.cancel')}
-  </Button>
-  <Box sx={{ flex: '1 1 auto' }} />
-  <Button
-    onClick={handleBack}
-    startIcon={<ArrowBack />}
-    disabled={loading || activeStep === 0} // Controla desativação
-    sx={{ mr: 1 }}
-  >
-    {t('common.back')}
-  </Button>
-  {activeStep === steps.length - 1 ? (
-    <Button
-      variant="contained"
-      onClick={handleSubmit}
-      disabled={loading} // Desativa botão enquanto carrega
-      endIcon={<Check />}
-    >
-      {t('common.finish')}
-    </Button>
-  ) : (
-    <Button
-      variant="contained"
-      onClick={handleNext}
-      disabled={loading} // Controla requisições consecutivas
-      endIcon={<ArrowForward />}
-    >
-      {t('common.next')}
-    </Button>
-  )}
-</DialogActions>
-
+        <Button
+          onClick={() => setModalOpen(false)}
+          startIcon={<Close />}
+          disabled={loading}
+        >
+          {t('common.cancel')}
+        </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        <Button
+          onClick={handleBack}
+          startIcon={<ArrowBack />}
+          disabled={loading || activeStep === 0}
+          sx={{ mr: 1 }}
+        >
+          {t('common.back')}
+        </Button>
+        {activeStep === steps.length - 1 ? (
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={loading}
+            endIcon={<Check />}
+          >
+            {t('common.finish')}
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            onClick={handleNext}
+            disabled={loading}
+            endIcon={<ArrowForward />}
+          >
+            {t('common.next')}
+          </Button>
+        )}
+      </DialogActions>
     </Dialog>
   );
 };

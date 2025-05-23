@@ -1,39 +1,39 @@
 import React from 'react';
-import { Card, CardContent, Typography, Grid, Avatar } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Avatar, Box } from '@mui/material';
 
 const ConnectionCard = ({ connection }) => (
-  <Card className="h-full">
-    <CardContent className="flex items-center space-x-4">
+  <Card sx={{ height: '100%' }}>
+    <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
       <Avatar
         src={connection.fotoDoPerfil}
         alt={connection.nome}
-        className="w-16 h-16"
+        sx={{ width: 64, height: 64 }}
       >
         {connection.nome?.[0]}
       </Avatar>
-      <div>
+      <Box>
         <Typography variant="h6">
           {connection.nome}
         </Typography>
-        <Typography variant="body2" color="textSecondary">
+        <Typography variant="body2" color="text.secondary">
           Conectado há {connection.connectionDuration}
         </Typography>
-      </div>
+      </Box>
     </CardContent>
   </Card>
 );
 
 export const ConnectionsSection = ({ data = { friends: [], bestFriends: [] } }) => {
-    const { friends = [], bestFriends = [] } = data;
+  const { friends = [], bestFriends = [] } = data;
 
   // Handle empty state
   if ((!friends || friends.length === 0) && (!bestFriends || bestFriends.length === 0)) {
     return (
-      <Card className="w-full p-4">
+      <Card sx={{ width: '100%', p: 4 }}>
         <Typography variant="h6">
           Nenhuma conexão ainda
         </Typography>
-        <Typography variant="body2" color="textSecondary">
+        <Typography variant="body2" color="text.secondary">
           Conecte-se com outros usuários para expandir sua rede
         </Typography>
       </Card>
@@ -41,10 +41,10 @@ export const ConnectionsSection = ({ data = { friends: [], bestFriends: [] } }) 
   }
 
   return (
-    <section className="space-y-4">
+    <Box component="section" sx={{ mb: 4 }}>
       {bestFriends.length > 0 && (
-        <div className="mb-6">
-          <Typography variant="h5" className="mb-4">
+        <Box sx={{ mb: 6 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
             Melhores Amigos
           </Typography>
           <Grid container spacing={3}>
@@ -54,12 +54,12 @@ export const ConnectionsSection = ({ data = { friends: [], bestFriends: [] } }) 
               </Grid>
             ))}
           </Grid>
-        </div>
+        </Box>
       )}
 
       {friends.length > 0 && (
-        <div>
-          <Typography variant="h5" className="mb-4">
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2 }}>
             Amigos
           </Typography>
           <Grid container spacing={3}>
@@ -69,8 +69,8 @@ export const ConnectionsSection = ({ data = { friends: [], bestFriends: [] } }) 
               </Grid>
             ))}
           </Grid>
-        </div>
+        </Box>
       )}
-    </section>
+    </Box>
   );
 };

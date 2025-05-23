@@ -18,7 +18,7 @@ export const caixinhaReducer = (state = initialCaixinhaState, action) => {
       case CAIXINHA_ACTIONS.FETCH_SUCCESS:
         return {
           ...state,
-          caixinhas: action.payload,
+          caixinhas: action.payload || [],
           loading: false,
           error: null,
           lastUpdated: Date.now()
@@ -66,6 +66,14 @@ export const caixinhaReducer = (state = initialCaixinhaState, action) => {
           loading: action.payload
         };
   
+        case CAIXINHA_ACTIONS.UPDATE_MEMBERS:
+          return {
+            ...state,
+            members: action.payload.members || [],
+            loading: false,
+            lastUpdated: Date.now()
+          };
+
       case CAIXINHA_ACTIONS.CLEAR_STATE:
         return {
           ...initialCaixinhaState,

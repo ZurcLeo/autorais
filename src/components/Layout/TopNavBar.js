@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -6,24 +6,20 @@ import {
   Tooltip,
   IconButton,
   Typography,
-  Badge,
+  Button,
   Menu,
   MenuItem,
-  Button
+  useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { GiLockedChest, GiSettingsKnobs, GiWorld, GiShoppingCart } from "react-icons/gi";
+import { GiLockedChest, GiShoppingCart, GiConversation, GiThreeFriends } from "react-icons/gi";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useNotifications } from '../../hooks/notification/useNotifications';
-import { ThemeControls} from '../../ThemeControls';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../../LanguageSwitcher';
-import { serviceLocator } from '../../core/services/BaseService';
 import UserProfileDropdown from './UserProfileDropdown';
 import { coreLogger } from '../../core/logging';
 import { LOG_LEVELS } from '../../core/constants/config';
 import NavItem from './NavItem';
-import { GiConversation, GiThreeFriends } from 'react-icons/gi';
 import { useAuth } from '../../providers/AuthProvider';
 
 const MODULE_NAME = 'TopNavBar';
@@ -32,51 +28,168 @@ const TopNavBar = ({ sidebarOpen, toggleSidebar, isMobile }) => {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
-  const [anchorElTheme, setAnchorElTheme] = useState(null);
-  const isThemeMenuOpen = Boolean(anchorElTheme);
   const navigate = useNavigate();
+  const theme = useTheme();
   
-console.log('LOGANDO NO TOPNAV', useNotifications())
+  // State for mobile menu
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = React.useRef(null);
+  
+  const handleMobileMenuToggle = () => {
+    if (isMobile) {
+      setMobileMenuOpen(!mobileMenuOpen);
+    } else {
+      toggleSidebar();
+    }
+  };
+  
+  // Close mobile menu on route change
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  }, [location.pathname]);
+
   const handleNavigation = (path) => {
     navigate(path);
+    setMobileMenuOpen(false);
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigation from TopNavBar', {
       from: location.pathname,
       to: path
     });
   };
 
-  const handleThemeMenuOpen = (event) => {
-    setAnchorElTheme(event.currentTarget);
-  };
-
-  const handleThemeMenuClose = () => {
-    setAnchorElTheme(null);
-  };
-
   return (
-    <AppBar position="fixed" sx={{
-      width: { sm: `calc(100% - ${sidebarOpen ? 350 : 150}px)` },
-      ml: { sm: `${sidebarOpen ? 280 : 150}px` },
-      zIndex: (theme) => theme.zIndex.drawer + 1,
-      transition: (theme) => theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    }}>
+    <AppBar 
+      position="fixed"
+      elevation={2}
+      sx={{
+        width: { sm: `calc(100% - ${sidebarOpen ? 280 : 80}px)` },
+        ml: { sm: `${sidebarOpen ? 280 : 80}px` },
+        zIndex: theme.zIndex.drawer + 1,
+        bgcolor: 'background.paper',
+        color: 'text.primary',
+        transition: theme.transitions.create(
+          ['width', 'margin'], 
+          {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }
+        ),
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+        },
+        '&:hover': {
+          boxShadow: 4,
+        }
+      }}
+    >
       <Toolbar>
         <IconButton
+          ref={menuButtonRef}
           color="inherit"
-          aria-label="open drawer"
+          aria-label={sidebarOpen ? "collapse sidebar" : "expand sidebar"}
           edge="start"
-          onClick={toggleSidebar}
-          sx={{ mr: 2, ...(isMobile ? {} : { display: 'none' }) }}
+          onClick={handleMobileMenuToggle}
+          sx={{
+            mr: 2,
+            display: isMobile ? 'flex' : 'none',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: 'action.hover',
+              transform: 'scale(1.05)',
+            },
+            '&:active': {
+              transform: 'scale(0.95)',
+            }
+          }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+        
+        <Typography 
+          variant="h6" 
+          noWrap 
+          component="div" 
+          sx={{ 
+            flexGrow: 1,
+            fontWeight: 600,
+            letterSpacing: '0.02em',
+          }}
+        >
           {t('app.title')}
         </Typography>
 
+        {/* Mobile menu */}
+        {isMobile && (
+          <Menu
+            anchorEl={menuButtonRef.current}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            keepMounted
+            open={mobileMenuOpen}
+            onClose={() => setMobileMenuOpen(false)}
+            PaperProps={{
+              elevation: 3,
+              sx: {
+                bgcolor: 'background.paper',
+                color: 'text.primary',
+                borderRadius: 1,
+                minWidth: 180,
+                mt: 1,
+                '& .MuiMenuItem-root': {
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: 0.5,
+                  mx: 0.5,
+                  my: 0.25,
+                  transition: 'all 0.15s ease',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                  '&:active': {
+                    bgcolor: 'action.selected',
+                  }
+                }
+              }
+            }}
+          >
+            {isAuthenticated && (
+              <>
+                <MenuItem onClick={() => handleNavigation('/messages')}>
+                  <GiConversation style={{ marginRight: 12, fontSize: 20 }} />
+                  {t('topnavbar.messages')}
+                </MenuItem>
+                <MenuItem onClick={() => handleNavigation('/connections')}>
+                  <GiThreeFriends style={{ marginRight: 12, fontSize: 20 }} />
+                  {t('topnavbar.friends')}
+                </MenuItem>
+                <MenuItem onClick={() => handleNavigation('/caixinha')}>
+                  <GiLockedChest style={{ marginRight: 12, fontSize: 20 }} />
+                  {t('topnavbar.caixinha')}
+                </MenuItem>
+                <MenuItem onClick={() => handleNavigation('/shop')}>
+                  <GiShoppingCart style={{ marginRight: 12, fontSize: 20 }} />
+                  {t('topnavbar.marketplace')}
+                </MenuItem>
+              </>
+            )}
+          </Menu>
+        )}
+
+        {/* Desktop actions */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isAuthenticated && (
             <>
@@ -101,80 +214,42 @@ console.log('LOGANDO NO TOPNAV', useNotifications())
               />
               <NavItem
                 icon={<GiShoppingCart />}
-                onClick={() => handleNavigation('/marketplace')}
+                onClick={() => handleNavigation('/shop')}
                 tooltip={t('topnavbar.marketplace')}
               />
             </>
           )}
 
-          <Tooltip title={t('common.settings')} arrow>
-            <IconButton
-              size="large"
-              aria-label="theme settings"
-              aria-controls="theme-menu"
-              aria-haspopup="true"
-              onClick={handleThemeMenuOpen}
-              color="inherit"
-            >
-              <GiSettingsKnobs />
-            </IconButton>
-          </Tooltip>
-
-          {/* <Menu
-            id="theme-menu"
-            anchorEl={anchorElTheme}
-            open={isThemeMenuOpen}
-            onClose={handleThemeMenuClose}
-            MenuListProps={{
-              'aria-labelledby': 'theme-settings-button',
-            }}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            <MenuItem onClick={handleThemeMenuClose}>
-              <ThemeControls />
-            </MenuItem>
-          </Menu> */}
-
-          {/* <Tooltip title={t('topnavbar.notifications')} arrow>
-            <IconButton size="large" color="inherit">
-              <Badge
-                overlap="circular"
-                badgeContent={unreadCount}
-                color="error"
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+          {isAuthenticated ? (
+            <UserProfileDropdown />
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={() => handleNavigation('/login')}
+                sx={{
+                  mx: 1,
+                  boxShadow: 'none',
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  px: 2,
+                  py: 0.75,
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: 2,
+                  },
+                  '&:active': {
+                    transform: 'translateY(0)',
+                  }
                 }}
               >
-                <GiWorld />
-              </Badge>
-            </IconButton>
-          </Tooltip> */}
-          {isAuthenticated ? <UserProfileDropdown /> : <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button
-              color="inherit"
-              onClick={() => handleNavigation('/login')}
-              sx={{ mx: 1 }}
-            >
-              {t('topnavbar.login')}
-            </Button>
-            {/* <Button
-              color="inherit"
-              variant="outlined"
-              onClick={() => handleNavigation('/register')}
-              sx={{ mx: 1 }}
-            >
-              {t('topnavbar.register')}
-            </Button> */}
-            <LanguageSwitcher />
-          </Box>}
+                {t('topnavbar.login')}
+              </Button>
+              <LanguageSwitcher />
+            </Box>
+          )}
         </Box>
       </Toolbar>
     </AppBar>

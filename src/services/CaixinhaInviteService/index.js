@@ -1,5 +1,5 @@
-// src/services/CaixinhaInviteService.js
-import { CAIXINHA_EVENTS } from '../../core/constants/events';
+// src/services/CaixinhaInviteService/index.js
+import { CAIXINHA_INVITE_EVENTS } from '../../core/constants/events';
 import { LOG_LEVELS } from '../../core/constants/config';
 import { BaseService, serviceLocator, serviceEventHub } from '../../core/services/BaseService';
 import { SERVICE_ACTIONS } from '../../core/constants/actions';
@@ -14,29 +14,44 @@ class CaixinhaInviteService extends BaseService {
     super(MODULE_NAME);
     this.instanceId = Math.random().toString(36).substring(2, 10);
     this._currentUser = null;
+    this._currentCaixinhaId = null;
 
     this._metadata = {
       name: MODULE_NAME,
       phase: 'FEATURES',
       criticalPath: false,
-      dependencies: ['auth', 'users', 'caixinhas', 'invites', 'messages', 'connections'],
+      dependencies: ['auth', 'users', 'caixinhas', 'messages'],
       category: 'finances',
       description: 'Gerencia convites para Caixinhas'
     };
 
     this._log(`📨 Nova instância de ${MODULE_NAME} criada, instanceId: ${this.instanceId}`);
-    this.apiService = serviceLocator.get('apiService');
-    this.authService = serviceLocator.get('auth');
-    this.inviteService = serviceLocator.get('invites');
-    this.caixinhaService = serviceLocator.get('caixinhas');
-    this.connectionService = serviceLocator.get('connections');
-    this.messageService = serviceLocator.get('messages');
-    this.notificationService = serviceLocator.get('notifications');
+    
+    // Registrar os serviços necessários
+    this._registerServices();
   }
 
-  // Método para obter o usuário atual
+  /**
+   * Registra os serviços necessários
+   * @private
+   */
+  _registerServices() {
+    try {
+      this.apiService = serviceLocator.get('apiService');
+      this.authService = serviceLocator.get('auth');
+      this.caixinhaService = serviceLocator.get('caixinhas');
+      this.messageService = serviceLocator.get('messages');
+    } catch (error) {
+      this._log('error', 'Failed to register required services', error);
+    }
+  }
+
+  /**
+   * Obtém o usuário atual
+   * @returns {Object|null} Usuário atual ou null
+   */
   getCurrentUser() {
-    return this._currentUser = this.authService.getCurrentUser();
+    return this._currentUser = this.authService?.getCurrentUser();
   }
 
   /**
@@ -68,23 +83,37 @@ class CaixinhaInviteService extends BaseService {
    */
   _registerEventListeners() {
     // Escuta eventos de convites da caixinha
-    serviceEventHub.on('caixinhas', CAIXINHA_EVENTS.MEMBER_INVITED, (data) => {
+    this._onServiceEvent('caixinhaInvites', CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_SENT, (data) => {
       this._handleMemberInvited(data);
     });
+  }
 
-    // Escuta eventos de convites aceitos
-    serviceEventHub.on('invites', 'INVITE_ACCEPTED', (data) => {
-      if (data.type === 'caixinha_invite' || data.type === 'caixinha_email_invite') {
-        this._handleInviteAccepted(data);
-      }
-    });
+  /**
+   * Verifica a saúde do serviço
+   * @returns {Promise<Object>} Estado de saúde do serviço
+   */
+  async healthCheck() {
+    try {
+      // Tenta verificar a saúde via API
+      const healthResponse = await this._executeWithRetry(
+        async () => {
+          return await this.apiService.get(`/api/health/service/${MODULE_NAME}`);
+        },
+        'healthCheck'
+      );
 
-    // Escuta eventos de convites rejeitados
-    serviceEventHub.on('invites', 'INVITE_REJECTED', (data) => {
-      if (data.type === 'caixinha_invite' || data.type === 'caixinha_email_invite') {
-        this._handleInviteRejected(data);
-      }
-    });
+      return { status: healthResponse.data.status, timestamp: Date.now() };
+    } catch (error) {
+      // Implementar fallback se o endpoint de saúde estiver indisponível
+      this._log('warning', 'Health check endpoint unavailable, proceeding with degraded mode');
+      
+      // Ainda retornar healthy para não bloquear outras funcionalidades
+      return { 
+        status: 'degraded', 
+        details: 'Operating in offline mode',
+        timestamp: Date.now() 
+      };
+    }
   }
 
   /**
@@ -99,57 +128,65 @@ class CaixinhaInviteService extends BaseService {
     if (!currentUser) {
       throw new Error('Usuário deve estar autenticado para enviar convites');
     }
-
+  
     // Validar parâmetros
     if (!data.caixinhaId || !data.targetId) {
       throw new Error('Dados de convite incompletos');
     }
-
+  
     this._log(LOG_LEVELS.INFO, 'Inviting existing member to caixinha', {
       caixinhaId: data.caixinhaId,
       targetId: data.targetId,
+      targetName: data.targetName, // Incluir o nome no log
       senderId: currentUser.uid
     });
-
+  
     try {
       // 1. Obter dados da caixinha para incluir no convite
-      const caixinha = await this.caixinhaService.getCaixinhaById(data.caixinhaId);
+      const caixinhaResponse = await this.caixinhaService.getCaixinhas(currentUser.uid);
+      
+      // Store the current caixinha ID for use in _userCanInvite
+      this._currentCaixinhaId = data.caixinhaId;
       
       // 2. Verificar se o usuário tem permissão (admin ou membro)
-      if (!this._userCanInvite(currentUser.uid, caixinha)) {
+      if (!this._userCanInvite(currentUser.uid, caixinhaResponse)) {
         throw new Error('Você não tem permissão para convidar membros para esta caixinha');
       }
       
-      // 3. Enviar convite através do serviço de convites
-      const inviteData = {
-        type: 'caixinha_invite',
-        caixinhaId: data.caixinhaId,
-        targetId: data.targetId,
-        senderId: currentUser.uid,
-        message: data.message || `${currentUser.name || currentUser.displayName} está convidando você para participar da Caixinha "${caixinha.nome}"`,
-        caixinhaDetails: {
-          nome: caixinha.nome,
-          descricao: caixinha.descricao,
-          contribuicaoMensal: caixinha.contribuicaoMensal
-        }
-      };
-      
-      const invite = await this.inviteService.sendInvitation(inviteData);
-      
-      // 4. Adicionar o usuário à lista de convidados da caixinha
-      await this._addToInvitedList(data.caixinhaId, data.targetId);
-      
-      // 5. Enviar mensagem ao usuário (opcional)
-      if (data.sendMessage) {
-        await this._sendInviteMessage(data.targetId, inviteData);
+      // Find the specific caixinha for later use
+      const caixinha = caixinhaResponse.data.find(c => c.id === data.caixinhaId);
+      if (!caixinha) {
+        throw new Error('Caixinha não encontrada');
       }
       
-      // 6. Criar notificação para o usuário
-      await this._createInviteNotification(data.targetId, inviteData);
+      // 3. Enviar convite através da API da caixinha
+      const inviteResponse = await this.apiService.post(`/api/caixinha/membros/${data.caixinhaId}/convite`, {
+        targetId: data.targetId,
+        targetName: data.targetName, // Adicionar o nome do amigo no payload
+        senderId: currentUser.uid,
+        senderName: currentUser.name || currentUser.displayName, // Também incluir o nome do remetente
+        caixinhaId: data.caixinhaId,
+        message: data.message || `${currentUser.name || currentUser.displayName} está convidando você para participar da Caixinha "${caixinha.nome}"`,
+        type: 'caixinha_invite' 
+      });
+      
+      // 4. Enviar mensagem ao usuário (opcional)
+      if (data.sendMessage) {
+        await this._sendInviteMessage(data.targetId, {
+          caixinhaId: data.caixinhaId,
+          caixinhaDetails: {
+            nome: caixinha.nome,
+            descricao: caixinha.descricao,
+            contribuicaoMensal: caixinha.contribuicaoMensal
+          },
+          message: data.message || `${currentUser.name || currentUser.displayName} está convidando você para participar da Caixinha "${caixinha.nome}"`,
+          caxinhaInviteId: inviteResponse.data.caxinhaInviteId
+        });
+      }
       
       return {
         success: true,
-        inviteId: invite.id,
+        caixinhaInviteId: inviteResponse.data.caxinhaInviteId,
         message: 'Convite enviado com sucesso'
       };
     } catch (error) {
@@ -191,31 +228,35 @@ class CaixinhaInviteService extends BaseService {
         throw new Error('Você não tem permissão para convidar membros para esta caixinha');
       }
       
-      // 3. Enviar convite através do serviço de convites
-      const inviteData = {
-        type: 'caixinha_email_invite',
+      // 3. Enviar convite através da API da caixinha
+      const inviteResponse = await this.apiService.post(`/api/caixinha/${data.caixinhaId}/membros/convite-email`, {
+        email: data.email,
+        senderId: currentUser.uid,
+        message: data.message || `${currentUser.name || currentUser.displayName} está convidando você para participar da Caixinha "${caixinha.nome}"`
+      });
+
+      // 4. Emitir evento de convite enviado
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_SENT, {
         caixinhaId: data.caixinhaId,
         email: data.email,
         senderId: currentUser.uid,
-        message: data.message || `${currentUser.name || currentUser.displayName} está convidando você para participar da Caixinha "${caixinha.nome}"`,
-        caixinhaDetails: {
-          nome: caixinha.nome,
-          descricao: caixinha.descricao,
-          contribuicaoMensal: caixinha.contribuicaoMensal
-        }
-      };
-      
-      const invite = await this.inviteService.sendInvitation(inviteData);
-      
-      // 4. Registrar na lista de convites pendentes
-      await this._addToEmailInvitedList(data.caixinhaId, data.email);
+        invite: inviteResponse.data,
+        timestamp: Date.now()
+      });
       
       return {
         success: true,
-        inviteId: invite.id,
+        caixinhaInviteId: inviteResponse.data.caxinhaInviteId,
         message: 'Convite enviado com sucesso'
       };
     } catch (error) {
+      // Emitir evento de erro
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_ERROR, {
+        error: error.message,
+        errorDetails: error,
+        context: 'inviteNewMember'
+      });
+      
       this._logError(error, 'inviteNewMember');
       throw error;
     }
@@ -223,10 +264,10 @@ class CaixinhaInviteService extends BaseService {
 
   /**
    * Aceita um convite de caixinha
-   * @param {string} inviteId - ID do convite
+   * @param {string} caixinhaInviteId - ID do convite
    * @returns {Promise<Object>} - Resultado da aceitação
    */
-  async acceptInvite(inviteId) {
+  async acceptInvite(caixinhaInviteId) {
     this.getCurrentUser();
     const currentUser = this._currentUser;
     
@@ -235,53 +276,37 @@ class CaixinhaInviteService extends BaseService {
     }
 
     this._log(LOG_LEVELS.INFO, 'Accepting caixinha invite', {
-      inviteId,
+      caixinhaInviteId,
       userId: currentUser.uid
     });
 
     try {
-      // 1. Obter dados do convite
-      const invite = await this.inviteService.getInvitation(inviteId);
-      
-      if (!invite) {
-        throw new Error('Convite não encontrado');
-      }
-      
-      // 2. Verificar se o convite é para o usuário atual
-      if (invite.targetId && invite.targetId !== currentUser.uid) {
-        throw new Error('Este convite não é para você');
-      }
-      
-      // 3. Verificar se o convite é do tipo caixinha
-      if (invite.type !== 'caixinha_invite' && invite.type !== 'caixinha_email_invite') {
-        throw new Error('Tipo de convite inválido');
-      }
-      
-      // 4. Aceitar o convite no serviço de convites
-      await this.inviteService.acceptInvitation(inviteId);
-      
-      // 5. Adicionar o usuário como membro da caixinha
-      await this.caixinhaService.joinCaixinha(invite.caixinhaId, {
+      // Aceitar o convite através da API da caixinha
+      const response = await this.apiService.post(`/api/caixinha/membros/convite/${caixinhaInviteId}/aceitar`, {
         userId: currentUser.uid
       });
-      
-      // 6. Remover da lista de convidados pendentes
-      await this._removeFromInvitedList(invite.caixinhaId, currentUser.uid);
-      
-      // 7. Criar conexão com o remetente se ainda não existir
-      if (invite.senderId) {
-        await this._ensureConnectionExists(invite.senderId, currentUser.uid);
-      }
-      
-      // 8. Notificar o remetente do convite
-      await this._notifyInviteSender(invite, 'accepted');
+
+      // Emitir evento de convite aceito
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_ACCEPTED, {
+        caxinhaInviteId: caixinhaInviteId,
+        caixinhaId: response.data.caixinhaId,
+        userId: currentUser.uid,
+        timestamp: Date.now()
+      });
       
       return {
         success: true,
-        caixinhaId: invite.caixinhaId,
+        caixinhaId: response.data.caixinhaId,
         message: 'Convite aceito com sucesso'
       };
     } catch (error) {
+      // Emitir evento de erro
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_ERROR, {
+        error: error.message,
+        errorDetails: error,
+        context: 'acceptInvite'
+      });
+      
       this._logError(error, 'acceptInvite');
       throw error;
     }
@@ -289,10 +314,10 @@ class CaixinhaInviteService extends BaseService {
 
   /**
    * Rejeita um convite de caixinha
-   * @param {string} inviteId - ID do convite
+   * @param {string} caixinhaInviteId - ID do convite
    * @returns {Promise<Object>} - Resultado da rejeição
    */
-  async rejectInvite(inviteId) {
+  async rejectInvite(caixinhaInviteId) {
     this.getCurrentUser();
     const currentUser = this._currentUser;
     
@@ -301,44 +326,98 @@ class CaixinhaInviteService extends BaseService {
     }
 
     this._log(LOG_LEVELS.INFO, 'Rejecting caixinha invite', {
-      inviteId,
+      caixinhaInviteId,
       userId: currentUser.uid
     });
 
     try {
-      // 1. Obter dados do convite
-      const invite = await this.inviteService.getInvitation(inviteId);
-      
-      if (!invite) {
-        throw new Error('Convite não encontrado');
-      }
-      
-      // 2. Verificar se o convite é para o usuário atual
-      if (invite.targetId && invite.targetId !== currentUser.uid) {
-        throw new Error('Este convite não é para você');
-      }
-      
-      // 3. Verificar se o convite é do tipo caixinha
-      if (invite.type !== 'caixinha_invite' && invite.type !== 'caixinha_email_invite') {
-        throw new Error('Tipo de convite inválido');
-      }
-      
-      // 4. Rejeitar o convite no serviço de convites
-      await this.inviteService.rejectInvitation(inviteId);
-      
-      // 5. Remover da lista de convidados pendentes
-      await this._removeFromInvitedList(invite.caixinhaId, currentUser.uid);
-      
-      // 6. Notificar o remetente do convite
-      await this._notifyInviteSender(invite, 'rejected');
+      // Rejeitar o convite através da API da caixinha
+      await this.apiService.post(`/api/caixinha/membros/convite/${caixinhaInviteId}/rejeitar`, {
+        userId: currentUser.uid
+      });
+
+      // Emitir evento de convite rejeitado
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_REJECTED, {
+        caxinhaInviteId: caixinhaInviteId,
+        userId: currentUser.uid,
+        timestamp: Date.now()
+      });
       
       return {
         success: true,
         message: 'Convite rejeitado com sucesso'
       };
     } catch (error) {
+      // Emitir evento de erro
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITE_ERROR, {
+        error: error.message,
+        errorDetails: error,
+        context: 'rejectInvite'
+      });
+      
       this._logError(error, 'rejectInvite');
       throw error;
+    }
+  }
+
+  /**
+   * Obtém todos os convites por tipo
+   * @param {string} userId - ID do usuário
+   * @param {Array} types - Tipos de convites
+   * @param {string} direction - 'received' ou 'sent'
+   * @param {string} status - Status dos convites
+   * @returns {Promise<Array>} - Lista de convites
+   */
+  async getInvitationsByType(userId, types, direction, status) {
+    this._log(LOG_LEVELS.INFO, 'Getting invitations by type', {
+      userId,
+      types,
+      direction,
+      status
+    });
+
+    try {
+      // Obter convites pendentes do usuário através da API da caixinha
+      let response;
+      
+      if (direction === 'received') {
+        response = await this.apiService.get(`/api/caixinha/membros/${userId}/convites-recebidos`, {
+          params: { status }
+        });
+        console.log('verificando recebidos na caixinha:', response)
+      } else {
+        response = await this.apiService.get(`/api/caixinha/membros/${userId}/convites-enviados`, {
+          params: { status }
+        });
+        console.log('verificando recebidos na caixinha:', response)
+      }
+      
+      // Filtrar apenas os tipos solicitados
+      const filteredInvites = response.data.filter(invite => types.includes(invite.type));
+
+      // Emitir evento de convites obtidos
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_INVITES_FETCHED, {
+        userId,
+        invites: filteredInvites,
+        count: filteredInvites.length,
+        isReceivedInvites: direction === 'received',
+        types,
+        status,
+        timestamp: Date.now()
+      });
+
+      return filteredInvites;
+    } catch (error) {
+      // Emitir evento de erro
+      this._emitEvent(MODULE_NAME, CAIXINHA_INVITE_EVENTS.CAIXINHA_FETCH_FAILURE, {
+        error: error.message,
+        errorDetails: error,
+        userId,
+        context: 'getInvitationsByType'
+      });
+      
+      this._logError(error, 'getInvitationsByType');
+      return [];
     }
   }
 
@@ -354,65 +433,17 @@ class CaixinhaInviteService extends BaseService {
     });
     
     try {
-      // Se for convite por email, não há userId
-      if (data.inviteData.email) {
-        await this._addToEmailInvitedList(data.caixinhaId, data.inviteData.email);
-      } else if (data.inviteData.targetId) {
-        await this._addToInvitedList(data.caixinhaId, data.inviteData.targetId);
-        await this._createInviteNotification(data.inviteData.targetId, {
-          type: 'caixinha_invite',
+      // Se houver um ID de alvo, enviar mensagem de convite
+      if (data.inviteData.targetId) {
+        await this._sendInviteMessage(data.inviteData.targetId, {
           caixinhaId: data.caixinhaId,
-          senderId: data.inviteData.senderId
+          message: data.inviteData.message,
+          caxinhaInviteId: data.inviteData.caxinhaInviteId,
+          caixinhaDetails: data.caixinhaDetails || {}
         });
       }
     } catch (error) {
       this._logError(error, '_handleMemberInvited');
-    }
-  }
-
-  /**
-   * Manipulador para eventos de convite aceito
-   * @private
-   * @param {Object} data - Dados do evento
-   */
-  async _handleInviteAccepted(data) {
-    this._log(LOG_LEVELS.INFO, 'Handling invite accepted event', {
-      inviteId: data.inviteId,
-      caixinhaId: data.caixinhaId,
-      userId: data.userId
-    });
-    
-    try {
-      // Notificar remetente do convite
-      await this._notifyInviteSender(data, 'accepted');
-      
-      // Remover da lista de convidados pendentes
-      await this._removeFromInvitedList(data.caixinhaId, data.userId);
-    } catch (error) {
-      this._logError(error, '_handleInviteAccepted');
-    }
-  }
-
-  /**
-   * Manipulador para eventos de convite rejeitado
-   * @private
-   * @param {Object} data - Dados do evento
-   */
-  async _handleInviteRejected(data) {
-    this._log(LOG_LEVELS.INFO, 'Handling invite rejected event', {
-      inviteId: data.inviteId,
-      caixinhaId: data.caixinhaId,
-      userId: data.userId
-    });
-    
-    try {
-      // Notificar remetente do convite
-      await this._notifyInviteSender(data, 'rejected');
-      
-      // Remover da lista de convidados pendentes
-      await this._removeFromInvitedList(data.caixinhaId, data.userId);
-    } catch (error) {
-      this._logError(error, '_handleInviteRejected');
     }
   }
 
@@ -423,69 +454,56 @@ class CaixinhaInviteService extends BaseService {
    * @param {Object} caixinha - Dados da caixinha
    * @returns {boolean} - True se o usuário pode convidar
    */
-  _userCanInvite(userId, caixinha) {
-    // Admin pode sempre convidar
-    if (caixinha.adminId === userId) {
+  _userCanInvite(userId, caixinhaData) {
+    // Log for debugging
+    console.log('Checking permissions for user:', userId);
+    console.log('Caixinha ID being checked:', this._currentCaixinhaId);
+    
+    // Handle different possible response formats
+    let caixinhaToCheck = null;
+    
+    // Case 1: We received the full API response with success property
+    if (caixinhaData && caixinhaData.success && Array.isArray(caixinhaData.data)) {
+      console.log('Processing API response with data array');
+      caixinhaToCheck = caixinhaData.data.find(c => 
+        c.id === this._currentCaixinhaId || 
+        c.caixinhaId === this._currentCaixinhaId
+      );
+    }
+    // Case 2: We received a direct caixinha object
+    else if (caixinhaData && (caixinhaData.data?.id === this._currentCaixinhaId)) {
+      console.log('Processing direct caixinha object');
+      caixinhaToCheck = caixinhaData.data;
+    }
+    // Case 3: We received an array of caixinhas
+    else if (Array.isArray(caixinhaData.data)) {
+      console.log('Processing array of caixinhas');
+      caixinhaToCheck = caixinhaData.data.find(c => 
+        c.id === this._currentCaixinhaId || 
+        c.caixinhaId === this._currentCaixinhaId
+      );
+    }
+    
+    // If we couldn't find the caixinha at all
+    if (!caixinhaToCheck) {
+      console.error('Caixinha not found in provided data');
+      return false;
+    }
+    
+    // Admin check
+    if (caixinhaToCheck.adminId === userId) {
+      console.log('User is admin of this caixinha');
       return true;
     }
     
-    // Verificar se é membro
-    if (caixinha.membros && caixinha.membros.includes(userId)) {
+    // Member check
+    if (Array.isArray(caixinhaToCheck.members) && caixinhaToCheck.members.includes(userId)) {
+      console.log('User is member of this caixinha');
       return true;
     }
     
+    console.log('User is not authorized for this caixinha');
     return false;
-  }
-
-  /**
-   * Adiciona um usuário à lista de convidados de uma caixinha
-   * @private
-   * @param {string} caixinhaId - ID da caixinha
-   * @param {string} userId - ID do usuário
-   */
-  async _addToInvitedList(caixinhaId, userId) {
-    try {
-      await this.apiService.post(`/api/caixinha/${caixinhaId}/invited`, {
-        userId,
-        status: 'pending'
-      });
-    } catch (error) {
-      this._logError(error, '_addToInvitedList');
-      throw error;
-    }
-  }
-
-  /**
-   * Adiciona um email à lista de convidados de uma caixinha
-   * @private
-   * @param {string} caixinhaId - ID da caixinha
-   * @param {string} email - Email do convidado
-   */
-  async _addToEmailInvitedList(caixinhaId, email) {
-    try {
-      await this.apiService.post(`/api/caixinha/${caixinhaId}/email-invited`, {
-        email,
-        status: 'pending'
-      });
-    } catch (error) {
-      this._logError(error, '_addToEmailInvitedList');
-      throw error;
-    }
-  }
-
-  /**
-   * Remove um usuário da lista de convidados de uma caixinha
-   * @private
-   * @param {string} caixinhaId - ID da caixinha
-   * @param {string} userId - ID do usuário
-   */
-  async _removeFromInvitedList(caixinhaId, userId) {
-    try {
-      await this.apiService.delete(`/api/caixinha/${caixinhaId}/invited/${userId}`);
-    } catch (error) {
-      this._logError(error, '_removeFromInvitedList');
-      // Não propaga o erro para não interromper o fluxo principal
-    }
   }
 
   /**
@@ -504,102 +522,13 @@ class CaixinhaInviteService extends BaseService {
           caixinhaId: inviteData.caixinhaId,
           caixinhaNome: inviteData.caixinhaDetails.nome,
           contribuicaoMensal: inviteData.caixinhaDetails.contribuicaoMensal,
-          inviteId: inviteData.id
+          caixinhaInviteId: inviteData.caxinhaInviteId
         }
       };
       
       await this.messageService.sendMessage(message);
     } catch (error) {
       this._logError(error, '_sendInviteMessage');
-      // Não propaga o erro para não interromper o fluxo principal
-    }
-  }
-
-  /**
-   * Cria notificação para o usuário convidado
-   * @private
-   * @param {string} targetId - ID do destinatário
-   * @param {Object} inviteData - Dados do convite
-   */
-  async _createInviteNotification(targetId, inviteData) {
-    try {
-      const notification = {
-        userId: targetId,
-        type: 'caixinha_invite',
-        title: 'Novo convite para Caixinha',
-        message: inviteData.message,
-        data: {
-          caixinhaId: inviteData.caixinhaId,
-          senderId: inviteData.senderId,
-          inviteId: inviteData.id
-        },
-        read: false
-      };
-      
-      await this.notificationService.createNotification(notification);
-    } catch (error) {
-      this._logError(error, '_createInviteNotification');
-      // Não propaga o erro para não interromper o fluxo principal
-    }
-  }
-
-  /**
-   * Garante que existe uma conexão entre os usuários
-   * @private
-   * @param {string} user1 - ID do primeiro usuário
-   * @param {string} user2 - ID do segundo usuário
-   */
-  async _ensureConnectionExists(user1, user2) {
-    try {
-      // Verificar se já existe conexão
-      const connections = await this.connectionService.getConnections(user1);
-      const isConnected = connections.some(conn => conn.id === user2);
-      
-      if (!isConnected) {
-        // Criar solicitação de conexão (automaticamente aceita no contexto de um convite)
-        await this.connectionService.createConnectionRequest({
-          fromUserId: user1,
-          toUserId: user2,
-          status: 'accepted',
-          message: 'Conexão criada através de convite para Caixinha',
-          autoAccept: true
-        });
-      }
-    } catch (error) {
-      this._logError(error, '_ensureConnectionExists');
-      // Não propaga o erro para não interromper o fluxo principal
-    }
-  }
-
-  /**
-   * Notifica o remetente sobre o status do convite
-   * @private
-   * @param {Object} invite - Dados do convite
-   * @param {string} status - Status ('accepted' ou 'rejected')
-   */
-  async _notifyInviteSender(invite, status) {
-    try {
-      // Obter dados do destinatário
-      const targetUser = await this.authService.getUserProfile(invite.targetId);
-      
-      const notification = {
-        userId: invite.senderId,
-        type: 'caixinha_invite_response',
-        title: status === 'accepted' ? 'Convite aceito' : 'Convite recusado',
-        message: status === 'accepted' 
-          ? `${targetUser.name || targetUser.displayName || 'Usuário'} aceitou seu convite para a Caixinha` 
-          : `${targetUser.name || targetUser.displayName || 'Usuário'} recusou seu convite para a Caixinha`,
-        data: {
-          caixinhaId: invite.caixinhaId,
-          targetId: invite.targetId,
-          status
-        },
-        read: false
-      };
-      
-      await this.notificationService.createNotification(notification);
-    } catch (error) {
-      this._logError(error, '_notifyInviteSender');
       // Não propaga o erro para não interromper o fluxo principal
     }
   }

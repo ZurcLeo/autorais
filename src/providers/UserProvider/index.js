@@ -285,7 +285,7 @@ export const UserProvider = ({children}) => {
             const userData = await userService.getUserProfile(userId);
             // serviceEventHub.emit(MODULE_NAME, USER_EVENTS.PROFILE_FETCHED, {payload:
             // userData})
-            dispatch({type: USER_ACTIONS.FETCH_SUCCESS, userData});
+            dispatch({type: USER_ACTIONS.FETCH_USER_SUCCESS, userData});
             return userData;
         } catch (error) {
             coreLogger.logEvent(
@@ -385,7 +385,7 @@ export const UserProvider = ({children}) => {
         try {
             serviceEventHub.emit(MODULE_NAME, USER_ACTIONS.FETCH_START, {});
             const newUser = await userService.addUser(userData);
-            serviceEventHub.emit(MODULE_NAME, USER_ACTIONS.FETCH_SUCCESS, newUser);
+            serviceEventHub.emit(MODULE_NAME, USER_ACTIONS.FETCH_USER_SUCCESS, newUser);
             showToast('User added successfully', {type: 'success'});
             return newUser;
         } catch (error) {

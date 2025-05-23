@@ -42,74 +42,81 @@ export const ToastProvider = ({ children }) => {
     return baseTime + readingTime;
   }, []);
 
-  // Função principal de exibição de toast
-  const showToast = useCallback((message, options = {}) => {
-    const {
-      type = 'info',
-      autoClose: optionAutoClose,
-      onClose,
-      priority = 1,
-      groupKey,
-      animation,
-      action,
-      ...restOptions
-    } = options;
+ // Função principal de exibição de toast
+const showToast = useCallback((message, options = {}) => {
+  const {
+    type = 'info',
+    autoClose: optionAutoClose,
+    onClose,
+    priority = 1,
+    groupKey,
+    animation,
+    action,
+    description,
+    ...restOptions
+  } = options;
 
-    // Determinar tempo de exibição
-    const autoCloseTime = optionAutoClose !== undefined
-      ? optionAutoClose
-      : calculateDuration(message, type);
+  // Formatação da mensagem para garantir que seja uma string
+  const formattedMessage = typeof message === 'object' ? 
+    JSON.stringify(message) : String(message);
 
-    // Criar o toast
-    const toastId = reactToastify(
-      ({ closeToast }) => (
-        <CustomToast
-          closeToast={() => {
-            if (onClose) {
-              onClose();
-            }
-            closeToast();
-          }}
-          toastProps={{ 
-            message, 
-            type, 
-            action,
-            animation,
-            ariaLabel: options.ariaLabel,
-            variant: options.variant
-          }}
-        />
-      ),
-      {
-        ...baseConfig,
-        autoClose: autoCloseTime,
-        ...restOptions,
-      }
-    );
+  // Determinar tempo de exibição
+  const autoCloseTime = optionAutoClose !== undefined
+    ? optionAutoClose
+    : calculateDuration(formattedMessage, type);
 
-    // Gerenciar o estado dos toasts ativos
-    setActiveToasts((prev) => {
-      const newToast = { 
-        id: toastId, 
-        message, 
-        type, 
-        priority, 
-        groupKey, 
-        timestamp: Date.now() 
-      };
+  // Criar o toast
+  const toastId = reactToastify(
+    ({ closeToast }) => (
+      <CustomToast
+        closeToast={() => {
+          if (onClose) {
+            onClose();
+          }
+          closeToast();
+        }}
+        toastProps={{ 
+          message: formattedMessage, // Usar a mensagem formatada
+          type, 
+          action,
+          animation,
+          ariaLabel: options.ariaLabel,
+          variant: options.variant,
+          // Se houver uma descrição e for um objeto, também formatá-la
+          description: description ? (typeof description === 'object' ? 
+            JSON.stringify(description) : String(description)) : undefined
+        }}
+      />
+    ),
+    {
+      ...baseConfig,
+      autoClose: autoCloseTime,
+      ...restOptions,
+    }
+  );
+
+  // Gerenciar o estado dos toasts ativos
+  setActiveToasts((prev) => {
+    const newToast = { 
+      id: toastId, 
+      message: formattedMessage, // Usar a mensagem formatada aqui também
+      type, 
+      priority, 
+      groupKey, 
+      timestamp: Date.now() 
+    };
+    
+    // Se houver uma chave de grupo, substituir toasts existentes do mesmo grupo
+    const filteredToasts = groupKey ? 
+      prev.filter(t => t.groupKey !== groupKey) : 
+      prev;
       
-      // Se houver uma chave de grupo, substituir toasts existentes do mesmo grupo
-      const filteredToasts = groupKey ? 
-        prev.filter(t => t.groupKey !== groupKey) : 
-        prev;
-        
-      // Adicionar o novo toast e ordenar por prioridade
-      return [...filteredToasts, newToast].sort((a, b) => b.priority - a.priority);
-    });
+    // Adicionar o novo toast e ordenar por prioridade
+    return [...filteredToasts, newToast].sort((a, b) => b.priority - a.priority);
+  });
 
-    return toastId;
-  }, [baseConfig, calculateDuration]);
-
+  return toastId;
+}, [baseConfig, calculateDuration]);
   // Toast para notificações agrupadas
   const showGroupedToast = useCallback((messages, options = {}) => {
     const { groupKey, groupMax = 3 } = options;

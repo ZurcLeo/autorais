@@ -1,141 +1,124 @@
-// src/privateRoutes.js
+// src/privateRoutes.js - Corrigido
 import React, { useEffect, useState } from 'react';
 import { LOG_LEVELS } from './core/constants/config';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { coreLogger } from './core/logging';
 import { serviceLocator } from './core/services/BaseService';
-import { AUTH_ACTIONS } from './core/constants/actions';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
 const MODULE_NAME = 'PrivateRoutes';
 
+const LoadingScreen = ({ message = 'Carregando...' }) => (
+  <Box 
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      flexDirection: 'column'
+    }}
+  >
+    <CircularProgress size={40} />
+    <Typography variant="body1" sx={{ mt: 2 }}>
+      {message}
+    </Typography>
+  </Box>
+);
+
 export const PrivateRoute = ({ element }) => {
-  const storeService = serviceLocator.get('store').getState()?.auth;
-  const { isAuthenticated, currentUser, authLoading, isFirstAccess } = storeService;
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    currentUser: null,
+    isLoading: true,
+    isChecked: false
+  });
   const location = useLocation();
-  const navigate = useNavigate();
-  // const [storeService, setstoreService] = useState({
-  //   isAuthenticated: false,
-  //   currentUser: null,
-  //   isLoading: true
-  // });
 
-  // // Carregar o estado diretamente do serviço
-  // useEffect(() => {
-  //   const loadstoreService = () => {
-  //     try {
-  // const storeService = serviceLocator.get('store').getState()?.auth;
-  // const { isAuthenticated, currentUser, authLoading } = storeService;
+  // Efeito para carregar o estado de autenticação diretamente do serviço
+  useEffect(() => {
+    const checkAuthState = () => {
+      try {
+        // Obter estado da store
+        const storeState = serviceLocator.get('store').getState()?.auth;
+        const { isAuthenticated, currentUser, authLoading } = storeState || {};
 
-  //       // Obter usuário do serviço
+        // Obter usuário diretamente do serviço como fallback
+        const serviceUser = serviceLocator.get('auth').getCurrentUser();
         
-  //       // Atualizar estado local com dados do serviço
-  //       // setstoreService({
-  //       //   isAuthenticated,
-  //       //   currentUser,
-  //       //   isLoading: false
-  //       // });
+        // Determinar estado final de autenticação combinando ambas fontes
+        const finalIsAuthenticated = isAuthenticated || Boolean(serviceUser);
+        const finalUser = currentUser || serviceUser;
         
-  //       // Sincronizar a store com o serviço (opcional, mas recomendado)
-  //       if (isAuthenticated && storeService && storeService.isInitialized) {
-  //         // const storeState = storeService.getState()?.auth;
-          
-  //         // Sincronizar apenas se a store estiver inconsistente
-  //         if (!storeService?.currentUser || storeService.currentUser?.uid !== serviceUser.uid) {
-  //           console.warn('[PRIVATE_ROUTE] Sincronizando store com serviço');
-  //           storeService.dispatch({
-  //             type: AUTH_ACTIONS.LOGIN_SUCCESS,
-  //             payload: {
-  //               currentUser: serviceUser,
-  //               isAuthenticated: true
-  //             }
-  //           });
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.error('[PRIVATE_ROUTE] Erro ao carregar estado de autenticação:', error);
-  //       // setstoreService({
-  //       //   isAuthenticated: false,
-  //       //   currentUser: null,
-  //       //   isLoading: false
-  //       // });
-  //     }
-  //   };
-    
-  //   loadstoreService();
-    
-  //   // Opcional: estabelecer um intervalo para verificar consistência
-  //   const intervalId = setInterval(loadstoreService, 5000);
-  //   return () => clearInterval(intervalId);
-  // }, [location.pathname]);
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Auth state checked', {
+          isAuthenticatedFromStore: Boolean(isAuthenticated),
+          isAuthenticatedFromService: Boolean(serviceUser),
+          finalIsAuthenticated,
+          hasUser: Boolean(finalUser),
+          path: location.pathname
+        });
 
-  // useEffect(() => {
-  //   if (isAuthenticated && isFirstAccess) {
-  //     navigate('/complete-profile', { replace: true });
-  //   }
-  // }, [storeService, navigate]);
+        // Atualizar estado local
+        setAuthState({
+          isAuthenticated: finalIsAuthenticated,
+          currentUser: finalUser,
+          isLoading: authLoading === true,
+          isChecked: true
+        });
+      } catch (error) {
+        console.error('[PRIVATE_ROUTE] Erro ao verificar autenticação:', error);
+        setAuthState({
+          isAuthenticated: false,
+          currentUser: null,
+          isLoading: false,
+          isChecked: true
+        });
+      }
+    };
+
+    // Verificar imediatamente
+    checkAuthState();
+    
+    // Verificar novamente após breve delay para dar tempo aos serviços de inicializarem
+    const timeoutId = setTimeout(checkAuthState, 300);
+    
+    // Cleanup
+    return () => clearTimeout(timeoutId);
+  }, [location.pathname]);
 
   // Log para depuração
   useEffect(() => {
-    console.log("[PRIVATE_ROUTE] Estado de autenticação do serviço:", storeService);
-  }, [storeService]);
+    console.log("[PRIVATE_ROUTE] Estado de autenticação:", authState);
+  }, [authState]);
 
-  // Registrar evento de ciclo de vida
-  coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.LIFECYCLE, 'Component rendered', {
-    isAuthenticated: storeService.isAuthenticated,
-    isLoading: storeService.isLoading,
-    path: location.pathname,
-  });
-
-  // Se ainda está carregando
-  if (storeService.isLoading) {
+  // Se ainda está carregando ou não foi verificado
+  if (authState.isLoading || !authState.isChecked) {
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Loading state active');
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        <div>Carregando...</div>
-      </div>
-    );
+    return <LoadingScreen message="Verificando sessão..." />;
   }
 
   // Se não estiver autenticado, redirecionar para login
-  if (!storeService.isAuthenticated) {
+  if (!authState.isAuthenticated) {
     console.log('[PRIVATE_ROUTE] User is not authenticated, redirecting to login...');
-
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Redirecting to login', {
       path: location.pathname,
     });
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Se estiver autenticado, mas não tiver usuário (caso improvável com esta abordagem)
-  if (!storeService.currentUser) {
+  // Se estiver autenticado, mas não tiver usuário (caso improvável)
+  if (!authState.currentUser) {
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARNING, 'Authenticated but no user data', {
       path: location.pathname,
     });
-    
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        <div>Carregando dados do usuário...</div>
-      </div>
-    );
+    return <LoadingScreen message="Carregando dados do usuário..." />;
   }
 
   // Sucesso: usuário autenticado e dados disponíveis
   coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Rendering protected content', {
-    userId: storeService.currentUser?.uid,
-    path: location.pathname,
-    source: 'direct-service'
+    userId: authState.currentUser?.uid,
+    path: location.pathname
   });
 
   // Passar o usuário como prop para o componente filho
-  return React.cloneElement(element, { userFromService: storeService.currentUser });
+  return React.cloneElement(element, { userFromService: authState.currentUser });
 };

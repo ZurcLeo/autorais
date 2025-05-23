@@ -1,5 +1,5 @@
-// ThemeControls.jsx - Versão Otimizada
-import React, { memo, useMemo } from 'react';
+// ThemeControls.jsx
+import React from 'react';
 import { useAppTheme } from './themeContext';
 import { 
   Button, 
@@ -11,8 +11,6 @@ import {
   FormControl, 
   InputLabel,
   Box,
-  Paper,
-  Grid,
   Typography,
   Tooltip,
   Divider,
@@ -25,12 +23,12 @@ import {
   MotionPhotosOff, 
   Contrast,
   Palette
-} from '@mui/icons-material'; 
-import ThemePreview from './ThemePreview';
+} from '@mui/icons-material';
+import { AVAILABLE_THEMES } from './theme';
 
-// Componente de amostra de cor do tema (memoizado)
-const ThemeColorSwatch = memo(({ colorName, color }) => (
-  <Tooltip title={colorName}>
+// Componente de amostra de cor do tema
+const ThemeColorSwatch = ({ color, label }) => (
+  <Tooltip title={label || ''}>
     <Box 
       sx={{ 
         width: 24, 
@@ -42,31 +40,39 @@ const ThemeColorSwatch = memo(({ colorName, color }) => (
       }} 
     />
   </Tooltip>
-));
+);
 
-// Memoização do componente de rótulos de tema para evitar re-renderizações desnecessárias
-const ThemeOption = memo(({ theme, themeLabels, themeColors }) => (
-  <Stack direction="row" spacing={1} alignItems="center">
-    <Stack direction="row" spacing={0.5}>
-      {themeColors[theme]?.map((color, index) => (
-        <ThemeColorSwatch 
-          key={index} 
-          color={color} 
-          colorName={`${themeLabels[theme]} ${index + 1}`} 
-        />
-      ))}
+// Cores de amostra para os temas
+const themeColors = {
+  ocean: ['#0A84DE', '#36A6F2'],
+  sunset: ['#F97316', '#FB923C'],
+  forest: ['#22C55E', '#4ADE80'],
+  mountain: ['#466D6D', '#5E8888'],
+  glacier: ['#1E9EEB', '#42BDF6'],
+  volcano: ['#E53E3E', '#F56565'],
+  earth: ['#8B6B38', '#A48850']
+};
+
+// Componente de opção de tema
+const ThemeOption = ({ theme, themeLabels }) => {
+  return (
+    <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={0.5}>
+        {themeColors[theme]?.map((color, index) => (
+          <ThemeColorSwatch 
+            key={index} 
+            color={color} 
+            label={`${themeLabels[theme]} ${index === 0 ? 'Primary' : 'Secondary'}`} 
+          />
+        ))}
+      </Stack>
+      <Typography>{themeLabels[theme] || theme}</Typography>
     </Stack>
-    <Typography>{themeLabels[theme] || theme}</Typography>
-  </Stack>
-));
+  );
+};
 
-// Componente principal memoizado
-export const ThemeControls = memo(({ inMenu = false }) => {
-  // Obtenha o valor completo do contexto
-  const themeContext = useAppTheme();
-  const muiTheme = useTheme();
-
-  // Desestrutura as propriedades e funções que precisamos
+export const ThemeControls = ({ inMenu = false }) => {
+  // Obter valores e funções do contexto de tema
   const {
     mode,
     autoMode,
@@ -78,11 +84,11 @@ export const ThemeControls = memo(({ inMenu = false }) => {
     toggleHighContrast,
     currentTheme,
     setTheme,
-    availableThemes,
-  } = themeContext;
+    availableThemes = AVAILABLE_THEMES
+  } = useAppTheme();
 
-  // Mapeia os nomes de temas para rótulos mais amigáveis (memoizado)
-  const themeLabels = useMemo(() => ({
+  // Mapeamento de nomes de temas para rótulos mais amigáveis
+  const themeLabels = {
     ocean: 'Oceano',
     sunset: 'Pôr do Sol',
     forest: 'Floresta',
@@ -90,45 +96,32 @@ export const ThemeControls = memo(({ inMenu = false }) => {
     glacier: 'Glacial',
     volcano: 'Vulcânico',
     earth: 'Terra'
-  }), []);
-
-  // Cores de amostra para os temas (memoizado)
-  const themeColors = useMemo(() => ({
-    ocean: ['#0A84DE', '#36A6F2', '#7CC4FA'],
-    sunset: ['#F97316', '#FB923C', '#FDBA74'],
-    forest: ['#22C55E', '#4ADE80', '#86EFAC'],
-    mountain: ['#466D6D', '#5E8888', '#7FA1A1'],
-    glacier: ['#1E9EEB', '#42BDF6', '#7ED8FF'],
-    volcano: ['#E53E3E', '#F56565', '#FC8181'],
-    earth: ['#8B6B38', '#A48850', '#BFA878']
-  }), []);
-
-  // Estilos consistentes memoizados
-  const styles = useMemo(() => ({
-    menuStack: {
-      width: '100%', 
-      spacing: 1.5
-    },
-    fullStack: {
-      spacing: 2
-    },
-    select: {
-      mb: inMenu ? 0 : 2
-    },
-    divider: {
-      my: inMenu ? 0.5 : 1
-    }
-  }), [inMenu]);
+  };
 
   const handleThemeChange = (e) => {
     setTheme(e.target.value);
+  };
+
+  // Estilos simplificados baseados na propriedade inMenu
+  const styles = {
+    menuStack: {
+      width: '100%',
+      p: inMenu ? 1 : 0
+    },
+    divider: {
+      my: inMenu ? 0.5 : 1
+    },
+    formControl: {
+      mb: inMenu ? 0 : 2,
+      width: '100%'
+    }
   };
 
   // Versão compacta para o menu do usuário
   if (inMenu) {
     return (
       <Stack spacing={1.5} direction="column" sx={styles.menuStack}>
-        <FormControl fullWidth variant="outlined" size="small">
+        <FormControl variant="outlined" size="small" sx={styles.formControl}>
           <InputLabel id="theme-select-label-menu">Tema</InputLabel>
           <Select
             labelId="theme-select-label-menu"
@@ -143,7 +136,6 @@ export const ThemeControls = memo(({ inMenu = false }) => {
                 <ThemeOption 
                   theme={theme} 
                   themeLabels={themeLabels} 
-                  themeColors={themeColors} 
                 />
               </MenuItem>
             ))}
@@ -168,21 +160,7 @@ export const ThemeControls = memo(({ inMenu = false }) => {
               </Typography>
             }
           />
-          <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>Configurações de Tema</Typography>
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={5}>
-          <Paper sx={{ p: 3 }}>
-            <ThemeControls />
-          </Paper>
-        </Grid>
-        
-        <Grid item xs={12} md={7}>
-          <ThemePreview />
-        </Grid>
-      </Grid>
-    </Box>
+          
           <FormControlLabel
             control={
               <Switch
@@ -228,14 +206,14 @@ export const ThemeControls = memo(({ inMenu = false }) => {
     );
   }
 
-  // Versão completa para página de configurações ou painel de controle
+  // Versão completa para página de configurações
   return (
-    <Stack spacing={2} direction="column" sx={styles.fullStack}>
+    <Stack spacing={2} direction="column">
       <Typography variant="h6" gutterBottom>
         Preferências de Tema
       </Typography>
 
-      <FormControl fullWidth variant="outlined" size="small" sx={styles.select}>
+      <FormControl variant="outlined" size="small" sx={styles.formControl}>
         <InputLabel id="theme-select-label">Tema</InputLabel>
         <Select
           labelId="theme-select-label"
@@ -250,7 +228,6 @@ export const ThemeControls = memo(({ inMenu = false }) => {
               <ThemeOption 
                 theme={theme} 
                 themeLabels={themeLabels} 
-                themeColors={themeColors} 
               />
             </MenuItem>
           ))}
@@ -326,8 +303,4 @@ export const ThemeControls = memo(({ inMenu = false }) => {
       />
     </Stack>
   );
-});
-
-ThemeControls.displayName = 'ThemeControls';
-ThemeColorSwatch.displayName = 'ThemeColorSwatch';
-ThemeOption.displayName = 'ThemeOption';
+};

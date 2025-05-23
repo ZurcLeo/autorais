@@ -1,6 +1,6 @@
 // src/components/system/ResilienceMonitor.js
 import React, { useState, useEffect, useMemo } from 'react';
-import { Alert, Box, CircularProgress, Typography, Chip, Paper, Tooltip } from '@mui/material';
+import { Alert, Box, CircularProgress, Typography, Chip, Paper, Tooltip, useTheme } from '@mui/material';
 import { retryManager } from '../../core/resilience';
 import { CircuitState } from '../../core/constants/config';
 
@@ -12,7 +12,7 @@ export const ResilienceMonitor = ({ showDetails = false }) => {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+const theme = useTheme()
   // Função para atualizar os dados
   const refreshData = () => {
     try {
@@ -56,10 +56,10 @@ export const ResilienceMonitor = ({ showDetails = false }) => {
   
   // Status color
   const statusColor = {
-    healthy: 'success.main',
-    warning: 'warning.main',
-    degraded: 'error.main',
-    unknown: 'text.disabled'
+    healthy: theme.palette.success,
+    warning: theme.palette.warning,
+    degraded: theme.palette.grey,
+    unknown: theme.palette.error
   };
   
   // Renderizar estado de carregamento

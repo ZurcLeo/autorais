@@ -18,7 +18,7 @@ const MODULE_NAME = 'CaixinhaProvider';
 const CaixinhaContext = createContext();
 
 export const CaixinhaProvider = ({ children }) => {
-  const { showToast } = useToast();
+  // const { showToast } = useToast();
   const [state, dispatch] = useReducer(caixinhaReducer, initialCaixinhaState);
   const processCaixinhaData = useProcessCaixinhaData();
   const [eventListeners, setEventListeners] = useState([]);
@@ -38,6 +38,7 @@ export const CaixinhaProvider = ({ children }) => {
      setCaixinhasError(err);
    }
  
+   console.log('caixinha service: ', serviceCai)
    const { currentUser } = serviceStore || {};
    const userId = currentUser?.uid;
 
@@ -107,7 +108,7 @@ export const CaixinhaProvider = ({ children }) => {
           updatedFields: data.updatedFields
         });
         
-        if (state.currentCaixinha?.id === data.caixinhaId) {
+        if (state.currentCaixinha?.caixinha.id === data.caixinhaId) {
           dispatch({
             type: CAIXINHA_ACTIONS.UPDATE_SINGLE_CAIXINHA,
             payload: data.caixinha
@@ -137,7 +138,7 @@ export const CaixinhaProvider = ({ children }) => {
         });
         
         // Limpa a caixinha atual se for a excluída
-        if (state.currentCaixinha?.id === data.caixinhaId) {
+        if (state.currentCaixinha?.caixinha.id === data.caixinhaId) {
           dispatch({ 
             type: CAIXINHA_ACTIONS.UPDATE_SINGLE_CAIXINHA, 
             payload: null 
@@ -157,7 +158,7 @@ export const CaixinhaProvider = ({ children }) => {
         });
         
         // Se for para a caixinha atual, atualiza as contribuições
-        if (state.currentCaixinha?.id === data.caixinhaId) {
+        if (state.currentCaixinha?.caixinha.id === data.caixinhaId) {
           getContributions(data.caixinhaId);
           getCaixinha(data.caixinhaId); // Atualiza os detalhes da caixinha também
         }
@@ -255,32 +256,26 @@ export const CaixinhaProvider = ({ children }) => {
         payload: error.message 
       });
       
-      showToast('Falha ao carregar caixinhas', { 
-        type: 'error', 
-        description: error.message 
-      });
-      
       throw error;
     }
-  }, [userId, currentUser, processCaixinhaData, showToast]);
+  }, [userId, currentUser, processCaixinhaData]);
 
   // Get Single Caixinha
-  const getCaixinha = useCallback(async (id) => {
-    if (!id || !currentUser) {
-      showToast('ID de caixinha inválido', { type: 'error' });
+  const getCaixinha = useCallback(async (caixinhaId) => {
+    if (!caixinhaId || !currentUser) {
       return null;
     }
 
     dispatch({ type: CAIXINHA_ACTIONS.FETCH_START });
-    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Fetching single caixinha', { id });
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Fetching single caixinha', { caixinhaId });
     
     try {
-      const cacheKey = `${CAIXINHA_CACHE_CONFIG.SINGLE_CAIXINHA_KEY}:${id}`;
+      const cacheKey = `${CAIXINHA_CACHE_CONFIG.SINGLE_CAIXINHA_KEY}:${caixinhaId}`;
       const cachedData = globalCache.getItem(cacheKey);
 
       if (cachedData && Date.now() - cachedData.timestamp < CAIXINHA_CACHE_CONFIG.SINGLE_CACHE_TIME) {
         coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Using cached single caixinha data', {
-          id,
+          caixinhaId,
           cacheAge: Date.now() - cachedData.timestamp
         });
         
@@ -291,7 +286,7 @@ export const CaixinhaProvider = ({ children }) => {
         return cachedData.data;
       }
 
-      const caixinhaData = await caixinhaService.getCaixinhaById(id);
+      const caixinhaData = await caixinhaService.getCaixinhaById(caixinhaId);
       const processedCaixinha = processCaixinhaData(caixinhaData);
 
       dispatch({
@@ -299,18 +294,18 @@ export const CaixinhaProvider = ({ children }) => {
         payload: processedCaixinha
       });
       
-      globalCache.setItemItem(cacheKey, { 
+      globalCache.setItem(cacheKey, { 
         data: processedCaixinha, 
         timestamp: Date.now() 
       });
       
-      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Single caixinha fetched successfully', { id });
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Single caixinha fetched successfully', { caixinhaId });
       
       return processedCaixinha;
 
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to fetch single caixinha', {
-        id,
+        caixinhaId,
         error: error.message
       });
       
@@ -319,50 +314,68 @@ export const CaixinhaProvider = ({ children }) => {
         payload: error.message 
       });
       
-      showToast('Falha ao carregar caixinha', { 
-        type: 'error',
-        description: error.message 
-      });
+      // showToast('Falha ao carregar caixinha', { 
+      //   type: 'error',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [currentUser, processCaixinhaData, showToast]);
+  }, [currentUser, processCaixinhaData]);
 
   // Create Caixinha
   const createCaixinha = useCallback(async (caixinhaData) => {
     if (!userId || !currentUser) {
-      showToast('Usuário deve estar autenticado', { type: 'error' });
       return null;
     }
-
-    const validationError = validateCaixinhaData(caixinhaData);
-    if (validationError) {
-      showToast(validationError, { type: 'error' });
-      return null;
+  
+    // Adicionando logs detalhados para depuração
+    console.log('Dados enviados para validação:', caixinhaData);
+    
+    const validationResult = validateCaixinhaData(caixinhaData);
+    console.log('Resultado da validação:', validationResult);
+    
+    if (!validationResult.success) {
+      // Formatação do erro
+      let errorMessage = "Erro de validação";
+      if (validationResult.errors) {
+        console.log('Erros específicos de validação:', validationResult.errors);
+        errorMessage = Object.entries(validationResult.errors)
+          .map(([field, message]) => `${field}: ${message}`)
+          .join(', ');
+      }
+      
+      // Criando um objeto de erro com detalhes para depuração
+      const error = new Error(errorMessage);
+      error.validationErrors = validationResult.errors;
+      throw error;
     }
 
+    // Dentro da função createCaixinha, antes de chamar o caixinhaService
     const enrichedData = {
       ...caixinhaData,
       adminId: userId,
-      dataCriacao: new Date().toISOString()
+      dataCriacao: new Date().toISOString(),
+      // Adicione esta linha para converter a string em booleano
+      // permiteEmprestimos: caixinhaData.permiteEmprestimos === true
     };
 
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Creating caixinha', {
       adminId: userId,
       nome: caixinhaData.nome
     });
-
+  
     try {
       dispatch({ type: CAIXINHA_ACTIONS.FETCH_START });
       
-      showToast('Criando caixinha...', { type: 'loading', id: 'create-caixinha' });
+      // showToast('Criando caixinha...', { type: 'loading', id: 'create-caixinha' });
       
       const newCaixinhaData = await caixinhaService.createCaixinha(enrichedData);
       const newCaixinha = processCaixinhaData(newCaixinhaData);
       
       dispatch({
         type: CAIXINHA_ACTIONS.UPDATE_CAIXINHAS,
-        payload: [...state.caixinhas, newCaixinha]
+        payload: Array.isArray(state.caixinhas) ? [...state.caixinhas, newCaixinha] : [newCaixinha]
       });
       
       // Invalida o cache
@@ -373,10 +386,10 @@ export const CaixinhaProvider = ({ children }) => {
         nome: newCaixinha.nome
       });
       
-      showToast('Caixinha criada com sucesso!', { 
-        type: 'success', 
-        id: 'create-caixinha'
-      });
+      // showToast('Caixinha criada com sucesso!', { 
+      //   type: 'success', 
+      //   id: 'create-caixinha'
+      // });
       
       return newCaixinha;
       
@@ -390,26 +403,85 @@ export const CaixinhaProvider = ({ children }) => {
         payload: error.message 
       });
       
-      showToast('Falha ao criar caixinha', { 
-        type: 'error', 
-        id: 'create-caixinha',
-        description: error.message
+      // showToast('Falha ao criar caixinha', { 
+      //   type: 'error', 
+      //   id: 'create-caixinha',
+      //   description: error.message
+      // });
+      
+      throw error;
+    }
+  }, [userId, currentUser, state.caixinhas, processCaixinhaData]);
+  
+  const getMembers = useCallback(async (caixinhaId) => {
+    if (!caixinhaId || !currentUser) {
+      return [];
+    }
+  
+    dispatch({ type: CAIXINHA_ACTIONS.FETCH_START });
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Fetching caixinha members', { caixinhaId });
+    
+    try {
+      const cacheKey = `${CAIXINHA_CACHE_CONFIG.MEMBERS_KEY}:${caixinhaId}`;
+      const cachedData = globalCache.getItem(cacheKey);
+  
+      if (cachedData && Date.now() - cachedData.timestamp < CAIXINHA_CACHE_CONFIG.CACHE_TIME) {
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Using cached members data', {
+          caixinhaId,
+          cacheAge: Date.now() - cachedData.timestamp
+        });
+        
+        dispatch({
+          type: CAIXINHA_ACTIONS.UPDATE_MEMBERS,
+          payload: { members: cachedData.data }
+        });
+        return cachedData.data;
+      }
+  
+      const membersData = await caixinhaService.getMembers(caixinhaId);
+      
+      dispatch({
+        type: CAIXINHA_ACTIONS.UPDATE_MEMBERS,
+        payload: { members: membersData }
+      });
+      
+      globalCache.setItem(cacheKey, { 
+        data: membersData, 
+        timestamp: Date.now() 
+      });
+      
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Members fetched successfully', { 
+        caixinhaId,
+        count: membersData.length 
+      });
+      
+      return membersData;
+  
+    } catch (error) {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to fetch members', {
+        caixinhaId,
+        error: error.message
+      });
+      
+      dispatch({ 
+        type: CAIXINHA_ACTIONS.FETCH_FAILURE, 
+        payload: error.message 
       });
       
       throw error;
     }
-  }, [userId, currentUser, state.caixinhas, processCaixinhaData, showToast]);
-
+  }, [currentUser]);
+  
   // Update Caixinha
   const updateCaixinha = useCallback(async (id, data) => {
     if (!id || !currentUser) {
-      showToast('ID de caixinha inválido', { type: 'error' });
+      // showToast('ID de caixinha inválido', { type: 'error' });
       return null;
     }
 
     const validationError = validateCaixinhaData(data, true);
     if (validationError) {
-      showToast(validationError, { type: 'error' });
+      // showToast(validationError, { type: 'error' });
       return null;
     }
 
@@ -421,7 +493,7 @@ export const CaixinhaProvider = ({ children }) => {
     try {
       dispatch({ type: CAIXINHA_ACTIONS.FETCH_START });
       
-      showToast('Atualizando caixinha...', { type: 'loading', id: 'update-caixinha' });
+      // showToast('Atualizando caixinha...', { type: 'loading', id: 'update-caixinha' });
       
       const updatedCaixinhaData = await caixinhaService.updateCaixinha(id, data);
       const updatedCaixinha = processCaixinhaData(updatedCaixinhaData);
@@ -431,7 +503,7 @@ export const CaixinhaProvider = ({ children }) => {
         payload: state.caixinhas.map(cx => cx.id === id ? updatedCaixinha : cx)
       });
 
-      if (state.currentCaixinha?.id === id) {
+      if (state.currentCaixinha?.caixinha.id === id) {
         dispatch({
           type: CAIXINHA_ACTIONS.UPDATE_SINGLE_CAIXINHA,
           payload: updatedCaixinha
@@ -447,10 +519,10 @@ export const CaixinhaProvider = ({ children }) => {
         nome: updatedCaixinha.nome
       });
       
-      showToast('Caixinha atualizada com sucesso!', { 
-        type: 'success', 
-        id: 'update-caixinha' 
-      });
+      // showToast('Caixinha atualizada com sucesso!', { 
+      //   type: 'success', 
+      //   id: 'update-caixinha' 
+      // });
       
       return updatedCaixinha;
       
@@ -465,20 +537,20 @@ export const CaixinhaProvider = ({ children }) => {
         payload: error.message 
       });
       
-      showToast('Falha ao atualizar caixinha', { 
-        type: 'error', 
-        id: 'update-caixinha',
-        description: error.message 
-      });
+      // showToast('Falha ao atualizar caixinha', { 
+      //   type: 'error', 
+      //   id: 'update-caixinha',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [userId, currentUser, state.caixinhas, state.currentCaixinha, processCaixinhaData, showToast]);
+  }, [userId, currentUser, state.caixinhas, state.currentCaixinha, processCaixinhaData]);
 
   // Delete Caixinha
   const deleteCaixinha = useCallback(async (id) => {
     if (!id || !currentUser) {
-      showToast('ID de caixinha inválido', { type: 'error' });
+      // showToast('ID de caixinha inválido', { type: 'error' });
       return null;
     }
 
@@ -487,7 +559,7 @@ export const CaixinhaProvider = ({ children }) => {
     try {
       dispatch({ type: CAIXINHA_ACTIONS.FETCH_START });
       
-      showToast('Excluindo caixinha...', { type: 'loading', id: 'delete-caixinha' });
+      // showToast('Excluindo caixinha...', { type: 'loading', id: 'delete-caixinha' });
       
       await caixinhaService.deleteCaixinha(id);
       
@@ -496,7 +568,7 @@ export const CaixinhaProvider = ({ children }) => {
         payload: state.caixinhas.filter(cx => cx.id !== id)
       });
 
-      if (state.currentCaixinha?.id === id) {
+      if (state.currentCaixinha?.caixinha.id === id) {
         dispatch({ 
           type: CAIXINHA_ACTIONS.UPDATE_SINGLE_CAIXINHA, 
           payload: null 
@@ -509,10 +581,10 @@ export const CaixinhaProvider = ({ children }) => {
       
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Caixinha deleted successfully', { id });
       
-      showToast('Caixinha excluída com sucesso!', { 
-        type: 'success', 
-        id: 'delete-caixinha' 
-      });
+      // showToast('Caixinha excluída com sucesso!', { 
+      //   type: 'success', 
+      //   id: 'delete-caixinha' 
+      // });
       
       return { success: true, id };
       
@@ -527,25 +599,25 @@ export const CaixinhaProvider = ({ children }) => {
         payload: error.message 
       });
       
-      showToast('Falha ao excluir caixinha', { 
-        type: 'error',
-        id: 'delete-caixinha',
-        description: error.message 
-      });
+      // showToast('Falha ao excluir caixinha', { 
+      //   type: 'error',
+      //   id: 'delete-caixinha',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [userId, currentUser, state.caixinhas, state.currentCaixinha, showToast]);
+  }, [userId, currentUser, state.caixinhas, state.currentCaixinha]);
 
   // Add Contribution
   const addContribution = useCallback(async (data) => {
     if (!userId || !currentUser) {
-      showToast('Usuário deve estar autenticado', { type: 'error' });
+      // showToast('Usuário deve estar autenticado', { type: 'error' });
       return null;
     }
     
     if (!data.caixinhaId || !data.valor) {
-      showToast('Dados da contribuição incompletos', { type: 'error' });
+      // showToast('Dados da contribuição incompletos', { type: 'error' });
       return null;
     }
 
@@ -563,7 +635,7 @@ export const CaixinhaProvider = ({ children }) => {
 
     try {
       
-      showToast('Adicionando contribuição...', { type: 'loading', id: 'add-contribution' });
+      // showToast('Adicionando contribuição...', { type: 'loading', id: 'add-contribution' });
       
       const response = await caixinhaService.addContribuicao(contributionData);
       
@@ -575,13 +647,13 @@ export const CaixinhaProvider = ({ children }) => {
         contributionId: response.id
       });
       
-      showToast('Contribuição adicionada com sucesso!', { 
-        type: 'success',
-        id: 'add-contribution'
-      });
+      // showToast('Contribuição adicionada com sucesso!', { 
+      //   type: 'success',
+      //   id: 'add-contribution'
+      // });
       
       // Atualizar a caixinha e as contribuições se for a caixinha atual
-      if (state.currentCaixinha?.id === data.caixinhaId) {
+      if (state.currentCaixinha?.caixinha.id === data.caixinhaId) {
         getContributions(data.caixinhaId);
         getCaixinha(data.caixinhaId);
       }
@@ -594,20 +666,20 @@ export const CaixinhaProvider = ({ children }) => {
         error: error.message
       });
       
-      showToast('Falha ao adicionar contribuição', { 
-        type: 'error',
-        id: 'add-contribution',
-        description: error.message 
-      });
+      // showToast('Falha ao adicionar contribuição', { 
+      //   type: 'error',
+      //   id: 'add-contribution',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [userId, currentUser, state.currentCaixinha, getCaixinha, showToast]);
+  }, [userId, currentUser, state.currentCaixinha, getCaixinha]);
 
   // Get Contributions
   const getContributions = useCallback(async (caixinhaId) => {
     if (!caixinhaId || !currentUser) {
-      showToast('ID de caixinha inválido', { type: 'error' });
+      // showToast('ID de caixinha inválido', { type: 'error' });
       return [];
     }
 
@@ -640,19 +712,19 @@ export const CaixinhaProvider = ({ children }) => {
         payload: error.message 
       });
       
-      showToast('Falha ao carregar contribuições', { 
-        type: 'error',
-        description: error.message 
-      });
+      // showToast('Falha ao carregar contribuições', { 
+      //   type: 'error',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [currentUser, showToast]);
+  }, [currentUser]);
 
   // Invite Member
   const inviteMember = useCallback(async (caixinhaId, inviteData) => {
     if (!caixinhaId || !inviteData.email || !currentUser) {
-      showToast('Dados do convite inválidos', { type: 'error' });
+      // showToast('Dados do convite inválidos', { type: 'error' });
       return null;
     }
 
@@ -663,20 +735,20 @@ export const CaixinhaProvider = ({ children }) => {
 
     try {
       
-      showToast('Enviando convite...', { type: 'loading', id: 'invite-member' });
+      // showToast('Enviando convite...', { type: 'loading', id: 'invite-member' });
       
       const response = await caixinhaService.inviteMember(caixinhaId, inviteData);
       
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Member invited successfully', {
         caixinhaId,
         email: inviteData.email,
-        inviteId: response.id
+        caxinhaInviteId: response.id
       });
       
-      showToast('Convite enviado com sucesso!', { 
-        type: 'success',
-        id: 'invite-member'
-      });
+      // showToast('Convite enviado com sucesso!', { 
+      //   type: 'success',
+      //   id: 'invite-member'
+      // });
       
       return response;
       
@@ -687,20 +759,20 @@ export const CaixinhaProvider = ({ children }) => {
         error: error.message
       });
       
-      showToast('Falha ao enviar convite', { 
-        type: 'error',
-        id: 'invite-member',
-        description: error.message 
-      });
+      // showToast('Falha ao enviar convite', { 
+      //   type: 'error',
+      //   id: 'invite-member',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [currentUser, showToast]);
+  }, [currentUser]);
 
   // Join Caixinha
   const joinCaixinha = useCallback(async (caixinhaId, joinData = {}) => {
     if (!userId || !caixinhaId || !currentUser) {
-      showToast('Dados inválidos', { type: 'error' });
+      // showToast('Dados inválidos', { type: 'error' });
       return null;
     }
 
@@ -711,7 +783,7 @@ export const CaixinhaProvider = ({ children }) => {
 
     try {
       
-      showToast('Entrando na caixinha...', { type: 'loading', id: 'join-caixinha' });
+      // showToast('Entrando na caixinha...', { type: 'loading', id: 'join-caixinha' });
       
       const response = await caixinhaService.joinCaixinha(caixinhaId, { 
         ...joinData, 
@@ -730,10 +802,10 @@ export const CaixinhaProvider = ({ children }) => {
         userId
       });
       
-      showToast('Entrada na caixinha realizada com sucesso!', { 
-        type: 'success',
-        id: 'join-caixinha'
-      });
+      // showToast('Entrada na caixinha realizada com sucesso!', { 
+      //   type: 'success',
+      //   id: 'join-caixinha'
+      // });
       
       return response;
       
@@ -744,20 +816,20 @@ export const CaixinhaProvider = ({ children }) => {
         error: error.message
       });
       
-      showToast('Falha ao entrar na caixinha', { 
-        type: 'error',
-        id: 'join-caixinha',
-        description: error.message 
-      });
+      // showToast('Falha ao entrar na caixinha', { 
+      //   type: 'error',
+      //   id: 'join-caixinha',
+      //   description: error.message 
+      // });
       
       throw error;
     }
-  }, [userId, currentUser, getCaixinhas, showToast]);
+  }, [userId, currentUser, getCaixinhas]);
 
   // Leave Caixinha
   const leaveCaixinha = useCallback(async (caixinhaId) => {
     if (!userId || !caixinhaId || !currentUser) {
-      showToast('Dados inválidos', { type: 'error' });
+      // showToast('Dados inválidos', { type: 'error' });
       return null;
     }
 
@@ -768,7 +840,7 @@ coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Leaving caixinha', {
 
 try {
   
-  showToast('Saindo da caixinha...', { type: 'loading', id: 'leave-caixinha' });
+  // showToast('Saindo da caixinha...', { type: 'loading', id: 'leave-caixinha' });
   
   const response = await caixinhaService.leaveCaixinha(caixinhaId, userId);
   
@@ -780,7 +852,7 @@ try {
   getCaixinhas();
   
   // Limpa a caixinha atual se for a que o usuário saiu
-  if (state.currentCaixinha?.id === caixinhaId) {
+  if (state.currentCaixinha?.caixinha.id === caixinhaId) {
     dispatch({ 
       type: CAIXINHA_ACTIONS.UPDATE_SINGLE_CAIXINHA, 
       payload: null 
@@ -792,10 +864,10 @@ try {
     userId
   });
   
-  showToast('Saída da caixinha realizada com sucesso!', { 
-    type: 'success',
-    id: 'leave-caixinha'
-  });
+  // showToast('Saída da caixinha realizada com sucesso!', { 
+  //   type: 'success',
+  //   id: 'leave-caixinha'
+  // });
   
   return response;
   
@@ -806,15 +878,15 @@ try {
     error: error.message
   });
   
-  showToast('Falha ao sair da caixinha', { 
-    type: 'error',
-    id: 'leave-caixinha',
-    description: error.message 
-  });
+  // showToast('Falha ao sair da caixinha', { 
+  //   type: 'error',
+  //   id: 'leave-caixinha',
+  //   description: error.message 
+  // });
   
   throw error;
 }
-}, [userId, currentUser, getCaixinhas, state.currentCaixinha, showToast]);
+}, [userId, currentUser, getCaixinhas, state.currentCaixinha]);
 
 // Inicialização - Carregar caixinhas quando o serviço estiver pronto e o usuário autenticado
 useEffect(() => {
@@ -831,6 +903,7 @@ const contextValue = useMemo(() => ({
 caixinhas: state.caixinhas,
 currentCaixinha: state.currentCaixinha,
 contributions: state.contributions,
+members: state.members, 
 loading: state.loading,
 error: state.error,
 
@@ -840,6 +913,7 @@ serviceReady: currentUser,
 
 // Ações
 createCaixinha,
+getMembers,
 updateCaixinha,
 deleteCaixinha,
 getCaixinha,
@@ -857,6 +931,7 @@ processCaixinhaData
 state.caixinhas,
 state.currentCaixinha,
 state.contributions,
+state.members, 
 state.loading,
 state.error,
 
@@ -864,8 +939,8 @@ state.error,
 currentUser,
 // caixinhaServiceError,
 
-// Ações (já são memoizadas com useCallback)
 createCaixinha,
+getMembers,
 updateCaixinha,
 deleteCaixinha,
 getCaixinha,

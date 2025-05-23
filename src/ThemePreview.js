@@ -35,7 +35,7 @@ const ThemePreview = () => {
   
   // Paletas de temas disponíveis
   const themeVariants = useMemo(() => [
-    { name: 'ocean', label: 'Oceano', primary: '#0A84DE', secondary: '#1E9EEB', accent: '#F97316' },
+    { name: 'ocean', label: 'Oceano', primary: theme.palette.primary.main, secondary: theme.palette.secondary.main, accent: '#F97316' },
     { name: 'sunset', label: 'Pôr do Sol', primary: '#F97316', secondary: '#FB923C', accent: '#E53E3E' },
     { name: 'forest', label: 'Floresta', primary: '#22C55E', secondary: '#4ADE80', accent: '#8B6B38' },
     { name: 'mountain', label: 'Montanha', primary: '#466D6D', secondary: '#5E8888', accent: '#1E9EEB' },

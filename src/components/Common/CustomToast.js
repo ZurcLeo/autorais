@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { Box, Typography, Button, IconButton, Fade, Paper } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 // import { useTheme } from '@mui/material/styles';
-import {useAppTheme} from '../../themeContext'
+import {useTheme} from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -18,7 +18,9 @@ const ariaRoles = {
 };
 
 const CustomToast = ({ closeToast, toastProps }) => {
-  const theme = useAppTheme();
+  console.log("Valor da prop 'message' recebida:", toastProps.message);
+
+  const theme = useTheme();
   const { 
     type = 'info', 
     message, 
@@ -47,25 +49,23 @@ const CustomToast = ({ closeToast, toastProps }) => {
     }
   }, []);
 
-  // Funções para estilização
   const getBackgroundColor = useCallback(() => {
-    // Cores por tipo
     const colors = {
       success: theme.palette.success.light,
       error: theme.palette.error.light,
       info: theme.palette.info.light,
       warning: theme.palette.warning.light
     };
-    
-    // Variantes podem ter cores especiais
+
     if (variant === 'highlighted') {
       return colors[type] || theme.palette.background.paper;
     }
-    
+
     if (variant === 'critical') {
       return type === 'error' ? theme.palette.error.main : colors[type];
     }
-    
+
+    // Usando uma cor semântica para o background padrão do toast
     return colors[type] || theme.palette.background.paper;
   }, [theme, type, variant]);
 
@@ -103,13 +103,12 @@ const CustomToast = ({ closeToast, toastProps }) => {
     return animations[animation] || {};
   }, [animation]);
 
-  // Determinar a cor do texto com base no contraste
   const getTextColor = useCallback(() => {
     const bgColor = getBackgroundColor();
-    return theme.palette.getContrastText(bgColor);
-  }, [getBackgroundColor, theme.palette]);
+    // Tentando usar a cor de contraste semântica, se definida, senão a padrão
+    return theme.semanticColors?.text?.primary || theme.palette.getContrastText(bgColor);
+  }, [getBackgroundColor, theme.palette, theme.semanticColors]);
 
-  // Estilo de borda conforme o tipo
   const getBorderStyle = useCallback(() => {
     const borders = {
       success: `4px solid ${theme.palette.success.main}`,
@@ -117,11 +116,19 @@ const CustomToast = ({ closeToast, toastProps }) => {
       info: `4px solid ${theme.palette.info.main}`,
       warning: `4px solid ${theme.palette.warning.main}`
     };
-    
-    return {
-      borderLeft: borders[type]
+
+    // Usando uma cor semântica para a borda, se desejado
+    const semanticBorders = {
+      success: `4px solid ${theme.semanticColors?.border?.default || theme.palette.success.main}`,
+      error: `4px solid ${theme.semanticColors?.border?.error || theme.palette.error.main}`,
+      info: `4px solid ${theme.semanticColors?.border?.info || theme.palette.info.main}`,
+      warning: `4px solid ${theme.semanticColors?.border?.warning || theme.palette.warning.main}`,
     };
-  }, [theme, type]);
+
+    return {
+      borderLeft: semanticBorders[type] || borders[type]
+    };
+  }, [theme, type, theme.palette, theme.semanticColors]);
 
   return (
     <Fade in={true}>
@@ -224,7 +231,7 @@ const CustomToast = ({ closeToast, toastProps }) => {
             bottom: 0,
             left: 0,
             height: '3px',
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: theme.palette.background.primary,
             width: '100%',
           }}
         />

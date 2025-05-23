@@ -1,25 +1,22 @@
 import React, { useState, useCallback } from 'react';
-import { useAuth } from '../../providers/AuthProvider';
 import { Box, Typography, TextField, IconButton, Tooltip, Fade, Snackbar } from '@mui/material';
 import { Edit as EditIcon, Save as SaveIcon, Close as CloseIcon } from '@mui/icons-material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { debounce } from 'lodash';
-import { serviceLocator } from '../../core/services/BaseService';
-import { useValidation } from '../../providers/ValidationProvider'; // Correto
+import { useValidation } from '../../providers/ValidationProvider';
 import { useTranslation } from 'react-i18next';
 
-const ProfileInfo = ({ onSave }) => {
+const ProfileInfo = ({ userData, isEditable, onSave }) => {
   const { t } = useTranslation();
-  const serviceStore = serviceLocator.get('store').getState()?.auth;
-  const { currentUser } = serviceStore;  const [editingField, setEditingField] = useState(null);
+  const [editingField, setEditingField] = useState(null);
   const [tempValue, setTempValue] = useState('');
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const { validateField } = useValidation(); // 🔹 Correção do uso da validação
+  const { validateField } = useValidation();
   const sugestoes = ["Sugestão 1", "Sugestão 2", "Sugestão 3"];
 
-  // 🔹 Validação otimizada com debounce
+  // Validação otimizada com debounce
   const debouncedValidation = useCallback(
     debounce((field, value) => {
       const validationError = validateField(value, field === 'descricao' ? 'text' : 'default'); 
@@ -31,7 +28,7 @@ const ProfileInfo = ({ onSave }) => {
 
   const handleEdit = (field) => {
     setEditingField(field);
-    setTempValue(currentUser[field] || '');
+    setTempValue(userData[field] || '');
   };
 
   const handleCancel = () => {
@@ -70,7 +67,7 @@ const ProfileInfo = ({ onSave }) => {
         {label}
       </Typography>
       <Box flexGrow={1} position="relative">
-        {editingField === field ? (
+        {editingField === field && isEditable ? (
           <Fade in={true}>
             <Autocomplete
               freeSolo
@@ -85,12 +82,13 @@ const ProfileInfo = ({ onSave }) => {
                   {...params}
                   fullWidth
                   variant="standard"
-                  multiline
-                  rows={4}
+                  multiline={field === 'descricao'}
+                  rows={field === 'descricao' ? 4 : 1}
                   autoFocus
                   error={!!error}
                   helperText={error}
                   InputProps={{
+                    ...params.InputProps,
                     endAdornment: (
                       <Box>
                         <Tooltip title={t('common.save')}>
@@ -111,12 +109,19 @@ const ProfileInfo = ({ onSave }) => {
             />
           </Fade>
         ) : (
-          <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-            {currentUser[field] || t('profileInfo.notProvided')}
-          </pre>
+          <Typography
+            variant="body1"
+            style={{ 
+              whiteSpace: 'pre-wrap', 
+              wordWrap: 'break-word',
+              padding: '8px 0'
+            }}
+          >
+            {userData[field] || t('profileInfo.notProvided')}
+          </Typography>
         )}
       </Box>
-      {editingField !== field && (
+      {isEditable && editingField !== field && (
         <Tooltip title={t('common.edit')}>
           <IconButton size="small" onClick={() => handleEdit(field)}>
             <EditIcon fontSize="small" />
@@ -130,7 +135,7 @@ const ProfileInfo = ({ onSave }) => {
     <Box>
       {renderField(t('profileInfo.name'), 'nome')}
       {renderField(t('common.description'), 'descricao')}
-      {renderField(t('profileInfo.tipoDePerfil'), 'perfil')}
+      {renderField(t('profileInfo.tipoDePerfil'), 'tipoDeConta')}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

@@ -22,7 +22,20 @@ export const setupCaixinhaMappings = (eventBridgeService) => {
         lastUpdated: eventData.timestamp || Date.now()
       })
     },
-    
+    // Mapeamento para quando os membros são carregados
+{
+  serviceName: 'caixinhas',
+  eventType: CAIXINHA_EVENTS.MEMBERS_FETCHED,
+  actionType: CAIXINHA_ACTIONS.UPDATE_MEMBERS,
+  transformer: (eventData) => ({
+    members: eventData.members || [],
+    caixinhaId: eventData.caixinhaId,
+    count: eventData.count,
+    loading: false,
+    error: null,
+    lastUpdated: eventData.timestamp || Date.now()
+  })
+},
     // Mapeamento para quando uma caixinha específica é carregada
     {
       serviceName: 'caixinhas',

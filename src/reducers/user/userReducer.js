@@ -6,9 +6,9 @@ import { coreLogger } from "../../core/logging/CoreLogger";
 
 export const userReducer = (state = initialUserState, action) => {
   // Para fins de debug - pode ser removido em produção
-  // coreLogger.logEvent('UserReducer', 'DEBUG', `Processando ação: ${action.type}`, {
-  //   payload: action.payload ? { ...action.payload } : null
-  // });
+  coreLogger.logEvent('UserReducer', 'DEBUG', `Processando ação: ${action.type}`, {
+    payload: action.payload ? { ...action.payload } : null
+  });
   
   switch (action.type) {
     case USER_ACTIONS.FETCH_START:
@@ -20,16 +20,21 @@ export const userReducer = (state = initialUserState, action) => {
         lastUpdated: Date.now()
       };
       
-    case USER_ACTIONS.FETCH_SUCCESS:
-      return {
-        ...state,
-        user: action.user,
-        usersById: action.usersById,
-        userLoading: false,
-        isAuthenticated: true, 
-        error: null,
-        lastUpdated: Date.now()
-      };
+      case USER_ACTIONS.FETCH_USER_SUCCESS:
+        // Construir o cache atualizado de usuários
+        const updatedUsersById = {
+          ...state.usersById,
+          ...(action.usersById || {})
+        };
+        
+        return {
+          ...state,
+          user: state.user,  // Não sobrescrever o usuário atual!
+          usersById: updatedUsersById,  // Atualizar o cache
+          userLoading: false,
+          error: null,
+          lastUpdated: Date.now()
+        };
     
     case USER_ACTIONS.FETCH_FAILURE:
       const errorMessage = typeof action.user === 'string'

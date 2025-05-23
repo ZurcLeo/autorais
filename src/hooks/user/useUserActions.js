@@ -14,7 +14,7 @@
 //         try {
 //             dispatch({ type: USER_ACTIONS.FETCH_START });
 //             const user = await UserService.getUserProfile(userId); // Usa getUserProfile atualizado
-//             dispatch({ type: USER_ACTIONS.FETCH_SUCCESS, payload: user });
+//             dispatch({ type: USER_ACTIONS.FETCH_USER_SUCCESS, payload: user });
 //             return user;
 //         } catch (error) {
 //             dispatch({ type: USER_ACTIONS.FETCH_FAILURE, payload: error.message });
@@ -71,7 +71,7 @@
 //         try {
 //             dispatch({ type: USER_ACTIONS.FETCH_START });
 //             const newUser = await UserService.addUser(userData); // Usa addUser atualizado
-//             dispatch({ type: USER_ACTIONS.FETCH_SUCCESS, payload: newUser }); // Ou pode despachar outra action dependendo do caso.
+//             dispatch({ type: USER_ACTIONS.FETCH_USER_SUCCESS, payload: newUser }); // Ou pode despachar outra action dependendo do caso.
 //             showToast('User added successfully', { type: 'success' });
 //             return newUser;
 //         } catch (error) {

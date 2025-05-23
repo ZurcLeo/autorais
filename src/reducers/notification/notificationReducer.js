@@ -14,13 +14,15 @@ export const notificationReducer = (state = initialNotificationState, action) =>
         error: null
       };
       
-    case NOTIFICATION_ACTIONS.FETCH_SUCCESS:
+    case NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS:
       return {
         ...state,
-        notifications: action.payload,
+        notifications: Array.isArray(action.payload) ? action.payload : [],
         unreadCount: action.unreadCount !== undefined 
           ? action.unreadCount 
-          : action.payload ? action.payload.filter(n => !n.read).length : 0,
+          : (Array.isArray(action.payload) 
+              ? action.payload.filter(n => !n.read && !n.lida).length 
+              : 0),
         notifLoading: false,
         error: null,
         lastUpdated: Date.now(),

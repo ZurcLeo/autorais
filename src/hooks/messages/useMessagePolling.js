@@ -29,7 +29,7 @@ export const useMessagePolling = (userId, dispatch, processMessage) => {
         if (cachedMessages && !globalCache.isStale(MESSAGE_CACHE_CONFIG.MESSAGES_KEY)) {
           // Use cached data
           dispatch({
-            type: MESSAGE_ACTIONS.FETCH_SUCCESS,
+            type: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS,
             payload: {
               messages: cachedMessages,
               unreadCount: globalCache.getItem(MESSAGE_CACHE_CONFIG.UNREAD_KEY) || 0,
@@ -84,7 +84,7 @@ export const useMessagePolling = (userId, dispatch, processMessage) => {
         });
 
         dispatch({
-          type: MESSAGE_ACTIONS.FETCH_SUCCESS,
+          type: MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS,
           payload: {
             messages: processedMessages,
             unreadCount,

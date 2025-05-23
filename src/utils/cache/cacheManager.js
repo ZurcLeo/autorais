@@ -10,13 +10,27 @@ const DEFAULT_STALE_TIME = 30 * 1000; // 30 seconds in milliseconds
 /**
  * CacheManager class handles storing and retrieving cached data with expiration
  * and staleness checking. It also supports subscription-based updates.
+ * @class
  */
 export class CacheManager {
+  /**
+   * Creates a new cache manager instance
+   * @constructor
+   */
   constructor() {
     this.cache = new Map();
     this.subscribers = new Map();
   }
 
+  /**
+   * Stores an item in the cache with optional expiration settings
+   * @param {string} key - Unique identifier for the cached item
+   * @param {*} value - Value to be stored in the cache
+   * @param {Object} [options={}] - Cache configuration options
+   * @param {number} [options.cacheTime] - Time in milliseconds before the item expires (defaults to 5 minutes)
+   * @param {number} [options.staleTime] - Time in milliseconds before the item becomes stale (defaults to 30 seconds)
+   * @throws {Error} If key or value is null or undefined
+   */
   setItem(key, value, options = {}) {
     try {
       if (!key) {
@@ -30,8 +44,8 @@ export class CacheManager {
       }
 
       const timestamp = Date.now();
-      const cacheTime = options.cacheTime || DEFAULT_CACHE_TIME;
-      const staleTime = options.staleTime || DEFAULT_STALE_TIME;
+      let cacheTime = options.cacheTime || DEFAULT_CACHE_TIME;
+      let staleTime = options.staleTime || DEFAULT_STALE_TIME;
 
       if (typeof cacheTime !== 'number' || cacheTime < 0) {
         coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Invalid cacheTime, using default value.');
@@ -62,10 +76,15 @@ export class CacheManager {
       }
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error setting item for key "${key}":`, error.message, error.stack);
-      throw error; // Re-throw para que o chamador possa lidar com o erro
+      throw error; // Re-throw so the caller can handle the error
     }
   }
 
+  /**
+   * Retrieves an item from the cache if it exists and hasn't expired
+   * @param {string} key - Unique identifier for the cached item
+   * @returns {*|null} The cached value, or null if not found or expired
+   */
   getItem(key) {
     try {
       if (!key) {
@@ -96,6 +115,11 @@ export class CacheManager {
     }
   }
 
+  /**
+   * Checks if a cached item is stale (past its stale time but not expired)
+   * @param {string} key - Unique identifier for the cached item
+   * @returns {boolean} True if the item is stale or doesn't exist, false otherwise
+   */
   isStale(key) {
     try {
       if (!key) {
@@ -114,10 +138,17 @@ export class CacheManager {
       return isStale;
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error checking staleness for key "${key}":`, error.message, error.stack);
-      return true; // Assume stale em caso de erro
+      return true; // Assume stale in case of error
     }
   }
 
+  /**
+   * Subscribes to changes for a specific cache key
+   * @param {string} key - Unique identifier for the cached item
+   * @param {Function} callback - Function to call when the cached item changes
+   * @returns {Function} Unsubscribe function
+   * @throws {Error} If key is invalid or callback is not a function
+   */
   subscribe(key, callback) {
     try {
       if (!key || typeof callback !== 'function') {
@@ -144,10 +175,15 @@ export class CacheManager {
       };
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error subscribing to key "${key}":`, error.message, error.stack);
-      throw error; // Re-throw para que o chamador possa lidar com o erro
+      throw error; // Re-throw so the caller can handle the error
     }
   }
 
+  /**
+   * Removes/invalidates a cached item
+   * @param {string} key - Unique identifier for the cached item
+   * @throws {Error} If key is null or undefined
+   */
   invalidate(key) {
     try {
       if (!key) {
@@ -159,10 +195,23 @@ export class CacheManager {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `Item invalidated for key "${key}"`);
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, `Error invalidating key "${key}":`, error.message, error.stack);
-      throw error; // Re-throw para que o chamador possa lidar com o erro
+      throw error; // Re-throw so the caller can handle the error
     }
   }
 
+  /**
+   * Alias for invalidate() to maintain compatibility with CaixinhaProvider
+   * @param {string} key - Unique identifier for the cached item
+   * @throws {Error} If key is null or undefined
+   */
+  remove(key) {
+    return this.invalidate(key);
+  }
+
+  /**
+   * Clears all items from the cache and removes all subscribers
+   * @throws {Error} If there's an error during the clearing process
+   */
   clear() {
     try {
       this.cache.clear();
@@ -170,13 +219,25 @@ export class CacheManager {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Cache and subscribers cleared');
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Error clearing cache:', error.message, error.stack);
-      throw error; // Re-throw para que o chamador possa lidar com o erro
+      throw error; // Re-throw so the caller can handle the error
     }
   }
 }
 
+/**
+ * Global singleton instance of the CacheManager
+ */
 export const globalCache = new CacheManager();
 
+/**
+ * Custom React hook for managing cached resources with automatic fetching and refresh
+ * @param {string} key - Unique cache key for the resource
+ * @param {Function} fetchFn - Async function that fetches the resource
+ * @param {Object} [options={}] - Cache configuration options
+ * @param {number} [options.cacheTime] - Time in milliseconds before the item expires
+ * @param {number} [options.staleTime] - Time in milliseconds before the item becomes stale
+ * @returns {Object} Object with data, loading state, error state, and control functions
+ */
 export function useCachedResource(key, fetchFn, options = {}) {
   const [data, setData] = useState(() => globalCache.getItem(key));
   const [loading, setLoading] = useState(!data);
@@ -185,7 +246,10 @@ export function useCachedResource(key, fetchFn, options = {}) {
   // Memoize options to prevent unnecessary re-fetching
   const stableOptions = useMemo(() => JSON.stringify(options), [options]);
 
-  // Memoize fetch function
+  /**
+   * Fetches the resource and updates the cache
+   * @param {boolean} [force=false] - Whether to force a fetch even if the data is fresh
+   */
   const fetch = useCallback(
     async (force = false) => {
       if (!key || !fetchFn) {
@@ -199,7 +263,7 @@ export function useCachedResource(key, fetchFn, options = {}) {
       }
 
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Fetching data for key "${key}"`);
-      const startTime = performance.now(); // Medição de tempo
+      const startTime = performance.now();
       try {
         setLoading(true);
         setError(null);
@@ -217,10 +281,10 @@ export function useCachedResource(key, fetchFn, options = {}) {
         setLoading(false);
         const endTime = performance.now();
         const fetchTime = endTime - startTime;
-        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Fetch time for key "${key}": ${fetchTime.toFixed(2)}ms`); // Finalização da medição de tempo
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, `[useCachedResource] Fetch time for key "${key}": ${fetchTime.toFixed(2)}ms`);
       }
     },
-    [key, fetchFn, stableOptions]
+    [key, fetchFn, stableOptions, data]
   );
 
   useEffect(() => {

@@ -13,7 +13,7 @@ export const messageReducer = (state = initialMessageState, action) => {
                 error: null
             };
 
-            case MESSAGE_ACTIONS.FETCH_SUCCESS:
+            case MESSAGE_ACTIONS.FETCH_MESSAGE_SUCCESS:
                 return {
                   ...state,
                   messages: action.payload.messages || [],

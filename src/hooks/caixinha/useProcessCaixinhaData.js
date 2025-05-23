@@ -10,7 +10,7 @@ const useProcessCaixinhaData = () => {
     const fields = caixinhaData._fieldsProto;
 
     return {
-      id: caixinhaData._ref?._path?.segments?.slice(-1)[0] || '',
+      caixinhaId: caixinhaData._ref?._path?.segments?.slice(-1)[0] || '',
       nome: fields.nome?.stringValue || '',
       descricao: fields.descricao?.stringValue || '',
       adminId: fields.adminId?.stringValue || '',

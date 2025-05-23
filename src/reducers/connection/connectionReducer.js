@@ -15,13 +15,13 @@ import { initialConnectionState } from '../../core/constants/initialState';
           error: null
         };
         
-      case CONNECTION_ACTIONS.FETCH_SUCCESS:
+      case CONNECTION_ACTIONS.FETCH_CONNECTION_SUCCESS:
         return {
           ...state,
           friends: action.payload.friends || [],
           bestFriends: action.payload.bestFriends || [],
-          sentRequests: action.payload.sentRequests || [],
-          // invitations: action.payload.invitations || [],
+          sentRequests: action.payload || [],
+          // receivedRequests: action.payload || [],
           loading: false,
           error: null,
           lastUpdated: Date.now()

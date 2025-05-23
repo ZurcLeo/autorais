@@ -238,7 +238,6 @@ export const ValidationProvider = ({children}) => {
         resetValidation,
         hasErrors: state.errors.size > 0
     }), [
-        state,
         validateField,
         validateForm,
         contentValidation,

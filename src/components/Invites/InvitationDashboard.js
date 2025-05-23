@@ -405,10 +405,10 @@ export const InvitationDashboard = ({ invitationsData, onResend, onCancel }) => 
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
         <StatsCard 
-  title="Tempo Médio de Resposta" 
-  value={`${stats.avgResponseDays} dias`} 
-  icon={<AccessTimeIcon />}
-/>
+          title="Tempo Médio" 
+          value={`${stats.avgResponseDays} dias`} 
+          icon={<AccessTimeIcon />}
+        />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard 

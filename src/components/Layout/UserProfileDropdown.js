@@ -1,5 +1,5 @@
-// src/components/Layout/UserProfileDropdown.js - Versão Melhorada
-import React, { useState, useEffect, useMemo } from 'react';
+// Modified UserProfileDropdown.js to include Admin functionality
+import React, { useState, useMemo } from 'react';
 import { 
   Avatar, 
   IconButton, 
@@ -12,7 +12,11 @@ import {
   Divider,
   Box, 
   Skeleton,
-  Tooltip
+  Tooltip,
+  Modal,
+  Tabs,
+  Tab,
+  Button
 } from '@mui/material';
 import {
   PersonOutline as ProfileIcon,
@@ -22,22 +26,22 @@ import {
   SettingsOutlined as SettingsIcon,
   HelpOutlineOutlined as HelpIcon,
   Translate as TranslateIcon,
-  Palette as PaletteIcon
+  Palette as PaletteIcon,
+  AdminPanelSettings as AdminIcon,
+  DashboardCustomizeSharp as AdminDashboardIcon
 } from '@mui/icons-material';
 import { useAuth } from '../../providers/AuthProvider';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { serviceLocator } from '../../core/services/BaseService';
 import { useNotifications } from '../../providers/NotificationProvider';
 import { useTranslation } from 'react-i18next';
 import { coreLogger } from '../../core/logging';
 import { LOG_LEVELS } from '../../core/constants/config';
-import { useTheme } from '@mui/material/styles';
 import { ThemeControls } from '../../ThemeControls';
 import LanguageSwitcher from '../../LanguageSwitcher';
 
 const MODULE_NAME = 'UserProfileDropdown';
 
-// Estrutura agrupada de itens do menu
+// Simplified menu groups structure
 const getMenuGroups = (t, currentUser) => [
   {
     id: 'main',
@@ -46,26 +50,35 @@ const getMenuGroups = (t, currentUser) => [
         id: 'profile',
         label: t('userprofiledropdown.profile'),
         icon: <ProfileIcon />,
-        path: `/profile/${currentUser?.uid}`,
-        dividerAfter: false
+        path: `/profile/${currentUser?.uid}`
       },
       {
         id: 'notifications',
         label: t('userprofiledropdown.notifications'),
         icon: <NotificationIcon />,
         path: '/notifications',
-        hasBadge: true,
-        dividerAfter: false
+        hasBadge: true
       },
       {
         id: 'dashboard',
         label: t('userprofiledropdown.dashboard'),
         icon: <DashboardIcon />,
-        path: '/dashboard',
-        dividerAfter: true
+        path: '/dashboard'
       }
     ]
   },
+  // Add admin section if user is admin
+  ...(currentUser?.isOwnerOrAdmin ? [{
+    id: 'admin',
+    items: [
+      {
+        id: 'admin',
+        label: t('userprofiledropdown.admin'),
+        icon: <AdminIcon />,
+        isAdmin: true
+      }
+    ]
+  }] : []),
   {
     id: 'support',
     items: [
@@ -73,15 +86,13 @@ const getMenuGroups = (t, currentUser) => [
         id: 'settings',
         label: t('userprofiledropdown.settings'),
         icon: <SettingsIcon />,
-        path: '/settings',
-        dividerAfter: false
+        path: '/settings'
       },
       {
         id: 'help',
         label: t('userprofiledropdown.help'),
         icon: <HelpIcon />,
-        path: '/help',
-        dividerAfter: true
+        path: '/help'
       }
     ]
   },
@@ -92,31 +103,29 @@ const getMenuGroups = (t, currentUser) => [
         id: 'logout',
         label: t('userprofiledropdown.logout'),
         icon: <LogoutIcon />,
-        isLogout: true,
-        dividerAfter: false
+        isLogout: true
       }
     ]
   }
 ];
 
-const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notification }) => {
-  const {currentUser, authLoading} = useAuth()
+const UserProfileDropdown = () => {
+  const { currentUser, authLoading, logout } = useAuth();
   const { t } = useTranslation();
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const [showThemeControls, setShowThemeControls] = useState(false);
   const [showLanguageSwitcher, setShowLanguageSwitcher] = useState(false);
+  const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const [adminTabValue, setAdminTabValue] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
   const { unreadCount } = useNotifications();
 
-  // Memorizar os grupos de menu para evitar recriação a cada render
+  // Memoized menu groups
   const menuGroups = useMemo(() => getMenuGroups(t, currentUser), [t, currentUser]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-    // Resetar os estados de exibição dos controles quando o menu é aberto
     setShowThemeControls(false);
     setShowLanguageSwitcher(false);
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'User menu opened');
@@ -124,17 +133,21 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    // Resetar os estados de exibição dos controles quando o menu é fechado
     setShowThemeControls(false);
     setShowLanguageSwitcher(false);
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'User menu closed');
   };
 
-  const handleNavigation = (path, isLogoutAction = false) => {
+  const handleNavigation = (path, isLogoutAction = false, isAdminAction = false) => {
     handleMenuClose();
 
     if (isLogoutAction) {
       handleLogout();
+      return;
+    }
+
+    if (isAdminAction) {
+      handleAdminModalOpen();
       return;
     }
 
@@ -158,7 +171,7 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
   };
 
   const toggleThemeControls = (event) => {
-    event.stopPropagation();  // Evitar que o clique feche o menu
+    event.stopPropagation();
     setShowThemeControls(!showThemeControls);
     setShowLanguageSwitcher(false);
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Theme controls toggled', {
@@ -167,12 +180,42 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
   };
 
   const toggleLanguageSwitcher = (event) => {
-    event.stopPropagation();  // Evitar que o clique feche o menu
+    event.stopPropagation();
     setShowLanguageSwitcher(!showLanguageSwitcher);
     setShowThemeControls(false);
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Language switcher toggled', {
       visible: !showLanguageSwitcher
     });
+  };
+
+  // Admin Modal Handlers
+  const handleAdminModalOpen = () => {
+    setAdminModalOpen(true);
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Admin modal opened');
+  };
+  
+  const handleAdminModalClose = () => {
+    setAdminModalOpen(false);
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Admin modal closed');
+  };
+
+  const handleAdminTabChange = (_, newValue) => {
+    setAdminTabValue(newValue);
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Admin tab changed', {
+      tabIndex: newValue
+    });
+  };
+
+  const handleAdminInterests = () => {
+    navigate('/admin/interests', { replace: true });
+    handleAdminModalClose();
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigated to admin interests');
+  };
+
+  const handleAdminRBAC = () => {
+    navigate('/admin/rbac', { replace: true });
+    handleAdminModalClose();
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.STATE, 'Navigated to admin RBAC');
   };
 
   if (authLoading) {
@@ -186,10 +229,9 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
   if (!currentUser) {
     return null;
   }
-  const userdata = currentUser
   
-  const displayName = userdata.name || userdata.displayName || t('common.user');
-  const fotoDoPerfil = userdata.fotoDoPerfil || userdata.photoURL;
+  const displayName = currentUser.name || currentUser.displayName || t('common.user');
+  const fotoDoPerfil = currentUser.fotoDoPerfil || currentUser.photoURL;
 
   return (
     <>
@@ -218,8 +260,9 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
               sx={{
                 width: 40,
                 height: 40,
-                boxShadow: theme.shadows[2],
-                border: `2px solid ${theme.palette.background.paper}`
+                boxShadow: 2,
+                border: `2px solid`,
+                borderColor: 'background.paper'
               }}
             >
               {displayName.charAt(0).toUpperCase()}
@@ -246,62 +289,119 @@ const UserProfileDropdown = ({ isSidebarCollapsed = false, onAction, notificatio
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle1" fontWeight="bold">
+          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
             {displayName}
           </Typography>
-          <Typography variant="body2" color="text.secondary" noWrap>
+          <Typography variant="body2" noWrap>
             {currentUser.email}
           </Typography>
         </Box>
         <Divider />
 
-        {/* Opções de menu padrão */}
+        {/* Menu Groups */}
         {menuGroups.map((group, groupIndex) => (
           <React.Fragment key={group.id}>
             {group.items.map((item) => (
-              <MenuItem key={item.id} onClick={() => handleNavigation(item.path, item.isLogout)}>
+              <MenuItem 
+                key={item.id} 
+                onClick={() => handleNavigation(item.path, item.isLogout, item.isAdmin)}
+                sx={item.isAdmin ? { color: 'success.main' } : {}}
+              >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.label} />
+                {item.hasBadge && unreadCount > 0 && (
+                  <Badge badgeContent={unreadCount} color="error" />
+                )}
               </MenuItem>
             ))}
             {groupIndex < menuGroups.length - 1 && <Divider />}
           </React.Fragment>
         ))}
         
-        {/* Adicionar nova seção para configurações da UI */}
+        {/* Preferences Section */}
         <Divider />
         <Box sx={{ px: 1, py: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ pl: 2 }}>
+          <Typography variant="caption" sx={{ pl: 2 }}>
             {t('userprofiledropdown.preferences')}
           </Typography>
         </Box>
         
-        {/* Opção para trocar de tema */}
+        {/* Theme Option */}
         <MenuItem onClick={toggleThemeControls}>
           <ListItemIcon><PaletteIcon /></ListItemIcon>
           <ListItemText primary={t('userprofiledropdown.changeTheme')} />
         </MenuItem>
         
-        {/* Painel de controle de tema que aparece quando clicado */}
+        {/* Theme Controls Panel */}
         {showThemeControls && (
           <Box sx={{ px: 2, py: 1, maxWidth: 300 }}>
-            <ThemeControls />
+            <ThemeControls inMenu={true} />
           </Box>
         )}
         
-        {/* Opção para trocar de idioma */}
+        {/* Language Option */}
         <MenuItem onClick={toggleLanguageSwitcher}>
           <ListItemIcon><TranslateIcon /></ListItemIcon>
           <ListItemText primary={t('userprofiledropdown.changeLanguage')} />
         </MenuItem>
         
-        {/* Seletor de idioma que aparece quando clicado */}
+        {/* Language Switcher Panel */}
         {showLanguageSwitcher && (
           <Box sx={{ px: 2, py: 1 }}>
-            <LanguageSwitcher isSidebarCollapsed={false} />
+            <LanguageSwitcher inMenu={true} />
           </Box>
         )}
       </Menu>
+
+      {/* Admin Modal */}
+      <Modal 
+        open={adminModalOpen} 
+        onClose={handleAdminModalClose}
+        aria-labelledby="admin-modal-title"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2
+          }}
+        >
+          <Typography variant="h6" component="h2" id="admin-modal-title" sx={{ mb: 2 }}>
+            <AdminDashboardIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+            Painel Administrativo
+          </Typography>
+          
+          <Tabs value={adminTabValue} onChange={handleAdminTabChange}>
+            <Tab label="Interesses" id="tab-0" aria-controls="tabpanel-0" />
+            <Tab label="Usuários" id="tab-1" aria-controls="tabpanel-1" />
+            <Tab label="RBAC" id="tab-2" aria-controls="tabpanel-2" />
+          </Tabs>
+          
+          <Box role="tabpanel" hidden={adminTabValue !== 0} id="tabpanel-0" aria-labelledby="tab-0" mt={2}>
+            <Typography>Administrar Interesses</Typography>
+            <Button onClick={handleAdminInterests} variant="contained" sx={{ mt: 1 }}>
+              Gerenciar
+            </Button>
+          </Box>
+          
+          <Box role="tabpanel" hidden={adminTabValue !== 1} id="tabpanel-1" aria-labelledby="tab-1" mt={2}>
+            <Typography>Administrar Usuários</Typography>
+          </Box>
+          
+          <Box role="tabpanel" hidden={adminTabValue !== 2} id="tabpanel-2" aria-labelledby="tab-2" mt={2}>
+            <Typography>Controle de Acesso Baseado em Roles (RBAC)</Typography>
+            <Button onClick={handleAdminRBAC} variant="contained" sx={{ mt: 1 }}>
+              Gerenciar
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </>
   );
 };

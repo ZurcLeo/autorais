@@ -1,3 +1,4 @@
+// themeContext.js - Versão simplificada e unificada
 import React, {
   createContext,
   useMemo,
@@ -7,16 +8,11 @@ import React, {
   useCallback,
 } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import { createDynamicTheme } from './theme/';
-import { createThemeVariant } from './theme/themeVariants';
-import { colorPalettes } from './theme/themeTokens';
-import { coreLogger } from './core/logging';
+import { createAppTheme, AVAILABLE_THEMES } from './theme';
 import { Button } from '@mui/material';
+import { coreLogger } from './core/logging';
 
 const ThemeContext = createContext();
-
-// Lista de temas disponíveis
-const AVAILABLE_THEMES = ['ocean', 'sunset', 'forest', 'mountain', 'glacier', 'volcano', 'earth'];
 
 export const useAppTheme = () => {
   const context = useContext(ThemeContext);
@@ -29,6 +25,7 @@ export const useAppTheme = () => {
 const THEME_STORAGE_KEY = 'app-theme-preferences';
 
 export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTheme = 'ocean' }) => {
+  // Função para recuperar as preferências do tema do localStorage
   const getStoredTheme = useCallback(() => {
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
@@ -40,6 +37,7 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
         highContrast: false
       };
     } catch {
+      // Fallback seguro para caso de erro ao ler localStorage
       return { 
         mode: defaultMode,
         currentTheme: defaultTheme,
@@ -53,6 +51,7 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
   const [themeState, setThemeState] = useState(getStoredTheme);
   const [themeError, setThemeError] = useState(null);
 
+  // Persistir preferências no localStorage quando mudarem
   useEffect(() => {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(themeState));
@@ -61,8 +60,8 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
     }
   }, [themeState]);
 
-  // Memoized handleChange OUTSIDE of useEffect
-  const handleChange = useCallback((e) => {
+  // Gerenciar modo automático baseado nas preferências do sistema
+  const handleMediaQueryChange = useCallback((e) => {
     if (themeState.autoMode) {
       setThemeState((prev) => ({
         ...prev,
@@ -73,12 +72,19 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Usar o método de evento apropriado dependendo da API disponível
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleMediaQueryChange);
+      return () => mediaQuery.removeEventListener('change', handleMediaQueryChange);
+    } else {
+      // Fallback para navegadores mais antigos
+      mediaQuery.addListener(handleMediaQueryChange);
+      return () => mediaQuery.removeListener(handleMediaQueryChange);
+    }
+  }, [handleMediaQueryChange]);
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [handleChange]);
-
-  // Callbacks
+  // Funções de controle do tema - mantidas para compatibilidade
   const toggleTheme = useCallback(() => {
     setThemeState((prev) => ({
       ...prev,
@@ -133,17 +139,19 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
     }));
   }, []);
 
-  // Nova função para alterar a variante do tema
   const setTheme = useCallback((themeName) => {
     if (AVAILABLE_THEMES.includes(themeName)) {
+      console.log(`[Theme] Alterando tema para: ${themeName}`);
       setThemeState(prev => ({
         ...prev,
         currentTheme: themeName
       }));
+    } else {
+      console.warn(`[Theme] Tema "${themeName}" inválido. Temas disponíveis: ${AVAILABLE_THEMES.join(', ')}`);
     }
   }, []);
 
-  // Agora useMemo apenas para combinar os callbacks já criados
+  // Compilar ações de tema para o contexto
   const themeActions = useMemo(
     () => ({
       toggleTheme,
@@ -152,102 +160,34 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
       resetTheme,
       toggleReduceMotion,
       toggleHighContrast,
-      setTheme, // Adicionando nova função
+      setTheme,
     }),
     [toggleTheme, setThemeMode, toggleAutoMode, resetTheme, toggleReduceMotion, toggleHighContrast, setTheme]
   );
 
-  // Criação do tema com tratamento de erro
+  // Criar o tema MUI usando a função simplificada
   const theme = useMemo(() => {
     try {
-      // Criar primeiro a variante de tema baseada na seleção do usuário
-      const themeVariant = createThemeVariant(
-        themeState.currentTheme || 'ocean',
-        themeState.mode,
-        {
-          contrastLevel: themeState.highContrast ? 1.5 : 1
-        }
-      );
+      console.log(`[Theme] Criando tema: ${themeState.currentTheme}, modo: ${themeState.mode}`);
       
-      // Depois criar o tema dinâmico com as cores da variante
-      const dynamicTheme = createDynamicTheme(
+      return createAppTheme(
         themeState.mode,
+        themeState.currentTheme,
         {
-          // Incluir as cores da variante no objeto de customização
-          palette: {
-            primary: {
-              main: themeVariant.primary.main,
-              light: themeVariant.primary.light,
-              dark: themeVariant.primary.dark
-            },
-            secondary: {
-              main: themeVariant.secondary.main,
-              light: themeVariant.secondary.light,
-              dark: themeVariant.secondary.dark
-            },
-            // Outros valores de palette...
-          },
-          components: {
-            MuiButton: {
-              defaultProps: {
-                disableElevation: themeState.reduceMotion,
-              },
-              styleOverrides: {
-                root: {
-                  transition: themeState.reduceMotion ? 'none' : undefined,
-                },
-              },
-            },
-            MuiCssBaseline: {
-              styleOverrides: {
-                body: {
-                  scrollBehavior: themeState.reduceMotion ? 'auto' : 'smooth',
-                },
-              },
-            },
-          },
+          reduceMotion: themeState.reduceMotion,
+          highContrast: themeState.highContrast
         }
       );
-
-      // // Fallbacks para paletas ausentes
-      // dynamicTheme.palette.success = dynamicTheme.palette.success || { main: '#4caf50', light: '#81c784', dark: '#388e3c' };
-      // dynamicTheme.palette.warning = dynamicTheme.palette.warning || { main: '#ff9800', light: '#ffb74d', dark: '#f57c00' };
-      // dynamicTheme.palette.error = dynamicTheme.palette.error || { main: '#f44336', light: '#e57373', dark: '#d32f2f' };
-      // dynamicTheme.palette.info = dynamicTheme.palette.info || { main: '#2196f3', light: '#64b5f6', dark: '#1976d2' };
-      // dynamicTheme.palette.grey = dynamicTheme.palette.grey || {
-      //   50: '#fafafa', 100: '#f5f5f5', 200: '#eeeeee', 300: '#e0e0e0',
-      //   400: '#bdbdbd', 500: '#9e9e9e', 600: '#757575', 700: '#616161',
-      //   800: '#424242', 900: '#212121',
-      // };
-
-      return dynamicTheme;
     } catch (error) {
       console.error('Erro ao criar tema:', error);
       setThemeError(error);
-      return {
-        palette: {
-          mode: 'light', primary: { main: '#1976d2' }, secondary: { main: '#dc004e' },
-          success: { main: '#4caf50', light: '#81c784', dark: '#388e3c' },
-          warning: { main: '#ff9800', light: '#ffb74d', dark: '#f57c00' },
-          error: { main: '#f44336', light: '#e57373', dark: '#d32f2f' },
-          info: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2' },
-          grey: {
-            50: '#fafafa', 100: '#f5f5f5', 200: '#eeeeee', 300: '#e0e0e0',
-            400: '#bdbdbd', 500: '#9e9e9e', 600: '#757575', 700: '#616161',
-            800: '#424242', 900: '#212121',
-          },
-          background: { default: '#fff', paper: '#fff' },
-          text: { primary: 'rgba(0, 0, 0, 0.87)', secondary: 'rgba(0, 0, 0, 0.54)' },
-          divider: 'rgba(0, 0, 0, 0.12)',
-        },
-        spacing: (factor) => `${0.25 * factor}rem`,
-        shape: { borderRadius: 4 },
-      };
+      
+      // Retornar tema básico em caso de erro
+      return createAppTheme('light', 'ocean');
     }
   }, [themeState.mode, themeState.currentTheme, themeState.reduceMotion, themeState.highContrast]);
 
-
-  // Context value com estado e ações do tema
+  // Preparar valor do contexto
   const contextValue = useMemo(
     () => ({
       ...themeActions,
@@ -255,24 +195,27 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
       autoMode: themeState.autoMode,
       reduceMotion: themeState.reduceMotion,
       highContrast: themeState.highContrast,
-      currentTheme: themeState.currentTheme || 'ocean', // Adicionando a variante atual
-      availableThemes: AVAILABLE_THEMES, // Adicionando lista de temas disponíveis
+      currentTheme: themeState.currentTheme || 'ocean',
+      availableThemes: AVAILABLE_THEMES,
       error: themeError,
       palette: theme.palette,
+      // Expor algumas propriedades úteis do tema para componentes
+      spacing: theme.spacing,
+      breakpoints: theme.breakpoints,
     }),
-    [themeActions, themeState, themeError, theme.palette]
+    [themeActions, themeState, themeError, theme]
   );
 
+  // Renderizar página de erro em caso de falha crítica no tema
   if (themeError) {
-    console.error('Erro crítico no sistema de temas:', themeError);
     return (
       <div style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: colorPalettes.sunset[100],
-        color: colorPalettes.sunset[700],
+        backgroundColor: '#f8f9fa',
+        color: '#343a40',
         fontFamily: 'sans-serif'
       }}>
         <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
@@ -287,6 +230,7 @@ export const ThemeContextProvider = ({ children, defaultMode = 'dark', defaultTh
     );
   }
 
+  // Renderizar o provedor de tema
   return (
     <ThemeContext.Provider value={contextValue}>
       <ThemeProvider theme={theme}>

@@ -70,6 +70,15 @@ export const InitializationState = {
   TIMEOUT: 'timeout'         // Tempo limite excedido durante inicialização
 };
 
+// Estado inicial
+export const initialRifaState = {
+  rifas: [],
+  selectedRifa: null,
+  loading: false,
+  error: null,
+  lastUpdated: null
+};
+
 /**
  * Estado inicial do serviço de Caixinhas (CaixinhasService).
  * @namespace initialCaixinhaState
@@ -93,7 +102,7 @@ export const initialCaixinhaState = {
   currentCaixinha: null,
   
   // Dados relacionados à caixinha selecionada
-  membros: [],
+  members: [],
   emprestimos: [],
   contributions: [],
   transacoes: [],
@@ -121,6 +130,32 @@ export const initialCaixinhaState = {
     itemsPerPage: 10,
     currentPage: 1,
     totalPages: 1
+  }
+};
+
+// Adicionar ao arquivo core/constants/initialState.js
+export const initialCaixinhaInviteState = {
+  // Lista de convites
+  pendingInvites: [],
+  sentInvites: [],
+  
+  // Estado atual da operação
+  loading: false,
+  error: null,
+  
+  // Metadados
+  lastUpdated: null,
+  
+  // Filtros e paginação
+  filters: {
+    status: 'all', // 'all', 'pending', 'accepted', 'rejected'
+    type: 'all'     // 'all', 'caixinha_invite', 'caixinha_email_invite'
+  },
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    itemsPerPage: 10,
+    totalItems: 0
   }
 };
 
@@ -221,6 +256,38 @@ export const initialMessageState = // Estrutura de estado otimizada
   isLoading: false,
   error: null
 }
+
+export const initialLoanState = {
+  loans: [],
+  activeLoans: [],
+  pendingLoans: [],
+  completedLoans: [],
+  userLoans: {},
+  loanDetails: null,
+  loanStatistics: {
+    totalActive: 0,
+    totalAmount: 0,
+    availableFunds: 0
+  },
+  loading: false,
+  error: null,
+  lastUpdated: null
+};
+
+export const initialDisputeState = {
+  disputes: [],
+  activeDisputes: [],
+  resolvedDisputes: [],
+  loanDisputes: [],
+  currentDispute: null,
+  disputeStats: {
+    pendingCount: 0,
+    approvalRate: 0
+  },
+  loading: false,
+  error: null,
+  lastUpdated: null
+};
 
 /**
  * Estado inicial do serviço de Interesses (InterestsService).

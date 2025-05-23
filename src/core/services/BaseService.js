@@ -231,7 +231,7 @@ class ServiceLocator {
 
 // Atualizar em ServiceLocator
 get(serviceName) {
-  console.log(`[ServiceLocator ${this.id}] Obtendo serviço: ${serviceName}`);
+  // console.log(`[ServiceLocator ${this.id}] Obtendo serviço: ${serviceName}`);
   
   if (!this.registry.has(serviceName)) {
     console.error(`[ServiceLocator ${this.id}] Serviço ${serviceName} não encontrado!`);
@@ -239,7 +239,7 @@ get(serviceName) {
   }
   
   const service = this.registry.get(serviceName);
-  console.log(`[ServiceLocator ${this.id}] Serviço ${serviceName} obtido com instanceId: ${service.instanceId || 'undefined'}`);
+  // console.log(`[ServiceLocator ${this.id}] Serviço ${serviceName} obtido com instanceId: ${service.instanceId || 'undefined'}`);
   
   return service;
 }
@@ -698,8 +698,8 @@ _emitEvent(eventType, data = {}) {
     }
 
     // Logging interno
-    _log(state, metadata = {}) {
-        coreLogger.logServiceState(this._serviceName, state, metadata);
+    _log() {
+        coreLogger.logServiceState(this._serviceName, this, this._metadata);
     }
 
     _logError(error, context, duration = null) {

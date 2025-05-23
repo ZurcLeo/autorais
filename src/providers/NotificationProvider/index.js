@@ -122,7 +122,7 @@ export const NotificationProvider = ({children}) => {
                 if (cachedData) {
                     // Usar dados em cache enquanto carrega dados novos
                     dispatch({
-                        type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                        type: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS, 
                         payload: cachedData,
                         unreadCount: cachedUnreadCount || 0
                     });
@@ -198,12 +198,15 @@ export const NotificationProvider = ({children}) => {
         
         try {
             const notificationFetchedUnsubscribe = serviceEventHub.on(
-                MODULE_NAME,
+                'notifications',
                 NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED,
                 (eventData) => {
                     dispatch({
-                        type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
-                        payload: eventData.notification
+                        type: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS, 
+                        userId,
+                        notifications: eventData.notifications, // Certifique-se de que este campo esteja correto
+                        count: eventData.notifications?.length || 0,
+                        timestamp: Date.now()
                     });
                     
                     // Atualizar cache com novos dados
@@ -232,7 +235,7 @@ export const NotificationProvider = ({children}) => {
 
             // Lidar com novas notificações via Event Hub
             const notificationCreatedUnsubscribe = serviceEventHub.on(
-                MODULE_NAME,
+                'notifications',
                 NOTIFICATION_EVENTS.NOTIFICATION_CREATED,
                 (eventData) => {
                     dispatch({
@@ -271,7 +274,7 @@ export const NotificationProvider = ({children}) => {
 
             // Lidar com notificações marcadas como lidas via Event Hub
             const notificationMarkedReadUnsubscribe = serviceEventHub.on(
-                MODULE_NAME,
+                'notifications',
                 NOTIFICATION_EVENTS.NOTIFICATION_MARKED_READ,
                 (eventData) => {
                     dispatch({
@@ -310,7 +313,7 @@ export const NotificationProvider = ({children}) => {
 
             // Lidar com todas as notificações sendo limpas via Event Hub
             const allNotificationsClearedUnsubscribe = serviceEventHub.on(
-                MODULE_NAME,
+                'notifications',
                 NOTIFICATION_EVENTS.ALL_NOTIFICATIONS_CLEARED,
                 () => {
                     dispatch({type: NOTIFICATION_ACTIONS.CLEAR_STATE});
@@ -392,7 +395,7 @@ export const NotificationProvider = ({children}) => {
             
             if (cachedData) {
                 dispatch({
-                    type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                    type: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS, 
                     payload: cachedData,
                     unreadCount: cachedUnreadCount || 0
                 });
@@ -439,7 +442,7 @@ export const NotificationProvider = ({children}) => {
             );
 
             dispatch({
-                type: NOTIFICATION_ACTIONS.FETCH_SUCCESS, 
+                type: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS, 
                 payload: notifications, 
                 unreadCount
             });
@@ -646,19 +649,25 @@ export const NotificationProvider = ({children}) => {
 
     // Memoizar o valor do contexto
     const contextValue = useMemo(() => ({
+        cacheExpiration: state.cacheExpiration,
+        error: state.error,
+        lastUpdated: state.lastUpdated,
+        nextFetchTime: state.nextFetchTime,
+        notifLoading: state.notifLoading,
         notifications: state.notifications,
         unreadCount: state.unreadCount,
-        notifLoading: state.notifLoading,
-        error: state.error,
         markAsRead,
         clearAllNotifications,
         refreshNotifications,
         isNotificationsInitialized: isInitialized,
     }), [
+        state.cacheExpiration,
+        state.error,
+        state.lastUpdated,
+        state.nextFetchTime,
+        state.notifLoading,
         state.notifications,
         state.unreadCount,
-        state.notifLoading,
-        state.error,
         markAsRead,
         clearAllNotifications,
         refreshNotifications,

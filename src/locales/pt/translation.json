@@ -36,7 +36,41 @@
     "user": "Usuário",
     "alerts": "Alertas",
     "messages": "Mensagens",
-    "completed": "concluido"
+    "completed": "concluido",
+    "close": "Fechar",
+    "delete": "Excluir",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso"
+  },
+  "inviteRequest": {
+    "title": "Convites de Caixinha",
+    "subtitle": "Gerencie seus convites para participar de caixinhas",
+    "from": "De",
+    "contribuicao": "Contribuição mensal",
+    "date": "Data",
+    "viewDetails": "Ver detalhes",
+    "accept": "Aceitar",
+    "reject": "Rejeitar",
+    "error": "Erro ao carregar convites",
+    "serviceUnavailable": "O serviço de convites não está disponível no momento",
+    "sortBy": "Ordenar por",
+    "name": "Nome",
+    "contribution": "Contribuição",
+    "toggleSortDirection": "Alterar direção de ordenação",
+    "noInvites": "Nenhum convite pendente",
+    "noInvitesDescription": "Você não possui convites de caixinha pendentes no momento",
+    "inviteDetails": "Detalhes do Convite",
+    "unknownCaixinha": "Caixinha desconhecida",
+    "unknownSender": "Remetente desconhecido",
+    "message": "Mensagem",
+    "noMessage": "Nenhuma mensagem adicional",
+    "description": "Descrição da caixinha",
+    "confirmAccept": "Confirmar aceitação",
+    "confirmReject": "Confirmar rejeição",
+    "confirmAcceptMessage": "Você tem certeza que deseja aceitar o convite para participar da caixinha {caixinha}? Ao aceitar, você concorda em contribuir mensalmente conforme o valor estabelecido.",
+    "confirmRejectMessage": "Você tem certeza que deseja rejeitar este convite? Esta ação não pode ser desfeita.",
+    "thisCaixinha": "esta caixinha"
   },
   "app": {
 "title": "ElosCloud"
@@ -247,7 +281,7 @@
       }
     }
   },
-  
+  "accessCaixinha": "Acessar Caixinha",
   "newCaixinha": "Nova Caixinha",
   "dialogTitle": "Criar Nova Caixinha",
   "basicInfo": "Informações Básicas",
@@ -296,6 +330,12 @@
   },
   
     "banking": {
+      "inactiveBankingLock": "Trava Bancária Inativa",
+      "inactiveBankingLockDescription": "Ative a sua Conta Bancária",
+      "step1Title": "Passo 1",
+      "step2Title": "Passo 2",
+      "step3Title": "Passo 3",
+      "step1Description": "Informe sua chave PIX e dados bancários",
       "holderDetailsTitle": "Informe os dados do Titular da conta",
       "pixDetailsTitle": "Informe os dados do PIX",
       "pixInfoTooltip": "A chave PIX deve ser informada para validar sua conta",
@@ -438,6 +478,30 @@
       }
     },
   "loanManagement": {
+    "loanPolicy": {
+      "title": "Política de Empréstimo",
+      "maxAmount": "Valor Máximo",
+      "maxAmountDesc": "Valor Máximo que pode ser solicitado em empréstimos.",
+      "paymentDeadline": "Prazo de pagamento",
+      "paymentDeadlineDesc": "Prazo para pagamento do total em empréstimo.",
+      "lateFees": "Taxas por Atraso",
+      "lateFeesDesc": "Taxas aplicadas a cada pagamenmto em atraso."
+    },
+    "active": "Ativos",
+    "pending": "Pendentes",
+    "nextDueDate": "Próxima Data de Vencimento",
+    "completed": "Finalizados",
+    "installmentSimulation": "Simulação de Parcelamento",
+    "loanTerms": "Termos do Empréstimo",
+    "activeLoans": "Empréstimos Ativos",
+    "maxLoanInfo": "Máximo de Empréstimo",
+    "availableFunds": "Fundos Disponíveis",
+    "perMonth": "por mês",
+    "perLatePayment": "por pagamento atrasado",
+    "interestRate": "Taxa de Juro",
+    "lateFee": "Multa por Atraso",
+    "amountPerInstallment": "valor por parcela",
+    "totalWithInterest": "Total com Juros",
     "title": "Empréstimos",
     "requestLoan": "Solicitar Empréstimo",
     "availableAmount": "Valor disponível para empréstimos: {{amount}}",
@@ -469,16 +533,33 @@
     "cancelError": "Erro ao cancelar empréstimo"
   },
   "membersList": {
-    "members": "Membros ({{count}})",
+    "members": "Membros ({count})",
+    "pendingInvites": "{count} convites pendentes",
     "addMember": "Adicionar Membro",
+    "serviceUnavailable": "O serviço de gerenciamento de membros não está disponível no momento",
+    "searchMembers": "Buscar membros...",
+    "allMembers": "Todos",
+    "activeOnly": "Ativos",
+    "inactiveOnly": "Inativos",
+    "invitedOnly": "Convidados",
+    "noMembersMatchFilter": "Nenhum membro corresponde aos filtros aplicados",
+    "noMembers": "Esta caixinha ainda não possui membros",
+    "name": "Nome",
+    "status": "Status",
+    "actions": "Ações",
+    "admin": "Administrador",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "invited": "Convidado",
+    "invitedByEmail": "Convidado por Email",
+    "invitedOn": "Convidado em: {{date}}",
+    "inviteOptions": "Opções de convite",
+    "memberOptions": "Opções de membro",
+    "resendInvite": "Reenviar Convite",
+    "cancelInvite": "Cancelar Convite",
     "editMember": "Editar Membro",
-    "addNewMember": "Adicionar Novo Membro",
-    "admin": "Admin",
-    "memberUpdated": "Membro atualizado com sucesso",
-    "memberAdded": "Membro adicionado com sucesso",
-    "memberRemoved": "Membro removido com sucesso",
-    "errorManagingMember": "Erro ao gerenciar membro",
-    "errorRemovingMember": "Erro ao remover membro"
+    "promoteToAdmin": "Promover a Administrador",
+    "removeMember": "Remover Membro"
   },
   "reportsPage": {
     "period": "Período",
@@ -608,6 +689,108 @@
       }
     }
   },
+    "rifas": {
+      "title": "Rifas",
+      "activeRifas": "Rifas Ativas",
+      "finalizedRifas": "Rifas Finalizadas",
+      "canceledRifas": "Rifas Canceladas",
+      "createRifa": "Criar Nova Rifa",
+      "editRifa": "Editar Rifa",
+      "details": "Detalhes da Rifa",
+      "ticketPrice": "Valor do Bilhete",
+      "soldTickets": "Bilhetes Vendidos",
+      "totalValue": "Valor Total Arrecadado",
+      "endDate": "Data de Encerramento",
+      "drawDate": "Data do Sorteio",
+      "prize": "Prêmio",
+      "drawMethod": "Método de Sorteio",
+      "ticketsInfo": "{{sold}} / {{total}} bilhetes",
+      "drawResult": "Resultado do Sorteio",
+      "winningNumber": "Número Sorteado",
+      "winner": "Vencedor",
+      "noWinner": "Nenhum vencedor para este número",
+      "verifyAuthenticity": "Verificar Autenticidade",
+      "performDraw": "Realizar Sorteio",
+      "drawInfo": "O sorteio irá selecionar aleatoriamente um número entre os bilhetes disponíveis.",
+      "processing": "Processando...",
+      "soldTicketsList": "Lista de Bilhetes Vendidos",
+      "noSoldTickets": "Nenhum bilhete vendido ainda",
+      "participantsStats": "Estatísticas de Participantes",
+      "noParticipants": "Nenhum participante ainda",
+      "ticketsCount": "{{count}} bilhete(s)",
+      "ticketNumber": "Número do Bilhete",
+      "authenticityVerification": "Verificação de Autenticidade",
+      "integrityCheck": "Verificação de Integridade",
+      "externalSourceCheck": "Verificação com Fonte Externa",
+      "verificationDate": "Data da Verificação",
+      "passed": "Aprovado",
+      "failed": "Falhou",
+      "buyTicket": "Comprar Bilhete",
+      "selectTicket": "Selecionar Bilhete",
+      "confirmPurchase": "Confirmar Compra",
+      "ticketsBought": "Seus Bilhetes",
+      "availableTickets": "Bilhetes Disponíveis",
+      "ticketAlreadySold": "Este bilhete já foi vendido",
+      "successfulPurchase": "Bilhete comprado com sucesso!",
+      "status": {
+        "aberta": "Aberta",
+        "finalizada": "Finalizada",
+        "cancelada": "Cancelada"
+      },
+      "drawMethod": {
+        "random_org": "Random.org (Número Aleatório)",
+        "loteria": "Loteria Federal",
+        "nist": "NIST (Beacon)"
+      },
+      "form": {
+        "name": "Nome da Rifa",
+        "description": "Descrição",
+        "ticketPrice": "Valor do Bilhete",
+        "ticketsQuantity": "Quantidade de Bilhetes",
+        "startDate": "Data de Início",
+        "endDate": "Data de Encerramento",
+        "drawDate": "Data do Sorteio",
+        "prize": "Prêmio",
+        "drawMethod": "Método de Sorteio",
+        "drawReference": "Referência do Sorteio (opcional)",
+        "nameRequired": "O nome da rifa é obrigatório",
+        "descriptionRequired": "A descrição é obrigatória",
+        "priceRequired": "O valor do bilhete é obrigatório",
+        "quantityRequired": "A quantidade de bilhetes é obrigatória",
+        "prizeRequired": "O prêmio é obrigatório",
+        "drawMethodRequired": "O método de sorteio é obrigatório"
+      },
+      "notifications": {
+        "created": "Rifa criada com sucesso!",
+        "updated": "Rifa atualizada com sucesso!",
+        "canceled": "Rifa cancelada com sucesso!",
+        "ticketBought": "Bilhete comprado com sucesso!",
+        "drawPerformed": "Sorteio realizado com sucesso!",
+        "drawError": "Erro ao realizar sorteio",
+        "ticketError": "Erro ao comprar bilhete",
+        "rifaError": "Erro ao processar a rifa"
+      },
+      "confirmation": {
+        "cancelTitle": "Cancelar Rifa",
+        "cancelMessage": "Tem certeza que deseja cancelar esta rifa? Todos os bilhetes vendidos serão invalidados.",
+        "drawTitle": "Realizar Sorteio",
+        "drawMessage": "Tem certeza que deseja realizar o sorteio agora? Esta ação não pode ser desfeita."
+      },
+      "empty": {
+        "title": "Nenhuma Rifa Encontrada",
+        "message": "Não existem rifas nesta categoria",
+        "action": "Criar Nova Rifa"
+      },
+      "report": {
+        "title": "Relatório da Rifa",
+        "summary": "Resumo",
+        "totalRaised": "Total Arrecadado",
+        "ticketsSold": "Bilhetes Vendidos",
+        "participants": "Participantes",
+        "downloadPdf": "Baixar PDF",
+        "shareResults": "Compartilhar Resultados"
+      }
+    },
     "login": {
       "login": "Entrar",
       "email": "E-mail",
@@ -747,6 +930,10 @@
     },
    "userprofiledropdown": {
         "profile": "Perfil",
+        "admin": "Administrar",
+        "changeTheme": "Alterar Tema",
+        "preferences": "Preferências",
+        "changeLanguage": "Alterar Idioma",
         "notifications": "Notificações",
         "dashboard": "Dashboard",
         "logout": "Sair",
@@ -768,16 +955,18 @@
           "register_with_microsoft": "Registrar com Microsoft",
           "invite_only": "Esta página é exclusiva para usuários convidados."
         },
-        "stats": {
-"totalBalance": "Saldo Total",
 "totalMembers": "Total de Membros",
+"overview": "Visão Geral",
+"contribute": "Contribuir",
+"balanceHistory": "Histórico",
+"recentActivity": "Recentes",
 "totalContributions": "Total de Contribuições",
+"monthlyContribution": "Contribuição Mensal",
 "participationRate": "Taxa de Participação",
 "activeCaixinhas": "Caixinhas Ativas",
 "averagePerGroup": "Média por Grupo",
 "monthlyAverage": "Média por Mês",
-"participationTrend": "Tendência de Participação"
-        },
+"participationTrend": "Tendência de Participação",
       "dashboard": {
         "title": "Dashboard",
         "dataLoaded": "Dados carregados com sucesso!",
@@ -797,6 +986,8 @@
           "noCaixinhas": "Você ainda não possui caixinhas registradas"
         },
         "notifications": {
+          "friendRequestAccepted": "Amizade Aceita",
+          "convite": "Convite",
           "newNotifications": "Você tem {{count}} novas notificações",
           "noNewNotifications": "Nenhuma nova notificação",
           "no_notifications": "Sem notificacoes",
@@ -810,6 +1001,9 @@
         },
         "messages": {
           "from": "Mensagem de",
+          "select_conversation_desktop_text": "Selecione uma conversa na lista de amigos",
+          "select_conversation": "Selecione uma conversa",
+          "manage_contacts": "Gerenciar Contatos",
           "noMessages": "Nenhuma mensagem disponível"
         },
         "friends": {
@@ -970,6 +1164,9 @@
   "oldestFirst": "Mais antigos primeiro"
 },
 "friendCard": {
+  "showMore": "Mostrar mais",
+  "noDescription": "Sem Descrição",
+  "showLess": "Mostrar menos",
   "viewFriendship": "Ver Amizade",
   "addFriend": "Adicionar Amigo",
   "deleteFriendship": "Excluir Amizade",
@@ -983,13 +1180,27 @@
   "viewProfile": "Ver Perfil"
 },
 "friendSearch": {
-  "placeholder": "Buscar amigos..."
+  "placeholder": "Buscar amigos...",
+  "noResults": "Nenhum resultado encontrado. Tente uma busca diferente.",
+  "hasPhoto": "Possui Foto de Perfil",
+  "active": "Usuario Ativo",
+  "similarInterests": "Interesses similares",
+  "resultsCount": "Encontramos os seguintes usuarios:"
 },
 "friendsPage": {
   "title": "Amigos",
+  "resend": "Reenviar",
+  "invitationSentOn": "Convite enviado em",
+  "noBestFriendsFound": "Nenhum melhor amigo encontrado.",
   "instructions": "Gerencie suas conexões, encontre novos amigos e mantenha seus relacionamentos ativos.",
   "myFriends": "Meus Amigos",
   "all": "Todos",
+  "requests": "Solicitaçoes",
+  "connectionRequests": "Solicitacoes Recebidas",
+  "noPendingRequests": "Sem solicitação pendentes.",
+  "allFriends": "Todos os Amigos",
+  "bestFriends": "Melhores Amigos",
+  "myBestFriends": "Meus Melhores Amigos",
   "active": "Ativos",
   "inactive": "Inativos",
   "invited": "Convidados",

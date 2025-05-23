@@ -1,5 +1,5 @@
 // src/services/InterestsService/index.js
-import { BaseService, serviceLocator, serviceEventHub } from '../../core/services/BaseService';
+import { BaseService, serviceLocator } from '../../core/services/BaseService';
 import { LOG_LEVELS } from '../../core/logging';
 import { INTERESTS_EVENTS } from '../../core/constants/events';
 import { SERVICE_ACTIONS } from '../../core/constants/actions';

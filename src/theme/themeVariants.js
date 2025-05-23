@@ -79,35 +79,42 @@ export const createThemeVariant = (paletteName = 'ocean', mode = 'light', option
   } = options;
   
   // Função para ajustar nível de cores com base em contrastLevel
-  const adjustColor = (lightColor, darkColor) => {
-    // Se estamos no modo light
-    if (validMode === 'light') {
-      // Para valores menores que 50, vamos aumentar o valor (mais escuro = mais contraste)
-      // Para valores maiores que 50, vamos diminuir o valor (mais claro = menos contraste)
-      const baseValue = parseInt(lightColor.match(/\d+/)[0], 10);
-      
-      if (baseValue <= 50) {
-        // Para tons claros, ajustar com base no contraste (maior contraste = mais escuro)
-        return lightColor;
-      } else {
-        // Calcular o próximo nível baseado no contrastLevel
-        const adjustment = Math.round((baseValue - 50) * (contrastLevel - 1));
-        const newValue = Math.max(50, Math.min(900, baseValue + adjustment));
-        return lightColor.replace(/\d+/, newValue);
-      }
-    } else {
-      // No modo dark, fazer o inverso
-      const baseValue = parseInt(darkColor.match(/\d+/)[0], 10);
-      
-      if (baseValue >= 500) {
-        return darkColor;
-      } else {
-        const adjustment = Math.round((500 - baseValue) * (contrastLevel - 1));
-        const newValue = Math.max(50, Math.min(900, baseValue - adjustment));
-        return darkColor.replace(/\d+/, newValue);
-      }
-    }
-  };
+// Função para ajustar nível de cores com base em contrastLevel
+  const adjustColor = (lightColor, darkColor) => {
+      // Se estamos no modo light
+      if (validMode === 'light') {
+        const matchLight = lightColor.match(/\d+/);
+        if (matchLight) {
+          const baseValue = parseInt(matchLight[0], 10);
+  
+          if (baseValue <= 50) {
+            // Para tons claros, ajustar com base no contraste (maior contraste = mais escuro)
+            return lightColor;
+          } else {
+            // Calcular o próximo nível baseado no contrastLevel
+            const adjustment = Math.round((baseValue - 50) * (contrastLevel - 1));
+            const newValue = Math.max(50, Math.min(900, baseValue + adjustment));
+            return lightColor.replace(/\d+/, newValue);
+          }
+        }
+        return lightColor; // Retornar a cor original se não houver correspondência
+      } else {
+        // No modo dark, fazer o inverso
+        const matchDark = darkColor.match(/\d+/);
+        if (matchDark) {
+          const baseValue = parseInt(matchDark[0], 10);
+  
+          if (baseValue >= 500) {
+            return darkColor;
+          } else {
+            const adjustment = Math.round((500 - baseValue) * (contrastLevel - 1));
+            const newValue = Math.max(50, Math.min(900, baseValue - adjustment));
+            return darkColor.replace(/\d+/, newValue);
+          }
+        }
+        return darkColor; // Retornar a cor original se não houver correspondência
+      }
+    };
   
   // Criar novo tema com a paleta selecionada como primária e todas as propriedades necessárias
   const themeVariant = {

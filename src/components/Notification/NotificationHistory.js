@@ -113,8 +113,13 @@ const NotificationHistory = () => {
   return (
     <Box
       ref={contentRef}
-      sx={{ p: isMobile ? 1 : 3, height: '80vh', overflow: 'auto' }}
-      onScroll={(e) => {
+      sx={{
+        display: 'flex',
+        flexDirection: 'column', // Organiza os itens em coluna
+        width: '100%', // Ocupa a largura disponível
+        padding: 2,
+      }}
+        onScroll={(e) => {
         setShowScrollTop(e.target.scrollTop > 500);
       }}
     >

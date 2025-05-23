@@ -59,7 +59,7 @@ export const useNotificationActions = (state, dispatch, userId, syncStateUpdate)
       ).length;
 
       dispatch({
-        type: NOTIFICATION_ACTIONS.FETCH_SUCCESS,
+        type: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS,
         payload: { notifications, unreadCount }
       });
       return { notifications, unreadCount };
@@ -147,7 +147,7 @@ export const useNotificationActions = (state, dispatch, userId, syncStateUpdate)
         ).length;
 
         dispatch({
-          type: NOTIFICATION_ACTIONS.FETCH_SUCCESS,
+          type: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS,
           payload: {
             notifications,
             unreadCount

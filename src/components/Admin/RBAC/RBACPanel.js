@@ -1,12 +1,39 @@
 // RBACPanel.jsx - Interface administrativa simplificada para RBAC
 import React, { useState, useEffect } from 'react';
 import { serviceLocator } from '../../../core/services/BaseService';
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  TextField,
+  Autocomplete,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  CircularProgress,
+  Alert,
+  Stepper,
+  Step,
+  StepLabel,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Checkbox,
+  FormControlLabel,
+  Chip,
+  Tabs,
+  Tab,
+  Grid
+} from '@mui/material';
 
 // URL base da API
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const RBACPanel = () => {
-const apiService = serviceLocator.get('apiService');
+  const apiService = serviceLocator.get('apiService');
 
   // Estados para dados
   const [roles, setRoles] = useState([]);
@@ -15,7 +42,7 @@ const apiService = serviceLocator.get('apiService');
   const [userRoles, setUserRoles] = useState([]);
   
   // Estados para seleção
-  const [activeTab, setActiveTab] = useState('roles');
+  const [activeTab, setActiveTab] = useState(0);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
   
@@ -32,39 +59,6 @@ const apiService = serviceLocator.get('apiService');
     context: { type: 'global', resourceId: '' },
     options: { validationStatus: 'pending' }
   });
-
-// No início do componente, após declarar estados
-useEffect(() => {
-    async function fetchAndLog() {
-      try {
-        const rolesResponse = await apiService.get(`${API_URL}/api/rbac/roles`);
-        console.log("ROLES API RESPONSE:", rolesResponse);
-        
-        // Verificar formato
-        console.log("ROLES TYPE:", typeof rolesResponse);
-        console.log("ROLES IS ARRAY:", Array.isArray(rolesResponse));
-        
-        // Se temos data
-        if (rolesResponse && rolesResponse.data) {
-          console.log("ROLES DATA TYPE:", typeof rolesResponse.data);
-          console.log("ROLES DATA IS ARRAY:", Array.isArray(rolesResponse.data));
-        }
-        
-        // Adaptar dados se necessário antes de definir o estado
-        const rolesArray = Array.isArray(rolesResponse.data) 
-          ? rolesResponse.data 
-          : (rolesResponse.data ? Object.values(rolesResponse.data) : []);
-        
-        console.log("ROLES ARRAY AFTER CONVERSION:", rolesArray);
-        setRoles(rolesArray);
-      } catch (err) {
-        console.error("FETCH ROLES ERROR:", err);
-        setError(err.message || 'Erro ao carregar roles');
-      }
-    }
-    
-    fetchAndLog();
-  }, []);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -148,7 +142,7 @@ useEffect(() => {
     try {
       setLoading(true);
       const response = await apiService.get(`${API_URL}/api/rbac/users/${userId}/roles`);
-      console.log("User roles response:", response);
+      console.log("User roles response:", response.data.data);
       
       let userRolesData = [];
       
@@ -164,8 +158,24 @@ useEffect(() => {
         }
       }
       
+      console.log("Processed user roles data:", userRolesData);
+      
+      // Se ainda não temos roles e o usuário tem flag isOwnerOrAdmin,
+      // adicionar uma role "admin" virtual para representação visual
+      if (userRolesData.length === 0 && selectedUser?.isOwnerOrAdmin) {
+        userRolesData = [{
+          id: `virtual_admin_${userId}`,
+          roleId: 'admin',
+          roleName: 'Admin (Legacy)',
+          context: { type: 'global', resourceId: null },
+          validationStatus: 'validated',
+          isLegacyAdmin: true
+        }];
+      }
+      
       setUserRoles(userRolesData);
     } catch (err) {
+      console.error("Error fetching user roles:", err);
       setError(err.message || 'Erro ao carregar roles do usuário');
     } finally {
       setLoading(false);
@@ -175,8 +185,9 @@ useEffect(() => {
   async function fetchUsers() {
     try {
       setLoading(true);
-      const data = await apiService.get('https://localhost:9000/api/users');
-      setUsers(data || []);
+      const data = await apiService.get(`${API_URL}/api/users`);
+      console.log('usuarios resgatados: ', data)
+      setUsers(data.data || []);
     } catch (err) {
       setError(err.message || 'Erro ao carregar usuários');
     } finally {
@@ -294,12 +305,6 @@ useEffect(() => {
     }
   }
 
-  function getBadgeStyle(status) {
-    if (status === 'validated') return styles.badge.success;
-    if (status === 'rejected') return styles.badge.danger;
-    return styles.badge.warning;
-  }
-
   async function handleRemovePermissionFromRole(roleId, permissionId) {
     if (!roleId || !permissionId) return;
 
@@ -364,669 +369,592 @@ useEffect(() => {
     return systemRoleIds.includes(roleId);
   }
 
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
 
-  // Renderização dos componentes de UI
-    return (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-          <h1 style={{ marginBottom: '20px' }}>Painel Administrativo RBAC</h1>
-          
-          {/* Área de alertas */}
-          {loading && <div style={styles.alert.info}>Carregando...</div>}
-          {error && <div style={styles.alert.danger}>{error}</div>}
-          {message && <div style={styles.alert.success}>{message}</div>}
-          
-          {/* Botões de inicialização */}
-          <div style={{ marginBottom: '20px' }}>
-            <button onClick={handleInitializeSystem} style={{ ...styles.button.primary, marginRight: '10px' }}>
-              Inicializar Sistema RBAC
-            </button>
-            <button onClick={handleMigrateAdminUsers} style={styles.button.secondary}>
-              Migrar Usuários Admin
-            </button>
-          </div>
-    
-          {/* Abas de navegação */}
-          <div style={styles.tabs.container}>
-            <div style={styles.tabs.header}>
-              <button 
-                style={activeTab === 'roles' ? styles.tabs.active : styles.tabs.inactive} 
-                onClick={() => setActiveTab('roles')}
-              >
-                Roles
-              </button>
-              <button 
-                style={activeTab === 'permissions' ? styles.tabs.active : styles.tabs.inactive} 
-                onClick={() => setActiveTab('permissions')}
-              >
-                Permissões
-              </button>
-              <button 
-                style={activeTab === 'users' ? styles.tabs.active : styles.tabs.inactive} 
-                onClick={() => setActiveTab('users')}
-              >
-                Usuários
-              </button>
-            </div>
-    
-            {/* Conteúdo da aba Roles */}
-            {activeTab === 'roles' && (
-              <div style={styles.tabs.content}>
-                <div style={styles.flexRow}>
-                  <div style={styles.col50}>
-                    <h3>Roles Disponíveis</h3>
-                    <div style={styles.list.container}>
-                      {Array.isArray(roles) ? (
-                        roles.length > 0 ? (
-                          roles.map(role => (
-                            <div 
-                              key={role.id} 
-                              style={{
-                                ...styles.list.item,
-                                backgroundColor: selectedRole?.id === role.id ? '#e9f5ff' : 'white'
-                              }}
+  return (
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2.5 }}>
+      <Typography variant="h4" sx={{ mb: 2.5 }}>Painel Administrativo RBAC</Typography>
+      
+      {/* Área de alertas */}
+      {loading && <Alert severity="info" sx={{ mb: 2 }}>Carregando...</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
+      
+      {/* Botões de inicialização */}
+      <Box sx={{ mb: 2.5, display: 'flex', gap: 1 }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleInitializeSystem}
+        >
+          Inicializar Sistema RBAC
+        </Button>
+        <Button 
+          variant="outlined" 
+          color="secondary" 
+          onClick={handleMigrateAdminUsers}
+        >
+          Migrar Usuários Admin
+        </Button>
+      </Box>
+
+      {/* Abas de navegação */}
+      <Paper sx={{ mb: 3, overflow: 'hidden', borderRadius: 1 }}>
+        <Tabs 
+          value={activeTab} 
+          onChange={handleTabChange}
+          sx={{ 
+            borderBottom: 1, 
+            borderColor: 'divider',
+            bgcolor: 'background.paper'
+          }}
+        >
+          <Tab label="Roles" />
+          <Tab label="Permissões" />
+          <Tab label="Usuários" />
+        </Tabs>
+
+        {/* Conteúdo de Roles */}
+        {activeTab === 0 && (
+          <Box sx={{ p: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Typography variant="h6" gutterBottom>Roles Disponíveis</Typography>
+                <Paper variant="outlined" sx={{ mb: 3, borderRadius: 1 }}>
+                  <List disablePadding>
+                    {Array.isArray(roles) ? (
+                      roles.length > 0 ? (
+                        roles.map((role, index) => (
+                          <React.Fragment key={role.id || index}>
+                            <ListItem 
+                              button
+                              selected={selectedRole?.id === role.id}
                               onClick={() => setSelectedRole(role)}
+                              sx={{ 
+                                p: 2,
+                                '&.Mui-selected': {
+                                  bgcolor: 'action.selected'
+                                },
+                                '&:hover': {
+                                  bgcolor: 'action.hover'
+                                }
+                              }}
                             >
-                              <div style={styles.flexBetween}>
-                                <h4 style={styles.list.title}>{role.name}</h4>
-                                {role.isSystemRole && (
-                                  <span style={styles.badge.info}>Sistema</span>
-                                )}
-                              </div>
-                              <p style={styles.list.desc}>{role.description}</p>
-                            </div>
-                          ))
-                        ) : (
-                          <p>Nenhuma role encontrada.</p>
-                        )
+                              <ListItemText 
+                                primary={
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                                      {role.name}
+                                    </Typography>
+                                    {role.isSystemRole && (
+                                      <Chip 
+                                        size="small" 
+                                        label="Sistema" 
+                                        color="info" 
+                                        sx={{ ml: 1 }}
+                                      />
+                                    )}
+                                  </Box>
+                                }
+                                secondary={role.description}
+                              />
+                            </ListItem>
+                            {index < roles.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))
                       ) : (
-                        <p>Carregando roles...</p>
-                      )}
-                    </div>
-    
-                    <h3>Nova Role</h3>
-                    <form onSubmit={handleCreateRole} style={styles.form.container}>
-                      <div style={styles.form.group}>
-                        <label style={styles.form.label}>Nome</label>
-                        <input 
-                          type="text" 
-                          style={styles.form.input} 
-                          value={newRole.name} 
-                          onChange={e => setNewRole({...newRole, name: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div style={styles.form.group}>
-                        <label style={styles.form.label}>Descrição</label>
-                        <textarea 
-                          style={styles.form.textarea} 
-                          value={newRole.description} 
-                          onChange={e => setNewRole({...newRole, description: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div style={styles.form.checkbox}>
-                        <input 
-                          type="checkbox" 
-                          id="isSystemRole"
-                          checked={newRole.isSystemRole} 
+                        <ListItem>
+                          <ListItemText primary="Nenhuma role encontrada." />
+                        </ListItem>
+                      )
+                    ) : (
+                      <ListItem>
+                        <ListItemText primary="Carregando roles..." />
+                      </ListItem>
+                    )}
+                  </List>
+                </Paper>
+
+                <Typography variant="h6" gutterBottom>Nova Role</Typography>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
+                  <Box component="form" onSubmit={handleCreateRole} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                      label="Nome"
+                      value={newRole.name}
+                      onChange={e => setNewRole({...newRole, name: e.target.value})}
+                      required
+                      fullWidth
+                    />
+                    <TextField
+                      label="Descrição"
+                      value={newRole.description}
+                      onChange={e => setNewRole({...newRole, description: e.target.value})}
+                      required
+                      fullWidth
+                      multiline
+                      rows={3}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={newRole.isSystemRole}
                           onChange={e => setNewRole({...newRole, isSystemRole: e.target.checked})}
                         />
-                        <label htmlFor="isSystemRole">Role de Sistema</label>
-                      </div>
-                      <button type="submit" style={styles.button.primary}>Criar Role</button>
-                    </form>
-                  </div>
-    
-                  <div style={styles.col50}>
-                    {selectedRole && (
-                      <div>
-                        <h3>Permissões da Role: {selectedRole.name}</h3>
-                        <div style={styles.list.container}>
-                          {Array.isArray(permissions) ? (
-                            permissions.length > 0 ? (
-                              permissions.map(permission => (
-                                <div key={permission.id} style={styles.list.item}>
-                                  <div style={styles.flexBetween}>
-                                    <div>
-                                      <h4 style={styles.list.title}>
+                      }
+                      label="Role de Sistema"
+                    />
+                    <Button type="submit" variant="contained" color="primary">
+                      Criar Role
+                    </Button>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                {selectedRole && (
+                  <Box>
+                    <Typography variant="h6" gutterBottom>
+                      Permissões da Role: {selectedRole.name}
+                    </Typography>
+                    <Paper variant="outlined" sx={{ borderRadius: 1 }}>
+                      <List disablePadding>
+                        {Array.isArray(permissions) ? (
+                          permissions.length > 0 ? (
+                            permissions.map((permission, index) => (
+                              <React.Fragment key={permission.id || index}>
+                                <ListItem sx={{ 
+                                  p: 2,
+                                  flexDirection: 'column', 
+                                  alignItems: 'flex-start'
+                                }}>
+                                  <Box sx={{ 
+                                    width: '100%', 
+                                    display: 'flex',
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'flex-start',
+                                    mb: 1
+                                  }}>
+                                    <Box>
+                                      <Typography variant="subtitle1" sx={{ fontWeight: 'medium', display: 'flex', alignItems: 'center' }}>
                                         {permission.name}
                                         {permission.isInitialData && (
-                                          <span style={styles.badge.info} title="Definida no sistema">S</span>
+                                          <Chip 
+                                            size="small" 
+                                            label="S" 
+                                            color="info" 
+                                            sx={{ ml: 1 }}
+                                            title="Definida no sistema"
+                                          />
                                         )}
-                                      </h4>
-                                      <p style={styles.list.desc}>Recurso: {permission.resource}, Ação: {permission.action}</p>
-                                      <p style={styles.list.desc}>{permission.description}</p>
-                                    </div>
-                                    <div>
-                                      <button 
-                                        style={{ ...styles.button.sm, ...styles.button.primary, marginRight: '5px' }}
+                                      </Typography>
+                                      <Typography variant="body2" color="text.secondary">
+                                        Recurso: {permission.resource}, Ação: {permission.action}
+                                      </Typography>
+                                      <Typography variant="body2" color="text.secondary">
+                                        {permission.description}
+                                      </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                      <Button 
+                                        size="small" 
+                                        variant="contained" 
+                                        color="primary"
                                         onClick={() => handleAssignPermissionToRole(selectedRole.id, permission.id)}
                                       >
                                         Atribuir
-                                      </button>
-                                      <button 
-                                        style={{ ...styles.button.sm, ...styles.button.danger }}
+                                      </Button>
+                                      <Button 
+                                        size="small" 
+                                        variant="contained" 
+                                        color="error"
                                         onClick={() => handleRemovePermissionFromRole(selectedRole.id, permission.id)}
                                       >
                                         Remover
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p>Nenhuma permissão encontrada.</p>
-                            )
+                                      </Button>
+                                    </Box>
+                                  </Box>
+                                </ListItem>
+                                {index < permissions.length - 1 && <Divider />}
+                              </React.Fragment>
+                            ))
                           ) : (
-                            <p>Carregando permissões...</p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-    
-            {/* Conteúdo da aba Permissões */}
-            {activeTab === 'permissions' && (
-              <div style={styles.tabs.content}>
-                <div style={styles.flexRow}>
-                  <div style={styles.col50}>
-                    <h3>Permissões Disponíveis</h3>
-                    <div style={styles.list.container}>
-                      {Array.isArray(permissions) ? (
-                        permissions.length > 0 ? (
-                          permissions.map(permission => (
-                            <div key={permission.id} style={styles.list.item}>
-                              <h4 style={styles.list.title}>
-                                {permission.name}
-                                {permission.isInitialData && (
-                                  <span style={styles.badge.info} title="Definida no sistema">S</span>
-                                )}
-                              </h4>
-                              <p style={styles.list.desc}>Recurso: {permission.resource}, Ação: {permission.action}</p>
-                              <p style={styles.list.desc}>{permission.description}</p>
-                            </div>
-                          ))
+                            <ListItem>
+                              <ListItemText primary="Nenhuma permissão encontrada." />
+                            </ListItem>
+                          )
                         ) : (
-                          <p>Nenhuma permissão encontrada.</p>
-                        )
-                      ) : (
-                        <p>Carregando permissões...</p>
-                      )}
-                    </div>
-    
-                    <h3>Nova Permissão</h3>
-                    <form onSubmit={handleCreatePermission} style={styles.form.container}>
-                      <div style={styles.form.group}>
-                        <label style={styles.form.label}>Recurso</label>
-                        <input 
-                          type="text" 
-                          style={styles.form.input} 
-                          value={newPermission.resource} 
-                          onChange={e => setNewPermission({...newPermission, resource: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div style={styles.form.group}>
-                        <label style={styles.form.label}>Ação</label>
-                        <input 
-                          type="text" 
-                          style={styles.form.input} 
-                          value={newPermission.action} 
-                          onChange={e => setNewPermission({...newPermission, action: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <div style={styles.form.group}>
-                        <label style={styles.form.label}>Descrição</label>
-                        <textarea 
-                          style={styles.form.textarea} 
-                          value={newPermission.description} 
-                          onChange={e => setNewPermission({...newPermission, description: e.target.value})}
-                          required
-                        />
-                      </div>
-                      <button type="submit" style={styles.button.primary}>Criar Permissão</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            )}
-    
-            {/* Conteúdo da aba Usuários */}
-            {activeTab === 'users' && (
-              <div style={styles.tabs.content}>
-                <div style={styles.flexRow}>
-                  <div style={styles.col40}>
-                    <h3>Usuários</h3>
-                    <div style={{ ...styles.list.container, maxHeight: '500px', overflowY: 'auto' }}>
-                      {Array.isArray(users) ? (
-                        users.length > 0 ? (
-                          users.map(user => (
-                            <div 
-                              key={user.id} 
-                              style={{
-                                ...styles.list.item,
-                                backgroundColor: selectedUser?.id === user.id ? '#e9f5ff' : 'white',
-                                cursor: 'pointer'
-                              }}
-                              onClick={() => setSelectedUser(user)}
-                            >
-                              <h4 style={styles.list.title}>{user.nome || user.email}</h4>
-                              <p style={styles.list.desc}>{user.email}</p>
-                              {user.isOwnerOrAdmin && (
-                                <span style={styles.badge.warning}>Admin Legacy</span>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <p>Nenhum usuário encontrado.</p>
-                        )
-                      ) : (
-                        <p>Carregando usuários...</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div style={styles.col60}>
-                    {selectedUser && (
-                      <div>
-                        <h3>Roles do Usuário: {selectedUser.nome || selectedUser.email}</h3>
-                        
-                        <div style={styles.list.container}>
-                          {Array.isArray(userRoles) ? (
-                            userRoles.length > 0 ? (
-                              userRoles.map(userRole => (
-                                <div key={userRole.id} style={styles.list.item}>
-                                  <div style={styles.flexBetween}>
-                                    <div>
-                                      <h4 style={styles.list.title}>
-                                        {userRole.roleName}
-                                        {isInitialDataRole(userRole.roleId) && (
-                                          <span style={styles.badge.info} title="Role de Sistema">S</span>
-                                        )}
-                                      </h4>
-                                      <p style={styles.list.desc}>
-                                        Contexto: {userRole.context.type}
-                                        {userRole.context.resourceId && ` (${userRole.context.resourceId})`}
-                                      </p>
-                                      <span style={getBadgeStyle(userRole.validationStatus)}>
-                                        {userRole.validationStatus}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <button 
-                                        style={{ ...styles.button.sm, ...styles.button.danger }}
-                                        onClick={() => handleRemoveRoleFromUser(userRole.id)}
-                                        disabled={isInitialDataRole(userRole.roleId)}
-                                      >
-                                        Remover
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p>Nenhuma role atribuída a este usuário.</p>
-                            )
-                          ) : (
-                            <p>Carregando roles do usuário...</p>
-                          )}
-                        </div>
-    
-                        <h3>Atribuir Nova Role</h3>
-                        <form onSubmit={handleAssignRoleToUser} style={styles.form.container}>
-                          <div style={styles.form.group}>
-                            <label style={styles.form.label}>Role</label>
-                            <select 
-                              style={styles.form.select} 
-                              value={newUserRole.roleId} 
-                              onChange={e => setNewUserRole({...newUserRole, roleId: e.target.value})}
-                              required
-                            >
-                              <option value="">Selecione uma role</option>
-                              {Array.isArray(roles) && roles.map(role => (
-                                <option key={role.id} value={role.id}>{role.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div style={styles.form.group}>
-                            <label style={styles.form.label}>Tipo de Contexto</label>
-                            <select 
-                              style={styles.form.select} 
-                              value={newUserRole.context.type} 
-                              onChange={e => setNewUserRole({
-                                ...newUserRole, 
-                                context: {...newUserRole.context, type: e.target.value}
-                              })}
-                            >
-                              <option value="global">Global</option>
-                              <option value="caixinha">Caixinha</option>
-                              <option value="marketplace">Marketplace</option>
-                            </select>
-                          </div>
-                          {newUserRole.context.type !== 'global' && (
-                            <div style={styles.form.group}>
-                              <label style={styles.form.label}>ID do Recurso</label>
-                              <input 
-                                type="text" 
-                                style={styles.form.input} 
-                                value={newUserRole.context.resourceId} 
-                                onChange={e => setNewUserRole({
-                                  ...newUserRole, 
-                                  context: {...newUserRole.context, resourceId: e.target.value}
-                                })}
-                                required
+                          <ListItem>
+                            <ListItemText primary="Carregando permissões..." />
+                          </ListItem>
+                        )}
+                      </List>
+                    </Paper>
+                  </Box>
+                )}
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+
+        {/* Conteúdo de Permissões */}
+        {activeTab === 1 && (
+          <Box sx={{ p: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom>Permissões Disponíveis</Typography>
+                <Paper variant="outlined" sx={{ mb: 3, borderRadius: 1 }}>
+                  <List disablePadding>
+                    {Array.isArray(permissions) ? (
+                      permissions.length > 0 ? (
+                        permissions.map((permission, index) => (
+                          <React.Fragment key={permission.id || index}>
+                            <ListItem sx={{ p: 2 }}>
+                              <ListItemText 
+                                primary={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                                      {permission.name}
+                                    </Typography>
+                                    {permission.isInitialData && (
+                                      <Chip 
+                                        size="small" 
+                                        label="S" 
+                                        color="info" 
+                                        sx={{ ml: 1 }}
+                                        title="Definida no sistema"
+                                      />
+                                    )}
+                                  </Box>
+                                }
+                                secondary={
+                                  <>
+                                    <Typography variant="body2" color="text.secondary">
+                                      Recurso: {permission.resource}, Ação: {permission.action}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                      {permission.description}
+                                    </Typography>
+                                  </>
+                                }
                               />
-                            </div>
-                          )}
-                          <div style={styles.form.group}>
-                            <label style={styles.form.label}>Status de Validação</label>
-                            <select 
-                              style={styles.form.select} 
-                              value={newUserRole.options.validationStatus} 
-                              onChange={e => setNewUserRole({
-                                ...newUserRole, 
-                                options: {...newUserRole.options, validationStatus: e.target.value}
-                              })}
-                            >
-                              <option value="pending">Pendente</option>
-                              <option value="validated">Validado</option>
-                              <option value="rejected">Rejeitado</option>
-                            </select>
-                          </div>
-                          <button type="submit" style={styles.button.primary}>Atribuir Role</button>
-                        </form>
-                      </div>
+                            </ListItem>
+                            {index < permissions.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <ListItem>
+                          <ListItemText primary="Nenhuma permissão encontrada." />
+                        </ListItem>
+                      )
+                    ) : (
+                      <ListItem>
+                        <ListItemText primary="Carregando permissões..." />
+                      </ListItem>
                     )}
-                  </div>
-                </div>
-              </div>
+                  </List>
+                </Paper>
+
+                <Typography variant="h6" gutterBottom>Nova Permissão</Typography>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
+                  <Box component="form" onSubmit={handleCreatePermission} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                      label="Recurso"
+                      value={newPermission.resource}
+                      onChange={e => setNewPermission({...newPermission, resource: e.target.value})}
+                      required
+                      fullWidth
+                    />
+                    <TextField
+                      label="Ação"
+                      value={newPermission.action}
+                      onChange={e => setNewPermission({...newPermission, action: e.target.value})}
+                      required
+                      fullWidth
+                    />
+                    <TextField
+                      label="Descrição"
+                      value={newPermission.description}
+                      onChange={e => setNewPermission({...newPermission, description: e.target.value})}
+                      required
+                      fullWidth
+                      multiline
+                      rows={3}
+                    />
+                    <Button type="submit" variant="contained" color="primary">
+                      Criar Permissão
+                    </Button>
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+
+        {/* Conteúdo de Usuários */}
+        {activeTab === 2 && (
+          <Box sx={{ p: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={5}>
+                <Typography variant="h6" gutterBottom>Usuários</Typography>
+                <Paper 
+                  variant="outlined" 
+                  sx={{ 
+                    borderRadius: 1, 
+                    maxHeight: 500, 
+                    overflow: 'auto' 
+                  }}
+                >
+                  <List disablePadding>
+                    {Array.isArray(users) ? (
+                      users.length > 0 ? (
+                        users.map((user, index) => (
+                          <React.Fragment key={user.id || index}>
+                            <ListItem 
+                              button
+                              selected={selectedUser?.id === user.id}
+                              onClick={() => setSelectedUser(user)}
+                              sx={{ 
+                                p: 2,
+                                '&.Mui-selected': {
+                                  bgcolor: 'action.selected'
+                                },
+                                '&:hover': {
+                                  bgcolor: 'action.hover'
+                                }
+                              }}
+                            >
+                              <ListItemText 
+                                primary={user.nome || user.email}
+                                secondary={
+                                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                      {user.email}
+                                    </Typography>
+                                    {user.isOwnerOrAdmin && (
+                                      <Chip 
+                                        size="small" 
+                                        label="Admin Legacy" 
+                                        color="warning" 
+                                        sx={{ ml: 1 }}
+                                      />
+                                    )}
+                                  </Box>
+                                }
+                              />
+                            </ListItem>
+                            {index < users.length - 1 && <Divider />}
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <ListItem>
+                          <ListItemText primary="Nenhum usuário encontrado." />
+                        </ListItem>
+                      )
+                    ) : (
+                      <ListItem>
+                        <ListItemText primary="Carregando usuários..." />
+                      </ListItem>
+                    )}
+                  </List>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={7}>
+                {selectedUser && (
+                  <Box>
+                    <Typography variant="h6" gutterBottom>
+                      Roles do Usuário: {selectedUser.nome || selectedUser.email}
+                    </Typography>
+                    <Paper variant="outlined" sx={{ mb: 3, borderRadius: 1 }}>
+                      <List disablePadding>
+                        {Array.isArray(userRoles) ? (
+                          userRoles.length > 0 ? (
+                            userRoles.map((userRole, index) => (
+                              <React.Fragment key={userRole.id || index}>
+<ListItem sx={{ p: 2 }}>
+  <ListItemText 
+    primary={
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center' 
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+            {userRole.roleName || userRole.roleId}
+          </Typography>
+          {isInitialDataRole(userRole.roleId) && (
+            <Chip 
+              size="small" 
+              label="S" 
+              color="info" 
+              sx={{ ml: 1 }}
+              title="Role de Sistema"
+            />
+          )}
+        </Box>
+        <Button 
+          size="small" 
+          variant="contained" 
+          color="error"
+          onClick={() => handleRemoveRoleFromUser(userRole.id)}
+          disabled={isInitialDataRole(userRole.roleId)}
+        >
+          Remover
+        </Button>
+      </Box>
+    }
+    secondary={
+      <Box sx={{ mt: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          <strong>Contexto:</strong> {userRole.context.type}
+          {userRole.context.resourceId && ` (${userRole.context.resourceId})`}
+        </Typography>
+        
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Chip 
+              size="small" 
+              label={userRole.validationStatus} 
+              color={
+                userRole.validationStatus === 'validated' ? 'success' :
+                userRole.validationStatus === 'rejected' ? 'error' : 'warning'
+              }
+            />
+            
+            {userRole.validatedAt && (
+              <Typography variant="caption" sx={{ ml: 1 }}>
+                Validado em: {new Date(userRole.validatedAt).toLocaleString()}
+              </Typography>
             )}
-          </div>
-        </div>
+          </Box>
+          
+          {userRole.metadata && Object.keys(userRole.metadata).length > 0 && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="caption" color="text.secondary">
+                <strong>Metadados:</strong>
+              </Typography>
+              <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                {Object.entries(userRole.metadata).map(([key, value]) => (
+                  <Typography component="li" variant="caption" key={key}>
+                    {key}: {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                  </Typography>
+                ))}
+              </Box>
+            </Box>
+          )}
+          
+          {userRole.createdAt && (
+            <Typography variant="caption" color="text.secondary">
+              Atribuída em: {new Date(userRole.createdAt).toLocaleString()}
+            </Typography>
+          )}
+          
+          {userRole.createdBy && (
+            <Typography variant="caption" color="text.secondary">
+              Atribuída por: {userRole.createdBy}
+            </Typography>
+          )}
+        </Box>
+      </Box>
+    }
+  />
+</ListItem>
+                                {index < userRoles.length - 1 && <Divider />}
+                              </React.Fragment>
+                            ))
+                          ) : (
+                            <ListItem>
+                              <ListItemText primary="Nenhuma role atribuída a este usuário." />
+                            </ListItem>
+                          )
+                        ) : (
+                          <ListItem>
+                            <ListItemText primary="Carregando roles do usuário..." />
+                          </ListItem>
+                        )}
+                      </List>
+                    </Paper>
+
+                    <Typography variant="h6" gutterBottom>Atribuir Nova Role</Typography>
+                    <Paper variant="outlined" sx={{ p: 2, borderRadius: 1 }}>
+                      <Box component="form" onSubmit={handleAssignRoleToUser} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <FormControl fullWidth required>
+                          <InputLabel>Role</InputLabel>
+                          <Select
+                            value={newUserRole.roleId}
+                            onChange={e => setNewUserRole({...newUserRole, roleId: e.target.value})}
+                          >
+                            <MenuItem value="">Selecione uma role</MenuItem>
+                            {Array.isArray(roles) && roles.map(role => (
+                              <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth>
+                          <InputLabel>Tipo de Contexto</InputLabel>
+                          <Select
+                            value={newUserRole.context.type}
+                            onChange={e => setNewUserRole({
+                              ...newUserRole,
+                              context: {...newUserRole.context, type: e.target.value}
+                            })}
+                          >
+                            <MenuItem value="global">Global</MenuItem>
+                            <MenuItem value="caixinha">Caixinha</MenuItem>
+                            <MenuItem value="marketplace">Marketplace</MenuItem>
+                          </Select>
+                        </FormControl>
+
+                        {newUserRole.context.type !== 'global' && (
+                          <TextField
+                            label="ID do Recurso"
+                            value={newUserRole.context.resourceId}
+                            onChange={e => setNewUserRole({
+                              ...newUserRole,
+                              context: {...newUserRole.context, resourceId: e.target.value}
+                            })}
+                            required
+                            fullWidth
+                          />
+                        )}
+
+                        <FormControl fullWidth>
+                          <InputLabel>Status de Validação</InputLabel>
+                          <Select
+                            value={newUserRole.options.validationStatus}
+                            onChange={e => setNewUserRole({
+                              ...newUserRole,
+                              options: {...newUserRole.options, validationStatus: e.target.value}
+                            })}
+                          >
+                            <MenuItem value="pending">Pendente</MenuItem>
+                            <MenuItem value="validated">Validado</MenuItem>
+                            <MenuItem value="rejected">Rejeitado</MenuItem>
+                          </Select>
+                        </FormControl>
+
+                        <Button 
+                          type="submit" 
+                          variant="contained" 
+                          color="primary"
+                        >
+                          Atribuir Role
+                        </Button>
+                      </Box>
+                    </Paper>
+                  </Box>
+                )}
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+      </Paper>
+    </Box>
   );
-};
-
-// Função auxiliar para definir o estilo do badge baseado no status de validação
-function getBadgeStyle(status) {
-  if (status === 'validated') return styles.badge.success;
-  if (status === 'rejected') return styles.badge.danger;
-  return styles.badge.warning;
-}
-
-// Estilos
-const styles = {
-  flexRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: '20px'
-  },
-  flexBetween: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  col40: {
-    flex: '0 0 40%'
-  },
-  col50: {
-    flex: '0 0 48%'
-  },
-  col60: {
-    flex: '0 0 55%'
-  },
-  alert: {
-    base: {
-      padding: '12px 16px',
-      margin: '10px 0',
-      borderRadius: '4px',
-      fontSize: '14px',
-    },
-    info: {
-      padding: '12px 16px',
-      margin: '10px 0',
-      borderRadius: '4px',
-      fontSize: '14px',
-      backgroundColor: '#cce5ff',
-      color: '#004085',
-      border: '1px solid #b8daff',
-    },
-    success: {
-      padding: '12px 16px',
-      margin: '10px 0',
-      borderRadius: '4px',
-      fontSize: '14px',
-      backgroundColor: '#d4edda',
-      color: '#155724',
-      border: '1px solid #c3e6cb',
-    },
-    danger: {
-      padding: '12px 16px',
-      margin: '10px 0',
-      borderRadius: '4px',
-      fontSize: '14px',
-      backgroundColor: '#f8d7da',
-      color: '#721c24',
-      border: '1px solid #f5c6cb',
-    },
-    warning: {
-      padding: '12px 16px',
-      margin: '10px 0',
-      borderRadius: '4px',
-      fontSize: '14px',
-      backgroundColor: '#fff3cd',
-      color: '#856404',
-      border: '1px solid #ffeeba',
-    }
-  },
-  button: {
-    base: {
-      display: 'inline-block',
-      fontWeight: 400,
-      textAlign: 'center',
-      verticalAlign: 'middle',
-      cursor: 'pointer',
-      padding: '6px 12px',
-      borderRadius: '4px',
-      border: '1px solid transparent',
-      fontSize: '14px',
-    },
-    primary: {
-      display: 'inline-block',
-      fontWeight: 400,
-      textAlign: 'center',
-      verticalAlign: 'middle',
-      cursor: 'pointer',
-      padding: '6px 12px',
-      borderRadius: '4px',
-      border: '1px solid transparent',
-      fontSize: '14px',
-      backgroundColor: '#007bff',
-      color: 'white',
-      borderColor: '#007bff',
-    },
-    secondary: {
-      display: 'inline-block',
-      fontWeight: 400,
-      textAlign: 'center',
-      verticalAlign: 'middle',
-      cursor: 'pointer',
-      padding: '6px 12px',
-      borderRadius: '4px',
-      border: '1px solid transparent',
-      fontSize: '14px',
-      backgroundColor: '#6c757d',
-      color: 'white',
-      borderColor: '#6c757d',
-    },
-    danger: {
-      display: 'inline-block',
-      fontWeight: 400,
-      textAlign: 'center',
-      verticalAlign: 'middle',
-      cursor: 'pointer',
-      padding: '6px 12px',
-      borderRadius: '4px',
-      border: '1px solid transparent',
-      fontSize: '14px',
-      backgroundColor: '#dc3545',
-      color: 'white',
-      borderColor: '#dc3545',
-    },
-    sm: {
-      padding: '4px 8px',
-      fontSize: '12px',
-    }
-  },
-  tabs: {
-    container: {
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      overflow: 'hidden',
-    },
-    header: {
-      display: 'flex',
-      borderBottom: '1px solid #dee2e6',
-      backgroundColor: '#f8f9fa',
-    },
-    active: {
-      padding: '10px 15px',
-      backgroundColor: 'white',
-      border: 'none',
-      borderBottom: '2px solid #007bff',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-    },
-    inactive: {
-      padding: '10px 15px',
-      backgroundColor: 'transparent',
-      border: 'none',
-      cursor: 'pointer',
-    },
-    content: {
-      padding: '16px',
-    }
-  },
-  list: {
-    container: {
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      marginBottom: '20px',
-    },
-    item: {
-      padding: '12px 16px',
-      borderBottom: '1px solid #dee2e6',
-    },
-    title: {
-      margin: '0 0 6px 0',
-      fontSize: '16px',
-    },
-    desc: {
-      margin: '0 0 4px 0',
-      fontSize: '14px',
-      color: '#6c757d',
-    }
-  },
-  badge: {
-    base: {
-      display: 'inline-block',
-      padding: '3px 6px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      borderRadius: '4px',
-      textTransform: 'uppercase',
-    },
-    info: {
-      display: 'inline-block',
-      padding: '3px 6px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      borderRadius: '4px',
-      textTransform: 'uppercase',
-      color: 'white',
-      backgroundColor: '#17a2b8',
-    },
-    success: {
-      display: 'inline-block',
-      padding: '3px 6px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      borderRadius: '4px',
-      textTransform: 'uppercase',
-      color: 'white',
-      backgroundColor: '#28a745',
-    },
-    warning: {
-      display: 'inline-block',
-      padding: '3px 6px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      borderRadius: '4px',
-      textTransform: 'uppercase',
-      color: 'black',
-      backgroundColor: '#ffc107',
-    },
-    danger: {
-      display: 'inline-block',
-      padding: '3px 6px',
-      fontSize: '12px',
-      fontWeight: 'bold',
-      borderRadius: '4px',
-      textTransform: 'uppercase',
-      color: 'white',
-      backgroundColor: '#dc3545',
-    }
-  },
-  form: {
-    container: {
-      marginBottom: '20px',
-    },
-    group: {
-      marginBottom: '15px',
-    },
-    label: {
-      display: 'block',
-      marginBottom: '5px',
-      fontSize: '14px',
-      fontWeight: 'bold',
-    },
-    input: {
-      width: '100%',
-      padding: '8px 12px',
-      fontSize: '14px',
-      lineHeight: 1.5,
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-    },
-    textarea: {
-      width: '100%',
-      padding: '8px 12px',
-      fontSize: '14px',
-      lineHeight: 1.5,
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      minHeight: '100px',
-    },
-    select: {
-      width: '100%',
-      padding: '8px 12px',
-      fontSize: '14px',
-      lineHeight: 1.5,
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      backgroundColor: 'white',
-    },
-    checkbox: {
-      marginBottom: '15px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px',
-    }
-  }
 };
 
 export default RBACPanel;

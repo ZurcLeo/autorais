@@ -11,12 +11,14 @@
         "@mui/icons-material": "^5.15.20",
         "@mui/material": "^5.5.0",
         "@mui/styled-engine": "^5.15.14",
+        "@mui/x-date-pickers": "^8.0.0-beta.3",
         "@reduxjs/toolkit": "^2.6.1",
         "add": "^2.0.6",
         "axios": "^0.24.0",
         "bottleneck": "^2.19.5",
         "chart.js": "^4.4.8",
         "date-fns": "^4.1.0",
+        "dayjs": "^1.11.13",
         "emoji-picker-react": "^4.12.2",
         "firebase": "^11.3.1",
         "formik": "^2.4.6",
@@ -51,7 +53,7 @@
         "yup": "^1.4.0"
     },
     "scripts": {
-        "start": "react-scripts --openssl-legacy-provider start --no-client",
+        "start": "DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",

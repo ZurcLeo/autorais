@@ -4,7 +4,7 @@ import {
   TableContainer, TableHead, TableRow, Paper, Typography, 
   TextField, InputAdornment, LinearProgress, Tabs, Tab, 
   MenuItem, Select, FormControl, InputLabel, Tooltip, 
-  IconButton, Chip, Card, CardContent, Grid
+  IconButton, Chip, Card, CardContent, Grid, useTheme
 } from '@mui/material';
 import { 
   Refresh as RefreshIcon,
@@ -30,6 +30,7 @@ const InterestStats = ({ stats, onRefresh, findCategoryById }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
+  const theme = useTheme()
 
   useEffect(() => {
     if (stats) {
@@ -172,17 +173,17 @@ const InterestStats = ({ stats, onRefresh, findCategoryById }) => {
   return (
     <Box sx={{ mt: 2 }}>
       {/* Status Bar */}
-      <Card sx={{ mb: 3, bgcolor: 'background.paper' }}>
+      <Card sx={{ mb: 3, bgcolor: theme.palette.primary.main }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={4}>
               <Typography variant="h6" component="div">
                 Estatísticas de Interesses
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color={theme.palette.text.primary}>
                 Total de usuários: <strong>{stats.totalUsers || 0}</strong>
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color={theme.palette.text.primary}>
                 Última atualização: {lastUpdated.toLocaleString()}
               </Typography>
             </Grid>
@@ -277,7 +278,7 @@ const InterestStats = ({ stats, onRefresh, findCategoryById }) => {
 
       {/* Results Status */}
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color={theme.palette.text.primary}>
           Exibindo {paginatedData.length} de {preparedData.length} interesses
           {searchTerm && ` (filtro: "${searchTerm}")`}
           {categoryFilter !== 'all' && ` na categoria: ${findCategoryById(categoryFilter)?.name || categoryFilter}`}
@@ -300,7 +301,7 @@ const InterestStats = ({ stats, onRefresh, findCategoryById }) => {
         <TableContainer component={Paper} sx={{ mt: 1 }}>
           <Table aria-label="interest statistics table">
             <TableHead>
-              <TableRow sx={{ bgcolor: 'primary.light' }}>
+              <TableRow sx={{ bgcolor: theme.palette.primary.main }}>
                 <TableCell>Nome</TableCell>
                 <TableCell>Categoria</TableCell>
                 <TableCell>Usuários</TableCell>
@@ -427,7 +428,7 @@ const InterestStats = ({ stats, onRefresh, findCategoryById }) => {
       {preparedData.length === 0 && !isLoading && (
         <Box sx={{ textAlign: 'center', p: 4, bgcolor: 'background.paper', borderRadius: 1 }}>
           <Typography variant="h6">Nenhum dado encontrado</Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color={theme.palette.text.primary}>
             Tente ajustar seus filtros ou atualizar os dados.
           </Typography>
         </Box>

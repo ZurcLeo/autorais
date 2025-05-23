@@ -247,7 +247,7 @@ export const SERVICE_ACTIONS = {
  */
 export const USER_ACTIONS = {
   FETCH_START: 'user/FETCH_START',
-  FETCH_SUCCESS: 'user/FETCH_SUCCESS',
+  FETCH_USER_SUCCESS: 'user/FETCH_USER_SUCCESS',
   FETCH_FAILURE: 'user/FETCH_FAILURE',
   UPDATE_SUCCESS: 'user/UPDATE_SUCCESS',
   USER_PROFILE_COMPLETE: 'user/USER_PROFILE_COMPLETE',
@@ -283,6 +283,7 @@ export const CAIXINHA_ACTIONS = {
   SET_ERROR: 'caixinhas/SET_ERROR',
   SET_LOADING: 'caixinhas/SET_LOADING',
   CLEAR_STATE: 'caixinhas/CLEAR_STATE',
+  UPDATE_MEMBERS: 'caixinhas/UPDATE_MEMBERS'
 };
 
 /**
@@ -303,7 +304,7 @@ export const CAIXINHA_ACTIONS = {
  */
 export const CONNECTION_ACTIONS = {
   FETCH_START: 'connections/FETCH_START',
-  FETCH_SUCCESS: 'connections/FETCH_SUCCESS',
+  FETCH_CONNECTION_SUCCESS: 'connections/FETCH_CONNECTION_SUCCESS',
   FETCH_FAILURE: 'connections/FETCH_FAILURE',
   UPDATE_FRIENDS: 'connections/UPDATE_FRIENDS',
   UPDATE_BEST_FRIENDS: 'connections/UPDATE_BEST_FRIENDS',
@@ -316,6 +317,60 @@ export const CONNECTION_ACTIONS = {
   CLEAR_SEARCH_RESULTS: 'connections/CLEAR_SEARCH_RESULTS',
   SEARCH_START: 'connections/SEARCH_START',
   SEARCH_ERROR: 'connections/SEARCH_ERROR',
+};
+
+export const LOAN_ACTIONS = {
+  FETCH_START: 'loans/FETCH_START',
+  FETCH_SUCCESS: 'loans/FETCH_SUCCESS',
+  FETCH_FAILURE: 'loans/FETCH_FAILURE',
+  UPDATE_LOANS: 'loans/UPDATE_LOANS',
+  UPDATE_LOAN_DETAILS: 'loans/UPDATE_LOAN_DETAILS',
+  UPDATE_LOAN_STATISTICS: 'loans/UPDATE_LOAN_STATISTICS',
+  SET_ERROR: 'loans/SET_ERROR',
+  SET_LOADING: 'loans/SET_LOADING',
+  CLEAR_STATE: 'loans/CLEAR_STATE'
+};
+
+export const DISPUTE_ACTIONS = {
+  FETCH_START: 'disputes/FETCH_START',
+  FETCH_SUCCESS: 'disputes/FETCH_SUCCESS',
+  FETCH_FAILURE: 'disputes/FETCH_FAILURE',
+  UPDATE_DISPUTES: 'disputes/UPDATE_DISPUTES',
+  UPDATE_DISPUTE_DETAILS: 'disputes/UPDATE_DISPUTE_DETAILS',
+  UPDATE_DISPUTE_STATS: 'disputes/UPDATE_DISPUTE_STATS',
+  SET_ERROR: 'disputes/SET_ERROR',
+  SET_LOADING: 'disputes/SET_LOADING',
+  CLEAR_STATE: 'disputes/CLEAR_STATE'
+};
+
+// Adicionar ao arquivo core/constants/actions.js
+export const CAIXINHA_INVITE_ACTIONS = {
+  CAIXINHA_FETCH_START: 'caixinhaInvites/CAIXINHA_FETCH_START',
+  CAIXINHA_FETCH_SUCCESS: 'caixinhaInvites/CAIXINHA_FETCH_SUCCESS',
+  CAIXINHA_FETCH_FAILURE: 'caixinhaInvites/CAIXINHA_FETCH_FAILURE',
+  
+  CAIXINHA_UPDATE_PENDING_INVITES: 'caixinhaInvites/CAIXINHA_UPDATE_PENDING_INVITES',
+  CAIXINHA_UPDATE_SENT_INVITES: 'caixinhaInvites/CAIXINHA_UPDATE_SENT_INVITES',
+  
+  CAIXINHA_INVITE_START: 'caixinhaInvites/CAIXINHA_INVITE_START',
+  CAIXINHA_INVITE_SUCCESS: 'caixinhaInvites/CAIXINHA_INVITE_SUCCESS',
+  CAIXINHA_INVITE_FAILURE: 'caixinhaInvites/CAIXINHA_INVITE_FAILURE',
+  
+  CAIXINHA_ACCEPT_START: 'caixinhaInvites/CAIXINHA_ACCEPT_START',
+  CAIXINHA_ACCEPT_SUCCESS: 'caixinhaInvites/CAIXINHA_ACCEPT_SUCCESS',
+  CAIXINHA_ACCEPT_FAILURE: 'caixinhaInvites/CAIXINHA_ACCEPT_FAILURE',
+  
+  CAIXINHA_REJECT_START: 'caixinhaInvites/CAIXINHA_REJECT_START',
+  CAIXINHA_REJECT_SUCCESS: 'caixinhaInvites/CAIXINHA_REJECT_SUCCESS',
+  CAIXINHA_REJECT_FAILURE: 'caixinhaInvites/CAIXINHA_REJECT_FAILURE',
+  
+  CAIXINHA_CANCEL_START: 'caixinhaInvites/CAIXINHA_CANCEL_START',
+  CAIXINHA_CANCEL_SUCCESS: 'caixinhaInvites/CAIXINHA_CANCEL_SUCCESS',
+  CAIXINHA_CANCEL_FAILURE: 'caixinhaInvites/CAIXINHA_CANCEL_FAILURE',
+  
+  CAIXINHA_SET_ERROR: 'caixinhaInvites/CAIXINHA_SET_ERROR',
+  CAIXINHA_CLEAR_ERROR: 'caixinhaInvites/CAIXINHA_CLEAR_ERROR',
+  CAIXINHA_CLEAR_STATE: 'caixinhaInvites/CAIXINHA_CLEAR_STATE'
 };
 
 /**
@@ -352,7 +407,7 @@ export const INTERESTS_ACTIONS = {
  * @namespace MESSAGE_ACTIONS
  * @enum {string}
  * @property {string} FETCH_START - Disparada quando inicia a busca de mensagens do usuário.
- * @property {string} FETCH_SUCCESS - Disparada quando as mensagens são obtidas com sucesso.
+ * @property {string} FETCH_MESSAGE_SUCCESS - Disparada quando as mensagens são obtidas com sucesso.
  * @property {string} FETCH_FAILURE - Disparada quando ocorre uma falha na obtenção das mensagens.
  * @property {string} UPDATE_MESSAGES - Disparada para atualizar a lista de mensagens em uma conversa específica.
  * @property {string} UPDATE_UNREAD_COUNT - Disparada para atualizar o contador de mensagens não lidas.
@@ -365,7 +420,7 @@ export const INTERESTS_ACTIONS = {
 // Ações para diferentes operações de mensagens
 export const MESSAGE_ACTIONS = {
   FETCH_START: 'messages/FETCH_START',
-  FETCH_SUCCESS: 'messages/FETCH_SUCCESS',
+  FETCH_MESSAGE_SUCCESS: 'messages/FETCH_MESSAGE_SUCCESS',
   FETCH_FAILURE: 'messages/FETCH_FAILURE',
   
   // Ações específicas para operações unitárias vs. em lote
@@ -410,7 +465,7 @@ export const MESSAGE_ACTIONS = {
  */
 export const NOTIFICATION_ACTIONS = {
   FETCH_START: 'notifications/FETCH_START',
-  FETCH_SUCCESS: 'notifications/FETCH_SUCCESS',
+  FETCH_NOTIFICATION_SUCCESS: 'notifications/FETCH_NOTIFICATION_SUCCESS',
   FETCH_FAILURE: 'notifications/FETCH_FAILURE',
   UPDATE_NOTIFICATIONS: 'notifications/UPDATE_NOTIFICATIONS',
   UPDATE_UNREAD_COUNT: 'notifications/UPDATE_UNREAD_COUNT',

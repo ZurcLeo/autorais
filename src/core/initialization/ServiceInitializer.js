@@ -260,7 +260,7 @@ class ServiceInitializer {
     const startTime = performance.now();
     const { instance, options } = serviceData;
     
-    coreLogger.logEvent('ServiceInitializer', LOG_LEVELS.INFO, `Iniciando inicialização do serviço ${serviceName}`);
+    // coreLogger.logEvent('ServiceInitializer', LOG_LEVELS.INFO, `Iniciando inicialização do serviço ${serviceName}`);
     
     try {
       // Usar RetryManager para resiliência

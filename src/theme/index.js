@@ -525,7 +525,7 @@ const createTypography = (tokens) => {
 
   // Criar sistema completo de tipografia com fallbacks seguros
   return {
-    fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+    fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
     h1: createHeadingStyle('4xl', '-0.02em'),
     h2: createHeadingStyle('3xl'),
     h3: createHeadingStyle('2xl'),
@@ -533,44 +533,44 @@ const createTypography = (tokens) => {
     h5: createHeadingStyle('lg'),
     h6: createHeadingStyle('base'),
     subtitle1: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.lg', '1.125rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     subtitle2: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.base', '1rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     body1: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.base', '1rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     body2: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.sm', '0.875rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     button: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.sm', '0.875rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
       letterSpacing: '0.02em',
       textTransform: 'uppercase',
     },
     caption: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.xs', '0.75rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     overline: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.xs', '0.75rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.medium', 500),
       letterSpacing: '0.1em',
@@ -578,13 +578,13 @@ const createTypography = (tokens) => {
     },
     // Manter compatibilidade com versão anterior
     body: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.base', '1rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
     },
     small: {
-      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Roboto", "Helvetica", "Arial", sans-serif'),
+      fontFamily: _.get(tokens, 'typography.fontFamily.body', '"Lato", sans-serif'),
       fontSize: _.get(tokens, 'typography.fontSize.sm', '0.875rem'),
       fontWeight: _.get(tokens, 'typography.fontWeight.normal', 400),
       lineHeight: _.get(tokens, 'typography.lineHeight.normal', 1.5),
@@ -756,6 +756,14 @@ export const createDynamicTheme = (mode = 'dark', customizations = {}) => {
   
   // Usa lodash.merge para deep merge das customizações
   const finalThemeConfig = _.merge({}, baseThemeConfig, sanitizedCustomizations);
+
+  console.log('[DynamicTheme] Tema final criado com configurações:', {
+    mode: finalThemeConfig.palette.mode,
+    primaryMain: finalThemeConfig.palette.primary.main,
+    backgroundDefault: finalThemeConfig.palette.background.default,
+    textPrimary: finalThemeConfig.palette.text.primary,
+    finalThemeConfig,
+  });
 
   return createTheme(finalThemeConfig);
 };

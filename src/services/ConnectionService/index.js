@@ -132,51 +132,80 @@ class ConnectionService extends BaseService {
           };
         }
       }
-
+      
     async getConnections() {
         // Obter o usuário atual de forma segura
         this.getCurrentUser();
-        console.log('teste de current', this.getCurrentUser())
-
+    
         // Verificar se o usuário está autenticado
         if (!this._currentUser) {
             throw new Error('Usuário não autenticado');
         }
-
+    
         this._emitEvent(CONNECTION_ACTIONS.FETCH_START);
-
+    
         try {
             const userId = this._currentUser.uid;
-
+    
             // Verificar cache
             if (this._connectionsCache.has(userId) && !this._isCacheExpired(userId)) {
-                const cachedData = this
-                    ._connectionsCache
-                    .get(userId);
+                const cachedData = this._connectionsCache.get(userId);
                 this._emitEvent(CONNECTION_EVENTS.CONNECTIONS_FETCHED, {result: cachedData});
                 return cachedData;
             }
-
+    
             const response = await this._executeWithRetry(async () => {
-                return await this
-                    .apiService
-                    .get(`/api/connections/active/user/${userId}`);
+                return await this.apiService.get(`/api/connections/active/user/${userId}`);
             }, 'getConnections');
-
+            
             // Processar os dados
             const {friends, bestFriends, sentRequests, receivedRequests} = this.processConnectionData(response.data);
-
+            
+            // Buscar perfis completos dos amigos
+            const userService = serviceLocator.get('users');
+            
+            // Buscar perfis dos amigos normais
+            const friendProfiles = await Promise.all(
+                friends.map(async friend => {
+                    const friendId = friend.id || friend.uid || friend.friendId;
+                    if (!friendId) return friend;
+                    try {
+                        return await userService.getUserById(friendId);
+                    } catch (error) {
+                        this._logError(error, `Failed to fetch profile for friend ${friendId}`);
+                        return friend; // Retornar o objeto original em caso de falha
+                    }
+                })
+            );
+            
+            // Buscar perfis dos melhores amigos
+            const bestFriendProfiles = await Promise.all(
+                bestFriends.map(async friend => {
+                    const friendId = friend.id || friend.uid || friend.friendId;
+                    if (!friendId) return friend;
+                    try {
+                        return await userService.getUserById(friendId);
+                    } catch (error) {
+                        this._logError(error, `Failed to fetch profile for best friend ${friendId}`);
+                        return friend; // Retornar o objeto original em caso de falha
+                    }
+                })
+            );
+            
+            // Atualizar os arrays com perfis completos
+            const enrichedFriends = friendProfiles.filter(Boolean);
+            const enrichedBestFriends = bestFriendProfiles.filter(Boolean);
+            
             const result = {
-                friends,
-                bestFriends,
+                friends: enrichedFriends,
+                bestFriends: enrichedBestFriends,
                 receivedRequests,
                 sentRequests
             };
-            console.log('processConnectionData: ', result)
-
+            
             // Armazenar em cache
             this._cacheConnections(userId, result);
-
+    
             // Emitir evento
             this._emitEvent(CONNECTION_EVENTS.CONNECTIONS_FETCHED, {result});
             return result;
@@ -651,30 +680,60 @@ class ConnectionService extends BaseService {
         };
     }
 
-    // Método para processar dados de conexões
-    processConnectionData(connectionsData) {
-        if (!connectionsData) 
-            return {friends: [], bestFriends: []};
-
-        // Se já temos friends e bestFriends separados na resposta
-        if (Array.isArray(connectionsData.friends) && Array.isArray(connectionsData.bestFriends)) {
-            return {friends: connectionsData.friends, bestFriends: connectionsData.bestFriends};
-        }
-
-        // Código original para compatibilidade com formato antigo
-        const friends = [];
-        const bestFriends = [];
-
-        (connectionsData.connections || []).forEach(connection => {
-            if (connection.isBestFriend) {
-                bestFriends.push(connection);
-            } else {
-                friends.push(connection);
-            }
-        });
-
-        return {friends, bestFriends};
+// Método corrigido para processConnectionData no ConnectionService
+processConnectionData(connectionsData) {
+    console.log("[ConnectionService] Processando dados de conexão:", connectionsData);
+    
+    if (!connectionsData) {
+      console.warn("[ConnectionService] Dados de conexão vazios");
+      return { friends: [], bestFriends: [], sentRequests: [], receivedRequests: [] };
     }
+  
+    // Se já temos friends e bestFriends separados na resposta
+    if (Array.isArray(connectionsData.friends) || Array.isArray(connectionsData.bestFriends)) {
+      return {
+        friends: Array.isArray(connectionsData.friends) ? connectionsData.friends : [],
+        bestFriends: Array.isArray(connectionsData.bestFriends) ? connectionsData.bestFriends : [],
+        sentRequests: Array.isArray(connectionsData.sentRequests) ? connectionsData.sentRequests : [],
+        receivedRequests: Array.isArray(connectionsData.receivedRequests) ? connectionsData.receivedRequests : []
+      };
+    }
+  
+    // Código para compatibilidade com formato antigo
+    const friends = [];
+    const bestFriends = [];
+  
+    if (Array.isArray(connectionsData.connections)) {
+      connectionsData.connections.forEach(connection => {
+        if (connection.isBestFriend) {
+          bestFriends.push(connection);
+        } else {
+          friends.push(connection);
+        }
+      });
+    } else if (typeof connectionsData.connections === 'object') {
+      // Se connections for um objeto, convertê-lo para array
+      Object.values(connectionsData.connections).forEach(connection => {
+        if (connection.isBestFriend) {
+          bestFriends.push(connection);
+        } else {
+          friends.push(connection);
+        }
+      });
+    }
+  
+    console.log("[ConnectionService] Dados processados:", { 
+      friendsCount: friends.length, 
+      bestFriendsCount: bestFriends.length 
+    });
+  
+    return {
+      friends,
+      bestFriends,
+      sentRequests: Array.isArray(connectionsData.sentRequests) ? connectionsData.sentRequests : [],
+      receivedRequests: Array.isArray(connectionsData.receivedRequests) ? connectionsData.receivedRequests : []
+    };
+  }
 
     // Métodos para gerenciamento de cache
     invalidateConnectionCache(userId) {

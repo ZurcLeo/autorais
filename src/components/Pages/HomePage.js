@@ -13,14 +13,12 @@ import {
   TextField, 
   Box, 
   useScrollTrigger, 
-  Fade, 
-  Slide, 
+  Fade,  
   styled,
   IconButton,
   Paper,
   useTheme,
   useMediaQuery,
-  MobileStepper,
   Avatar
 } from '@mui/material';
 import { 
@@ -29,8 +27,6 @@ import {
   Dashboard, 
   Lock, 
   MonetizationOn,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
   ArrowUpward
 } from '@mui/icons-material';
 import { coreLogger } from '../../core/logging';
@@ -76,8 +72,8 @@ const HeroSection = styled('section')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: `linear-gradient(45deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
-  color: 'white',
+  background: `linear-gradient(45deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.paper} 100%)`,
+  color: theme.palette.text.primary,
   padding: theme.spacing(4),
   textAlign: 'center',
   position: 'relative',
@@ -98,7 +94,7 @@ const HeroSection = styled('section')(({ theme }) => ({
 const FeatureCard = styled(Card)(({ theme }) => ({
   transition: 'transform 0.3s, box-shadow 0.3s',
   height: '100%',
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: 2,
   overflow: 'hidden',
   '&:hover': {
     transform: 'translateY(-10px)',
@@ -118,7 +114,7 @@ const StyledPortfolioCard = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: 2,
   boxShadow: theme.shadows[4],
   [theme.breakpoints.down('md')]: {
     height: 400,
@@ -155,7 +151,7 @@ const PortfolioContent = styled(Box)(({ theme }) => ({
   left: 0,
   width: '100%',
   padding: theme.spacing(4),
-  color: 'white',
+  color: theme.palette.primary.main,
   zIndex: 1,
 }));
 
@@ -187,7 +183,7 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
     left: '50%',
     width: 80,
     height: 4,
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.main,
     transform: 'translateX(-50%)',
     borderRadius: 2,
   }
@@ -233,27 +229,26 @@ const HomePage = () => {
   };
 
   return (
-    <Box className="home-page" sx={{ overflowX: 'hidden' }}>
+    <Box className="home-page" sx={{ overflowX: 'hidden', mt: '100px' }}>
       <AppBar 
         position="fixed" 
         color={scrolled ? 'primary' : 'transparent'} 
         elevation={scrolled ? 4 : 0}
         sx={{ 
           transition: 'background-color 0.3s, box-shadow 0.3s',
-          bgcolor: scrolled ? 'primary.main' : 'transparent'
+          bgcolor: scrolled ? theme.palette.background.paper : 'transparent'
         }}
       >
         <Toolbar sx={{ py: { xs: 1, md: 2 } }}>
-          <Typography variant="h4" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-            <span style={{ color: scrolled ? 'white' : 'white' }}>Elos</span>
-            <span style={{ color: '#FFD700' }}>Cloud</span>
+          <Typography color="secondary" variant="h4" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+            <span style={{ color: theme.palette.text.primary }}>ElosCloud</span>
           </Typography>
           
           {!isMobile && (
             <>
-              <Button color="inherit" sx={{ mx: 1, fontWeight: 600 }}>{t('home.portfolio')}</Button>
-              <Button color="inherit" sx={{ mx: 1, fontWeight: 600 }}>{t('home.services')}</Button>
-              <Button color="inherit" sx={{ mx: 1, fontWeight: 600 }}>{t('home.contact')}</Button>
+              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>{t('home.portfolio')}</Button>
+              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>{t('home.services')}</Button>
+              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>{t('home.contact')}</Button>
             </>
           )}
           
@@ -261,7 +256,7 @@ const HomePage = () => {
             variant="contained" 
             color="secondary" 
             sx={{ 
-              borderRadius: '8px', 
+              borderRadius: 2, 
               ml: 2,
               fontWeight: 600,
               boxShadow: 3,
@@ -282,7 +277,8 @@ const HomePage = () => {
           <Grid container spacing={6} alignItems="center" justifyContent="center">
             <Grid item xs={12} md={10} lg={8}>
               <Typography 
-                variant={isMobile ? "h3" : "h1"} 
+                variant={isMobile ? "h3" : "h1"}
+                color="primary.main"  
                 gutterBottom 
                 sx={{ fontWeight: 800, mb: 4 }}
               >
@@ -299,6 +295,7 @@ const HomePage = () => {
               <Typography 
                 variant={isMobile ? "body1" : "h5"} 
                 paragraph 
+                color="primary.main"  
                 sx={{ mb: 6, opacity: 0.9, maxWidth: '800px', mx: 'auto' }}
               >
                 {t('hero.description')}
@@ -308,7 +305,7 @@ const HomePage = () => {
                 color="secondary" 
                 size="large"
                 sx={{ 
-                  borderRadius: '50px', 
+                  borderRadius: 2, 
                   py: 2, 
                   px: 6,
                   fontSize: '1.1rem',
@@ -328,10 +325,12 @@ const HomePage = () => {
         </Fade>
       </HeroSection>
 
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: 'background.paper' }}>
+      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.background.paper }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 8 }}>
-            <SectionTitle variant={isMobile ? "h3" : "h2"} align="center">
+            <SectionTitle 
+                            color="primary.main"  
+                            variant={isMobile ? "h3" : "h2"} align="center">
               {t('features.title')}
             </SectionTitle>
           </Box>
@@ -344,7 +343,7 @@ const HomePage = () => {
                     <CardContent sx={{ textAlign: 'center', height: '100%' }}>
                       <Avatar
                         sx={{
-                          bgcolor: 'primary.light',
+                          bgcolor: theme.palette.background.paper,
                           width: 80,
                           height: 80,
                           mx: 'auto',
@@ -356,7 +355,9 @@ const HomePage = () => {
                       >
                         {feature.icon}
                       </Avatar>
-                      <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
+                      <Typography 
+                      color="secondary.main"  
+                      variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
                         {feature.title}
                       </Typography>
                       <Typography variant="body1" color="text.secondary">
@@ -371,10 +372,12 @@ const HomePage = () => {
         </Container>
       </Box>
 
-<Box component="section" id="portfolio-section" sx={{ py: { xs: 8, md: 12 }, bgcolor: 'background.default' }}>
+<Box component="section" id="portfolio-section" sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.background.paper }}>
   <Container maxWidth="lg">
     <Box sx={{ textAlign: 'center', mb: 6 }}>
-      <SectionTitle variant={isMobile ? "h3" : "h2"} align="center">
+      <SectionTitle 
+      color="primary.main"
+      variant={isMobile ? "h3" : "h2"} align="center">
         {t('portfolio.title')}
       </SectionTitle>
     </Box>
@@ -384,6 +387,7 @@ const HomePage = () => {
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={50}
         slidesPerView={1}
+        color="primary.main"  
         navigation={{
           nextEl: '.swiper-button-next',
           prevEl: '.swiper-button-prev',
@@ -436,9 +440,9 @@ const HomePage = () => {
   <IconButton 
     className="swiper-button-prev"
     sx={{ 
-      bgcolor: 'primary.main', 
-      color: 'white',
-      '&:hover': { bgcolor: 'primary.dark' },
+      bgcolor: theme.palette.background.paper, 
+      color: theme.palette.text.primary,
+      '&:hover': { bgcolor: theme.palette.text.primary },
       position: 'static',  // Remove posicionamento absoluto
       transform: 'none'     // Remove transformações
     }}
@@ -456,7 +460,7 @@ const HomePage = () => {
       width: 12,
       height: 12,
       mx: 0.5,
-      bgcolor: 'grey.400',
+      bgcolor: theme.palette.background.paper,
       opacity: 1,
       transition: 'all 0.3s',
     },
@@ -472,7 +476,7 @@ const HomePage = () => {
     sx={{ 
       // bgcolor: 'primary.main', 
       color: 'white',
-      '&:hover': { bgcolor: 'primary.dark' },
+      '&:hover': { bgcolor: theme.palette.background.paper },
       position: 'static',  // Remove posicionamento absoluto
       transform: 'none'     // Remove transformações
     }}
@@ -487,10 +491,11 @@ const HomePage = () => {
       <Box 
         component="section" 
         id="contact-section" 
+        color="primary.main"  
         sx={{ 
           py: { xs: 8, md: 12 }, 
-          // bgcolor: 'background.paper',
-          // background: `linear-gradient(to right, ${theme.palette.background.paper} 0%, ${theme.palette.primary.light} 100%)`
+          bgcolor: [theme.palette.background.paper],
+          background: `linear-gradient(to right, ${theme.palette.background.paper} 0%, ${theme.palette.background.paper} 100%)`
         }}
       >
         <Container maxWidth="lg">
@@ -524,8 +529,8 @@ const HomePage = () => {
                 elevation={6}
                 sx={{ 
                   p: 4, 
-                  borderRadius: theme.shape.borderRadius * 2,
-                  bgcolor: 'background.paper',
+                  borderRadius: 2,
+                  bgcolor: theme.palette.background.paper,
                   overflow: 'hidden',
                   position: 'relative',
                   '&::before': {
@@ -552,7 +557,7 @@ const HomePage = () => {
                     fullWidth 
                     required 
                     sx={{ mb: 3 }}
-                    InputProps={{ sx: { borderRadius: theme.shape.borderRadius * 1.5 } }}
+                    InputProps={{ sx: { borderRadius: 1.5 } }}
                   />
                   <TextField 
                     label={t('form.email')}
@@ -561,7 +566,7 @@ const HomePage = () => {
                     fullWidth 
                     required 
                     sx={{ mb: 3 }}
-                    InputProps={{ sx: { borderRadius: theme.shape.borderRadius * 1.5 } }}
+                    InputProps={{ sx: { borderRadius: 1.5 } }}
                   />
                   <TextField
                     label={t('form.message')}
@@ -571,7 +576,7 @@ const HomePage = () => {
                     fullWidth
                     required
                     sx={{ mb: 4 }}
-                    InputProps={{ sx: { borderRadius: theme.shape.borderRadius * 1.5 } }}
+                    InputProps={{ sx: { borderRadius: 1.5 } }}
                   />
                   <Button 
                     variant="contained" 
@@ -581,7 +586,7 @@ const HomePage = () => {
                     size="large"
                     sx={{
                       py: 1.5,
-                      borderRadius: theme.shape.borderRadius * 1.5,
+                      borderRadius: 1.5,
                       fontSize: '1.1rem',
                       fontWeight: 600
                     }}
@@ -600,10 +605,10 @@ const HomePage = () => {
           color="secondary" 
           aria-label="scroll to top"
           sx={{ 
-            bgcolor: 'background.paper',
+            bgcolor: theme.palette.background.paper,
             boxShadow: 6,
             '&:hover': {
-              bgcolor: 'background.paper',
+              bgcolor: theme.palette.text.primary,
             }
           }}
         >

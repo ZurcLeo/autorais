@@ -78,7 +78,12 @@ const OwnProfileView = ({ userData }) => {
   const handleCloseDialog = () => setOpenDialog(null);
 
   return (
-    <Container>
+    <Container  sx={{
+      display: 'flex',
+      flexDirection: 'column', // Organiza os itens em coluna
+      width: '100%', // Ocupa a largura disponível
+      padding: 2,
+    }}>
       <Grid container spacing={3}>
         {/* Card de perfil principal */}
         <Grid item xs={12} md={6}>

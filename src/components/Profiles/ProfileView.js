@@ -17,7 +17,7 @@ const ProfileView = ({ userData }) => {
   const navigate = useNavigate();
   const { friends, bestFriends, addConnection, removeConnection, isConnected } = useConnections();
   const { createConversation } = useMessages();
-  
+  console.log('conectados? ', isConnected)
   const isFriend = isConnected(userData.uid);
 
   const handleSendMessage = async () => {
@@ -42,7 +42,12 @@ const ProfileView = ({ userData }) => {
   };
 
   return (
-    <Container>
+    <Container  sx={{
+      display: 'flex',
+      flexDirection: 'column', // Organiza os itens em coluna
+      width: '100%', // Ocupa a largura disponível
+      padding: 2,
+    }}>
       <Grid container spacing={3}>
         {/* Card de perfil principal */}
         <Grid item xs={12} md={7}>

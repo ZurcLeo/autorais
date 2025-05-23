@@ -13,7 +13,6 @@ import {
   StepLabel,
   IconButton,
   useMediaQuery,
-  useTheme,
   LinearProgress,
   Tooltip,
   Zoom,
@@ -26,6 +25,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
+import CloseIcon from '@mui/icons-material/Close';
 
 // Componente de passo do modal
 const StepContent = ({ step, currentStep, children }) => {
@@ -46,8 +46,7 @@ const StepContent = ({ step, currentStep, children }) => {
 
 const InterestModal = ({ open, handleClose }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   
   const [interestEmail, setInterestEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,6 +58,24 @@ const InterestModal = ({ open, handleClose }) => {
   const steps = useMemo(() => ['modal_step1', 'modal_step2', 'modal_step3', 'modal_step4'], []);
   
   const progress = useMemo(() => ((step + 1) / steps.length) * 100, [step, steps.length]);
+
+  // Função para confirmar o fechamento quando há dados digitados
+  const confirmClose = useCallback(() => {
+    // Pedir confirmação apenas se o usuário já preencheu algo
+    if (step > 0 || interestEmail) {
+      if (window.confirm(t('login.confirm_close'))) {
+        handleClose();
+      }
+    } else {
+      handleClose();
+    }
+  }, [step, interestEmail, handleClose, t]);
+
+  // Manipulador de cliques no backdrop
+  const handleBackdropClick = useCallback((e) => {
+    e.stopPropagation();
+    confirmClose();
+  }, [confirmClose]);
 
   const handleStepChange = useCallback((newStep) => {
     if (newStep >= 0 && newStep < steps.length) {
@@ -134,19 +151,6 @@ const InterestModal = ({ open, handleClose }) => {
     };
   }, [step, steps.length, t, handlePrevStep, handleNextStep, handleSubmit, loading, validEmail]);
 
-  // Prevenção de cliques acidentais no backdrop
-  const handleBackdropClick = (e) => {
-    e.stopPropagation();
-    // Pedir confirmação apenas se o usuário já preencheu algo
-    if (step > 0 || interestEmail) {
-      if (window.confirm(t('login.confirm_close'))) {
-        handleClose();
-      }
-    } else {
-      handleClose();
-    }
-  };
-
   return (
     <Modal 
       open={open} 
@@ -154,16 +158,6 @@ const InterestModal = ({ open, handleClose }) => {
       closeAfterTransition
       aria-labelledby="interest-modal-title"
       aria-describedby="interest-modal-description"
-      sx={{
-        overflow: 'auto',
-        bgcolor: 'background.paper',
-        borderRadius: 2,
-        // boxShadow: 24,
-        // p: isMobile ? 2 : 4,
-        // background: theme.palette.mode === 'dark' 
-        //   ? 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)' 
-        //   : 'linear-gradient(135deg, #f6f6f6 0%, #e0e0e0 100%)',
-      }}
     >
       <Fade in={open}>
         <Box
@@ -177,13 +171,29 @@ const InterestModal = ({ open, handleClose }) => {
             overflow: 'auto',
             bgcolor: 'background.paper',
             borderRadius: 2,
-            // boxShadow: 24,
             p: isMobile ? 2 : 4,
-            // background: theme.palette.mode === 'dark' 
-            //   ? 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)' 
-            //   : 'linear-gradient(135deg, #f6f6f6 0%, #e0e0e0 100%)',
           }}
         >
+          {/* Botão de fechar no canto superior direito */}
+          <Box sx={{ 
+            position: 'absolute',
+            top: 8,
+            right: 8,
+          }}>
+            <IconButton 
+              aria-label="close" 
+              onClick={confirmClose}
+              sx={{
+                color: 'text.secondary',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
           <Typography 
             variant="h4" 
             component="h2" 
@@ -192,8 +202,7 @@ const InterestModal = ({ open, handleClose }) => {
             sx={{ 
               fontWeight: 600,
               mb: 2,
-              borderRadius: 2,
-              color: theme.palette.primary.main
+              color: 'primary.main'
             }}
           >
             {t('login.modal_title')}
@@ -208,7 +217,7 @@ const InterestModal = ({ open, handleClose }) => {
                 height: 8, 
                 borderRadius: 4,
                 mb: 1,
-                backgroundColor: theme.palette.grey[300],
+                bgcolor: 'grey.300',
                 '& .MuiLinearProgress-bar': {
                   borderRadius: 4
                 }
@@ -219,7 +228,7 @@ const InterestModal = ({ open, handleClose }) => {
               sx={{ 
                 display: 'block', 
                 textAlign: 'right',
-                color: theme.palette.text.secondary
+                color: 'text.secondary'
               }}
             >
               {Math.round(progress)}% {t('common.completed')}
@@ -231,7 +240,7 @@ const InterestModal = ({ open, handleClose }) => {
             activeStep={step}
             alternativeLabel={!isMobile}
             orientation={isMobile ? "vertical" : "horizontal"}
-            sx={{ mb: 3, borderRadius: 2 }}
+            sx={{ mb: 3 }}
           >
             {steps.map((label, index) => (
               <Step key={index}>
@@ -256,105 +265,105 @@ const InterestModal = ({ open, handleClose }) => {
             }}
           >
             <AnimatePresence mode="wait">
-            {step === 0 && (
-              <StepContent step={0} currentStep={step} key="step-content-0">
-                <Card elevation={3}>
-                  <CardContent>
-                    <Typography variant="h5" gutterBottom>
-                      {t('login.modal_step1')}
-                    </Typography>
-                    <Typography variant="body1">
-                      {t('login.modal_step1_text')}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </StepContent>
+              {step === 0 && (
+                <StepContent step={0} currentStep={step} key="step-content-0">
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h5" gutterBottom>
+                        {t('login.modal_step1')}
+                      </Typography>
+                      <Typography variant="body1">
+                        {t('login.modal_step1_text')}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </StepContent>
               )}
               {step === 1 && (
-              <StepContent step={1} currentStep={step} key="step-content-1">
-                <Card elevation={3}>
-                  <CardContent>
-                    <Typography variant="h5" gutterBottom>
-                      {t('login.modal_step2')}
-                    </Typography>
-                    <Typography variant="body1">
-                      {t('login.modal_step2_text')}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </StepContent>
+                <StepContent step={1} currentStep={step} key="step-content-1">
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h5" gutterBottom>
+                        {t('login.modal_step2')}
+                      </Typography>
+                      <Typography variant="body1">
+                        {t('login.modal_step2_text')}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </StepContent>
               )}
               {step === 2 && (
-              <StepContent step={2} currentStep={step} key="step-content-2">
-                <Card elevation={3}>
-                  <CardContent>
-                    <Typography variant="h5" gutterBottom>
-                      {t('login.modal_step3')}
-                    </Typography>
-                    <Typography variant="body1">
-                      {t('login.modal_step3_text')}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </StepContent>
+                <StepContent step={2} currentStep={step} key="step-content-2">
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h5" gutterBottom>
+                        {t('login.modal_step3')}
+                      </Typography>
+                      <Typography variant="body1">
+                        {t('login.modal_step3_text')}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </StepContent>
               )}
               {step === 3 && (
-              <StepContent step={3} currentStep={step} key="step-content-3">
-                <Card elevation={3}>
-                  <CardContent>
-                    <Typography variant="h5" gutterBottom>
-                      {t('login.modal_step4')}
-                    </Typography>
-                    <Typography variant="body1" paragraph>
-                      {t('login.modal_step4_text')}
-                    </Typography>
-                    
-                    <form onSubmit={handleSubmit}>
-                      <TextField
-                        label={t('login.interest_email_label')}
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={interestEmail}
-                        onChange={handleEmailChange}
-                        onBlur={handleBlur}
-                        required
-                        autoComplete="email"
-                        error={!!error}
-                        helperText={error}
-                        InputProps={{
-                          endAdornment: touched && (
-                            validEmail ? 
-                              <Zoom in={validEmail}>
-                                <CheckCircleIcon color="success" />
-                              </Zoom> : 
-                              error ? 
-                                <Zoom in={!!error}>
-                                  <ErrorIcon color="error" />
-                                </Zoom> : null
-                          )
-                        }}
-                      />
-                    </form>
-                    
-                    <Box 
-                      sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        mt: 2, 
-                        bgcolor: 'info.lighter', 
-                        p: 1, 
-                        borderRadius: 1 
-                      }}
-                    >
-                      <InfoIcon color="info" sx={{ mr: 1 }} />
-                      <Typography variant="body2" color="info.main">
-                        {t('login.email_info_text')}
+                <StepContent step={3} currentStep={step} key="step-content-3">
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h5" gutterBottom>
+                        {t('login.modal_step4')}
                       </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </StepContent>
+                      <Typography variant="body1" paragraph>
+                        {t('login.modal_step4_text')}
+                      </Typography>
+                      
+                      <form onSubmit={handleSubmit}>
+                        <TextField
+                          label={t('login.interest_email_label')}
+                          variant="outlined"
+                          fullWidth
+                          margin="normal"
+                          value={interestEmail}
+                          onChange={handleEmailChange}
+                          onBlur={handleBlur}
+                          required
+                          autoComplete="email"
+                          error={!!error}
+                          helperText={error}
+                          InputProps={{
+                            endAdornment: touched && (
+                              validEmail ? 
+                                <Zoom in={validEmail}>
+                                  <CheckCircleIcon color="success" />
+                                </Zoom> : 
+                                error ? 
+                                  <Zoom in={!!error}>
+                                    <ErrorIcon color="error" />
+                                  </Zoom> : null
+                            )
+                          }}
+                        />
+                      </form>
+                      
+                      <Box 
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          mt: 2, 
+                          bgcolor: 'info.lighter', 
+                          p: 1, 
+                          borderRadius: 1 
+                        }}
+                      >
+                        <InfoIcon color="info" sx={{ mr: 1 }} />
+                        <Typography variant="body2" color="info.main">
+                          {t('login.email_info_text')}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </StepContent>
               )}
             </AnimatePresence>
           </Box>
@@ -364,35 +373,52 @@ const InterestModal = ({ open, handleClose }) => {
             display: 'flex', 
             justifyContent: 'space-between', 
             mt: 2,
-            borderRadius: 2,
             flexDirection: isMobile ? 'column' : 'row',
             gap: isMobile ? 1 : 0
           }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={buttonProps.prev.action}
-              disabled={buttonProps.prev.disabled}
-              startIcon={buttonProps.prev.icon}
-              sx={{
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateX(-3px)'
-                }
-              }}
-            >
-              {buttonProps.prev.text}
-            </Button>
+            <Box>
+              {/* Botão de cancelar adicionado */}
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={confirmClose}
+                disabled={loading}
+                sx={{
+                  mr: 1,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  }
+                }}
+              >
+                {t('common.cancel')}
+              </Button>
+              
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={buttonProps.prev.action}
+                disabled={buttonProps.prev.disabled || loading}
+                startIcon={buttonProps.prev.icon}
+                sx={{
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateX(-3px)'
+                  }
+                }}
+              >
+                {buttonProps.prev.text}
+              </Button>
+            </Box>
             
-            <Box sx={{ position: 'relative', borderRadius: 2 }}>
+            <Box sx={{ position: 'relative' }}>
               <Button
                 variant="contained"
                 color="primary"
                 onClick={buttonProps.next.action}
-                disabled={buttonProps.next.disabled}
+                disabled={buttonProps.next.disabled || loading}
                 endIcon={buttonProps.next.icon}
                 sx={{
-                  transition: 'all 0.2s ease-in-out',
+                  transition: 'all 0.2s ease',
                   '&:hover:not(:disabled)': {
                     transform: 'translateX(3px)'
                   }
@@ -404,7 +430,7 @@ const InterestModal = ({ open, handleClose }) => {
                 <CircularProgress
                   size={24}
                   sx={{
-                    color: theme.palette.primary.main,
+                    color: 'primary.main',
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
@@ -419,7 +445,7 @@ const InterestModal = ({ open, handleClose }) => {
           {/* Footer com textos legais */}
           <Typography
             variant="body2"
-            color="textSecondary"
+            color="text.secondary"
             sx={{ mt: 3, textAlign: 'center', fontSize: '0.75rem' }}
           >
             {t('login.privacy_agreement')} 

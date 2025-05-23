@@ -36,9 +36,7 @@ const Footer = () => {
     <Box 
       component="footer" 
       sx={{
-        bgcolor: theme.palette.mode === 'dark' 
-          ? theme.palette.grey[900] 
-          : theme.palette.grey[50],
+        bgcolor: theme.palette.background.paper,
         position: 'relative',
         mt: 8,
         pt: { xs: 8, md: 10 },
@@ -74,7 +72,7 @@ const Footer = () => {
             justifyContent: 'center',
             alignItems: 'center',
             cursor: 'pointer',
-            bgcolor: theme.palette.background.paper,
+            bgcolor: theme.palette.text.primary,
             transition: 'transform 0.3s',
             '&:hover': {
               transform: 'translateY(-5px)'
@@ -108,7 +106,7 @@ const Footer = () => {
           </Typography>
           <Typography 
             variant="body2" 
-            color="text.secondary" 
+            color="secondary" 
             sx={{ 
               mt: 1,
               maxWidth: 400,
@@ -126,13 +124,13 @@ const Footer = () => {
           sx={{ mb: 6 }}
         >
           <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="h6" color="text.primary" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" color="secondary" gutterBottom sx={{ fontWeight: 600 }}>
               Nossa Empresa
             </Typography>
             <Link
               component={RouterLink}
               to="/about"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'block', 
@@ -146,7 +144,7 @@ const Footer = () => {
             <Link
               component={RouterLink}
               to="/services"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'block', 
@@ -160,7 +158,7 @@ const Footer = () => {
             <Link
               component={RouterLink}
               to="/clients"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'block',
@@ -174,13 +172,13 @@ const Footer = () => {
           </Grid>
           
           <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="h6" color="text.primary" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" color="secondary" gutterBottom sx={{ fontWeight: 600 }}>
               Informações Legais
             </Typography>
             <Link
               component={RouterLink}
               to="/privacy"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'block', 
@@ -194,7 +192,7 @@ const Footer = () => {
             <Link
               component={RouterLink}
               to="/terms"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'block',
@@ -208,7 +206,7 @@ const Footer = () => {
             <Link
               component={RouterLink}
               to="/cookies"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'block',
@@ -221,12 +219,12 @@ const Footer = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="h6" color="text.primary" gutterBottom sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" color="secondary" gutterBottom sx={{ fontWeight: 600 }}>
               Entre em Contato
             </Typography>
             <Link
               href="mailto:contato@eloscloud.com.br"
-              color="text.secondary"
+              color="secondary"
               underline="none"
               sx={{ 
                 display: 'flex',
@@ -239,7 +237,7 @@ const Footer = () => {
               <Email sx={{ mr: 1, fontSize: 18 }} />
               contato@eloscloud.com.br
             </Link>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="body2" color="secondary" sx={{ mb: 2 }}>
               Rua Exemplo, 123 - São Paulo, SP
             </Typography>
             
@@ -248,7 +246,7 @@ const Footer = () => {
                 size="small"
                 aria-label="linkedin"
                 sx={{ 
-                  color: 'text.secondary',
+                  color: 'secondary',
                   '&:hover': { 
                     color: '#0077B5',
                     bgcolor: 'rgba(0, 119, 181, 0.1)'
@@ -261,7 +259,7 @@ const Footer = () => {
                 size="small"
                 aria-label="instagram"
                 sx={{ 
-                  color: 'text.secondary',
+                  color: 'secondary',
                   '&:hover': { 
                     color: '#E4405F',
                     bgcolor: 'rgba(228, 64, 95, 0.1)'
@@ -274,7 +272,7 @@ const Footer = () => {
                 size="small"
                 aria-label="facebook"
                 sx={{ 
-                  color: 'text.secondary',
+                  color: 'secondary',
                   '&:hover': { 
                     color: '#1877F2',
                     bgcolor: 'rgba(24, 119, 242, 0.1)'
@@ -292,7 +290,7 @@ const Footer = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center' }}>
           <Typography 
             variant="body2" 
-            color="text.secondary" 
+            color="secondary" 
             sx={{ textAlign: isMobile ? 'center' : 'left', mb: isMobile ? 2 : 0 }}
           >
             © {currentYear} Elos Soluções Cloud. {t('common.rights')}
@@ -300,7 +298,7 @@ const Footer = () => {
           
           <Typography 
             variant="body2" 
-            color="text.secondary" 
+            color="secondary" 
             sx={{ textAlign: isMobile ? 'center' : 'right' }}
           >
             Projetado com ❤️ no Brasil

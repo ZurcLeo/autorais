@@ -126,7 +126,7 @@ class MessageService extends BaseService {
             });
             this._emitEvent(
                 
-                MESSAGE_EVENTS.FETCH_SUCCESS,
+                MESSAGE_EVENTS.FETCH_MESSAGE_SUCCESS,
                 { conversations }
             );
             
@@ -175,7 +175,7 @@ class MessageService extends BaseService {
 
             this._emitEvent(
                 
-                MESSAGE_EVENTS.FETCH_SUCCESS,
+                MESSAGE_EVENTS.FETCH_MESSAGE_SUCCESS,
                 { messages: latestMessages }
             );
             
@@ -255,7 +255,7 @@ class MessageService extends BaseService {
 
             this._emitEvent(
                 
-                MESSAGE_EVENTS.FETCH_SUCCESS,
+                MESSAGE_EVENTS.FETCH_MESSAGE_SUCCESS,
                 { conversationId, messages: adaptedMessages }
             );
             

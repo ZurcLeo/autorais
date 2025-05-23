@@ -68,10 +68,95 @@ export const formatCEP = (value) => {
     return value.replace(/\D/g, '');
   };
   
+/**
+ * Format a number as currency
+ * @param {number} value - Value to format
+ * @param {string} currency - Currency code (default: 'BRL')
+ * @returns {string} Formatted currency string
+ */
+export const formatCurrency = (value, currency = 'BRL') => {
+  if (value === undefined || value === null) return '';
+  
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency,
+  }).format(value);
+};
+
+/**
+ * Format a date to localized string
+ * @param {string|Date} date - Date to format
+ * @returns {string} Formatted date string
+ */
+export const formatDate = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('pt-BR');
+};
+
+/**
+ * Format a number as percentage
+ * @param {number} value - Value to format
+ * @returns {string} Formatted percentage string
+ */
+export const formatPercentage = (value) => {
+  if (value === undefined || value === null) return '';
+  return `${value}%`;
+};
+
+/**
+ * Get appropriate color for loan status
+ * @param {string} status - Loan status
+ * @returns {string} MUI color name
+ */
+export const getLoanStatusColor = (status) => {
+  if (!status) return 'default';
+  
+  switch (status.toLowerCase()) {
+    case 'approved':
+    case 'aprovado':
+      return 'success';
+    case 'pending':
+    case 'pendente':
+      return 'warning';
+    case 'denied':
+    case 'negado':
+    case 'rejected':
+    case 'rejected':
+    case 'cancelled':
+    case 'cancelado':
+      return 'error';
+    case 'paid':
+    case 'pago':
+      return 'info';
+    default:
+      return 'default';
+  }
+};
+
+/**
+ * Calculate installment value with interest
+ * @param {number} totalValue - Total loan value
+ * @param {number} numInstallments - Number of installments
+ * @param {number} interestRate - Interest rate (percentage)
+ * @returns {number} Installment value
+ */
+export const calculateInstallment = (totalValue, numInstallments, interestRate = 0) => {
+  if (!numInstallments || numInstallments <= 0 || !totalValue) return 0;
+  
+  // Simple interest calculation
+  const totalWithInterest = totalValue * (1 + (interestRate / 100));
+  return totalWithInterest / numInstallments;
+};
+
   // Exporta como default um objeto com todas as funções
   export default {
     formatDocument,
     formatPhone,
     stripFormatting,
-    formatCEP
+    formatCEP,
+    calculateInstallment,
+    getLoanStatusColor,
+    formatPercentage,
+    formatDate,
+    formatCurrency
   };

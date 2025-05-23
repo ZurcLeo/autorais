@@ -60,7 +60,7 @@ export const setupUserMappings = (eventBridgeService) => {
     {
       serviceName: 'user',
       eventType: USER_EVENTS.USER_SESSION_READY,
-      actionType: USER_ACTIONS.FETCH_SUCCESS,
+      actionType: USER_ACTIONS.FETCH_USER_SUCCESS,
       transformer: (eventData) => ({
         user: eventData.user,  // <-- Adicionar dados em profile
         usersById: eventData.usersById || {}, 
@@ -129,7 +129,31 @@ export const setupUserMappings = (eventBridgeService) => {
         timestamp: eventData.timestamp || Date.now()
       })
     },
+    // Adicionar um novo mapeamento no setupUserMappings em userMappings.js
+{
+  serviceName: 'user',
+  eventType: USER_EVENTS.PROFILE_FETCHED,
+  actionType: USER_ACTIONS.FETCH_USER_SUCCESS,
+  transformer: (eventData) => {
+    const userId = eventData.userId || (eventData.user && (eventData.user.uid || eventData.user.id));
+    const userData = eventData.user || eventData.payload;
     
+    // Importante: Construir usersById corretamente
+    const usersById = {};
+    if (userId && userData) {
+      usersById[userId] = userData;
+    }
+    
+    return {
+      user: userData,
+      usersById: usersById,
+      userLoading: false,
+      isAuthenticated: true,
+      error: null,
+      lastUpdated: Date.now()
+    };
+  }
+},
     // Mapeamento quando um usuário é excluído
     {
       serviceName: 'user',
@@ -146,7 +170,7 @@ export const setupUserMappings = (eventBridgeService) => {
     {
       serviceName: 'user',
       eventType: USER_EVENTS.USER_ADDED,
-      actionType: USER_ACTIONS.FETCH_SUCCESS,
+      actionType: USER_ACTIONS.FETCH_USER_SUCCESS,
       transformer: (eventData) => ({
         user: eventData.user,
         usersById: eventData.usersById || {},

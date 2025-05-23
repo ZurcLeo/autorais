@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box, Divider, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
+import { Typography, Box, Divider, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
 import {
   Payment as PaymentIcon,
   AccountBalance as LoanIcon,

@@ -12,7 +12,7 @@ export const setupNotificationMappings = (eventBridgeService) => {
     {
       serviceName: 'notifications',
       eventType: NOTIFICATION_EVENTS.NOTIFICATIONS_FETCHED,
-      actionType: NOTIFICATION_ACTIONS.FETCH_SUCCESS,
+      actionType: NOTIFICATION_ACTIONS.FETCH_NOTIFICATION_SUCCESS,
       transformer: (eventData) => ({
         payload: eventData.notifications || [],
         unreadCount: eventData.unreadCount || 0,

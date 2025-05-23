@@ -423,7 +423,7 @@ class UserService extends BaseService {
                 const profileData = this.getCurrentProfile(userId)
 
                 if (profileData.isProfileComplete) {
-                    this._emitEvent(AUTH_EVENTS.PROFILE_COMPLETED, {
+                    this._emitEvent(USER_EVENTS.PROFILE_COMPLETED, {
                         userId: this._currentUser.uid,
                         timestamp: Date.now()
                     });

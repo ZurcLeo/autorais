@@ -13,9 +13,9 @@ const spacing = {
 
 const typography = {
     fontFamily: {
-        heading: '"Satoshi", "Inter", sans-serif',
-        body: '"Inter", system-ui, sans-serif',
-        mono: '"Fira Code", monospace'
+        heading: '"Lato", sans-serif',
+        body: '"Lato", system-ui, sans-serif',
+        mono: '"Lato", monospace'
     },
     fontWeight: {
         regular: 400,
@@ -164,442 +164,438 @@ export const semanticTokens = {
     light: {
         background: {
             primary: '#FFFFFF',
-            secondary: colorPalettes.ocean[50],
-            tertiary: colorPalettes.ocean[100],
-            accent: colorPalettes.sunset[50]
+            secondary: 'palette.50',
+            tertiary: 'palette.100',
+            accent: 'palette.50'
         },
         text: {
-            primary: colorPalettes.ocean[900],
-            secondary: colorPalettes.ocean[700],
-            tertiary: colorPalettes.ocean[500],
-            accent: colorPalettes.sunset[700]
+            primary: 'palette.900',
+            secondary: 'palette.700',
+            tertiary: 'palette.500',
+            accent: 'palette.700',
+            onPrimary: '#FFFFFF',
+            onSecondary: '#FFFFFF',
+            onAccent: '#FFFFFF',
+            disabled: 'palette.400'
         },
         border: {
-            subtle: colorPalettes.ocean[200],
-            default: colorPalettes.ocean[300],
-            strong: colorPalettes.ocean[400]
+            subtle: 'palette.100',
+            default: 'palette.200',
+            strong: 'palette.300',
+            focus: 'palette.400'
         },
-        // Estados de Interação
         interaction: {
             focus: {
-                outline: colorPalettes.ocean[400],
+                outline: 'palette.400',
                 outlineWidth: '2px',
                 outlineOffset: '2px',
-                ring: `0 0 0 2px ${colorPalettes.ocean[200]}`,
-                background: colorPalettes.ocean[50]
+                ring: 'palette.200',
+                background: 'palette.50'
             },
             hover: {
-                background: colorPalettes.ocean[50],
-                border: colorPalettes.ocean[300],
-                text: colorPalettes.ocean[700],
+                background: 'palette.50',
+                border: 'palette.300',
+                text: 'palette.700',
                 scale: '1.02',
                 elevation: 2
             },
             active: {
-                background: colorPalettes.ocean[100],
-                border: colorPalettes.ocean[400],
-                text: colorPalettes.ocean[800],
+                background: 'palette.100',
+                border: 'palette.400',
+                text: 'palette.800',
                 scale: '0.98',
                 elevation: 1
             },
             disabled: {
-                background: colorPalettes.mountain[100],
-                border: colorPalettes.mountain[200],
-                text: colorPalettes.mountain[400],
+                background: 'neutral.100',
+                border: 'neutral.200',
+                text: 'neutral.400',
                 opacity: 0.6,
                 cursor: 'not-allowed'
             },
             selected: {
-                background: colorPalettes.ocean[100],
-                border: colorPalettes.ocean[500],
-                text: colorPalettes.ocean[900]
+                background: 'palette.100',
+                border: 'palette.500',
+                text: 'palette.900'
             }
         },
-        // Estados de Feedback
         feedback: {
             success: {
-                background: colorPalettes.forest[50],
-                border: colorPalettes.forest[300],
-                text: colorPalettes.forest[800],
-                icon: colorPalettes.forest[500],
-                title: colorPalettes.forest[900]
+                background: 'success.50',
+                border: 'success.300',
+                text: 'success.800',
+                icon: 'success.500',
+                title: 'success.900'
             },
             error: {
-                background: colorPalettes.sunset[50],
-                border: colorPalettes.sunset[300],
-                text: colorPalettes.sunset[800],
-                icon: colorPalettes.sunset[500],
-                title: colorPalettes.sunset[900]
+                background: 'error.50',
+                border: 'error.300',
+                text: 'error.800',
+                icon: 'error.500',
+                title: 'error.900'
             },
             warning: {
-                background: '#FFF7ED',
-                border: '#FDBA74',
-                text: '#9A3412',
-                icon: '#F97316',
-                title: '#7C2D12'
+                background: 'warning.50',
+                border: 'warning.300',
+                text: 'warning.800',
+                icon: 'warning.500',
+                title: 'warning.900'
             },
             info: {
-                background: colorPalettes.ocean[50],
-                border: colorPalettes.ocean[300],
-                text: colorPalettes.ocean[800],
-                icon: colorPalettes.ocean[500],
-                title: colorPalettes.ocean[900]
+                background: 'info.50',
+                border: 'info.300',
+                text: 'info.800',
+                icon: 'info.500',
+                title: 'info.900'
             }
         },
-        // Estados de Validação
         validation: {
             valid: {
-                border: colorPalettes.forest[300],
-                icon: colorPalettes.forest[500],
-                text: colorPalettes.forest[700],
-                background: colorPalettes.forest[50]
+                border: 'success.300',
+                icon: 'success.500',
+                text: 'success.700',
+                background: 'success.50'
             },
             invalid: {
-                border: colorPalettes.sunset[300],
-                icon: colorPalettes.sunset[500],
-                text: colorPalettes.sunset[700],
-                background: colorPalettes.sunset[50]
+                border: 'error.300',
+                icon: 'error.500',
+                text: 'error.700',
+                background: 'error.50'
             },
             pending: {
-                border: colorPalettes.ocean[300],
-                icon: colorPalettes.ocean[500],
-                text: colorPalettes.ocean[700],
-                background: colorPalettes.ocean[50]
+                border: 'info.300',
+                icon: 'info.500',
+                text: 'info.700',
+                background: 'info.50'
             }
         },
         navigation: {
             primary: {
-                background: colorPalettes.ocean[700],
+                background: 'palette.700',
                 text: '#FFFFFF',
-                hover: colorPalettes.ocean[600],
-                active: colorPalettes.ocean[800]
+                hover: 'palette.600',
+                active: 'palette.800',
+                border: 'palette.500'
             },
             secondary: {
                 background: 'transparent',
-                text: colorPalettes.ocean[700],
-                hover: colorPalettes.ocean[50],
-                active: colorPalettes.ocean[100]
+                text: 'palette.700',
+                hover: 'palette.50',
+                active: 'palette.100',
+                border: 'palette.200'
             },
             tertiary: {
                 background: 'transparent',
-                text: colorPalettes.ocean[600],
-                hover: colorPalettes.ocean[50],
-                active: colorPalettes.ocean[100]
+                text: 'palette.600',
+                hover: 'palette.50',
+                active: 'palette.100',
+                border: 'transparent'
             }
         },
-        // Sobreposições e Modais
         overlay: {
             backdrop: 'rgba(0, 0, 0, 0.5)',
             surface: '#FFFFFF',
             elevation: 4,
-            border: colorPalettes.ocean[200]
+            border: 'palette.200'
         },
-
-        // Acessibilidade
         a11y: {
             focusVisible: {
-                outline: `2px solid ${colorPalettes.ocean[500]}`,
+                outline: 'palette.500',
                 outlineOffset: '2px'
             },
             contrastText: {
                 high: '#000000',
-                medium: colorPalettes.ocean[900],
-                low: colorPalettes.ocean[700]
+                medium: 'palette.900',
+                low: 'palette.700'
             },
             keyboardFocus: {
-                ring: `0 0 0 4px ${colorPalettes.ocean[200]}`
+                ring: 'palette.200'
             }
         },
-        // *** INTEGRAÇÃO DAS CORES SEMÂNTICAS PRIMÁRIAS, SECUNDÁRIAS, ETC. ***
-        primary: { // Definição da cor semântica 'primary' para o tema LIGHT
-            main: colorPalettes.ocean[500],
-            light: colorPalettes.ocean[300],
-            dark: colorPalettes.ocean[700],
-            hover: colorPalettes.ocean[400],
-            active: colorPalettes.ocean[600],
-            disabled: colorPalettes.ocean[200],
-            contrastText: '#fff', // Cor do texto contrastante (para botões primários em fundo escuro, por exemplo)
+        // Definições semânticas de cores primárias
+        primary: {
+            main: 'palette.500',
+            light: 'palette.300',
+            dark: 'palette.700',
+            hover: 'palette.400',
+            active: 'palette.600',
+            disabled: 'palette.200',
+            contrastText: '#FFFFFF'
         },
-        secondary: { // Definição da cor semântica 'secondary' para o tema LIGHT
-            main: colorPalettes.forest[500],
-            light: colorPalettes.forest[300],
-            dark: colorPalettes.forest[700],
-            hover: colorPalettes.forest[400],
-            active: colorPalettes.forest[600],
-            disabled: colorPalettes.forest[200],
-            contrastText: '#fff'
+        secondary: {
+            main: 'secondary.500',
+            light: 'secondary.300',
+            dark: 'secondary.700',
+            hover: 'secondary.400',
+            active: 'secondary.600',
+            disabled: 'secondary.200',
+            contrastText: '#FFFFFF'
         },
-        error: { // Definição da cor semântica 'error' para o tema LIGHT
-            main: colorPalettes.volcano[500], // Use cores base do Material UI (ou defina sua paleta 'error' se tiver)
-            light: colorPalettes.volcano[300],
-            dark: colorPalettes.volcano[700],
-            hover: colorPalettes.volcano[400],
-            active: colorPalettes.volcano[600],
-            disabled: colorPalettes.volcano[200],
-            contrastText: '#fff'
+        error: {
+            main: 'error.500',
+            light: 'error.300',
+            dark: 'error.700',
+            hover: 'error.400',
+            active: 'error.600',
+            disabled: 'error.200',
+            contrastText: '#FFFFFF'
         },
-        warning: { // Definição da cor semântica 'warning' para o tema LIGHT
-            main: colorPalettes.sunset[500], // Use cores base do Material UI (ou defina sua paleta 'warning')
-            light: colorPalettes.sunset[300],
-            dark: colorPalettes.sunset[700],
-            hover: colorPalettes.sunset[400],
-            active: colorPalettes.sunset[600],
-            disabled: colorPalettes.sunset[200],
-            contrastText: '#fff'
+        warning: {
+            main: 'warning.500',
+            light: 'warning.300',
+            dark: 'warning.700',
+            hover: 'warning.400',
+            active: 'warning.600',
+            disabled: 'warning.200',
+            contrastText: '#FFFFFF'
         },
-        success: { // Definição da cor semântica 'success' para o tema LIGHT
-            main: colorPalettes.forest[500], // Use cores base do Material UI (ou defina sua paleta 'success')
-            light: colorPalettes.forest[300],
-            dark: colorPalettes.forest[700],
-            hover: colorPalettes.forest[400],
-            active: colorPalettes.forest[600],
-            disabled: colorPalettes.forest[200],
-            contrastText: '#fff'
+        success: {
+            main: 'success.500',
+            light: 'success.300',
+            dark: 'success.700',
+            hover: 'success.400',
+            active: 'success.600',
+            disabled: 'success.200',
+            contrastText: '#FFFFFF'
         },
-        info: { // Definição da cor semântica 'info' para o tema LIGHT
-            main: colorPalettes.glacier[500], // Use cores base do Material UI (ou defina sua paleta 'info')
-            light: colorPalettes.glacier[300],
-            dark: colorPalettes.glacier[700],
-            hover: colorPalettes.glacier[400],
-            active: colorPalettes.glacier[600],
-            disabled: colorPalettes.glacier[200],
-            contrastText: '#fff'
+        info: {
+            main: 'info.500',
+            light: 'info.300',
+            dark: 'info.700',
+            hover: 'info.400',
+            active: 'info.600',
+            disabled: 'info.200',
+            contrastText: '#FFFFFF'
         },
-        mountain: { // Definição da cor semântica 'mountain' (tons de cinza) para o tema LIGHT - Use cores base 'mountain' do Material UI
-            50: colorPalettes.mountain[50],
-            100: colorPalettes.mountain[100],
-            200: colorPalettes.mountain[200],
-            300: colorPalettes.mountain[300],
-            400: colorPalettes.mountain[400],
-            500: colorPalettes.mountain[500],
-            600: colorPalettes.mountain[600],
-            700: colorPalettes.mountain[700],
-            800: colorPalettes.mountain[800],
-            900: colorPalettes.mountain[900]
+        neutral: {
+            50: 'neutral.50',
+            100: 'neutral.100',
+            200: 'neutral.200',
+            300: 'neutral.300',
+            400: 'neutral.400',
+            500: 'neutral.500',
+            600: 'neutral.600',
+            700: 'neutral.700',
+            800: 'neutral.800',
+            900: 'neutral.900'
         }
     },
     dark: {
         background: {
-            primary: colorPalettes.ocean[900],
-            secondary: colorPalettes.ocean[800],
-            tertiary: colorPalettes.ocean[700],
-            accent: colorPalettes.sunset[900]
+            primary: 'palette.900',
+            secondary: 'palette.800',
+            tertiary: 'palette.700',
+            accent: 'accent.900'
         },
         text: {
-            primary: colorPalettes.ocean[50],
-            secondary: colorPalettes.ocean[200],
-            tertiary: colorPalettes.ocean[300],
-            accent: colorPalettes.sunset[300]
+            primary: 'palette.50',
+            secondary: 'palette.200',
+            tertiary: 'palette.300',
+            accent: 'accent.300',
+            onPrimary: 'palette.900',
+            onSecondary: 'secondary.900',
+            onAccent: 'accent.900',
+            disabled: 'neutral.500'
         },
         border: {
-            subtle: colorPalettes.ocean[700],
-            default: colorPalettes.ocean[600],
-            strong: colorPalettes.ocean[500]
+            subtle: 'palette.700',
+            default: 'palette.600',
+            strong: 'palette.500',
+            focus: 'palette.400'
         },
-        // Estados de Interação
         interaction: {
             focus: {
-                outline: colorPalettes.ocean[600], // Mais escuro para melhor contraste
+                outline: 'palette.400',
                 outlineWidth: '2px',
                 outlineOffset: '2px',
-                ring: `0 0 0 2px ${colorPalettes.ocean[800]}`,
-                background: colorPalettes.ocean[900]
+                ring: 'palette.700',
+                background: 'palette.900'
             },
             hover: {
-                background: colorPalettes.ocean[800],
-                border: colorPalettes.ocean[600],
-                text: colorPalettes.ocean[100], // Texto mais claro
+                background: 'palette.800',
+                border: 'palette.600',
+                text: 'palette.100',
                 scale: '1.02',
                 elevation: 2
             },
             active: {
-                background: colorPalettes.ocean[900],
-                border: colorPalettes.ocean[700],
-                text: colorPalettes.ocean[50], // Texto ainda mais claro
+                background: 'palette.900',
+                border: 'palette.700',
+                text: 'palette.50',
                 scale: '0.98',
                 elevation: 1
             },
             disabled: {
-                background: colorPalettes.mountain[800],
-                border: colorPalettes.mountain[700],
-                text: colorPalettes.mountain[500],
+                background: 'neutral.800',
+                border: 'neutral.700',
+                text: 'neutral.500',
                 opacity: 0.5,
                 cursor: 'not-allowed'
             },
             selected: {
-                background: colorPalettes.ocean[800],
-                border: colorPalettes.ocean[400],
-                text: colorPalettes.ocean[50]
+                background: 'palette.800',
+                border: 'palette.400',
+                text: 'palette.50'
             }
         },
-
-        // Estados de Feedback
         feedback: {
             success: {
-                background: colorPalettes.forest[900],
-                border: colorPalettes.forest[700],
-                text: colorPalettes.forest[100],
-                icon: colorPalettes.forest[400],
-                title: colorPalettes.forest[50]
+                background: 'success.900',
+                border: 'success.700',
+                text: 'success.100',
+                icon: 'success.400',
+                title: 'success.50'
             },
             error: {
-                background: colorPalettes.sunset[900],
-                border: colorPalettes.sunset[700],
-                text: colorPalettes.sunset[100],
-                icon: colorPalettes.sunset[400],
-                title: colorPalettes.sunset[50]
+                background: 'error.900',
+                border: 'error.700',
+                text: 'error.100',
+                icon: 'error.400',
+                title: 'error.50'
             },
             warning: {
-                background: '#4A2706', // Dark sunset
-                border: '#92400E',
-                text: '#FED7AA',
-                icon: '#FB923C',
-                title: '#FFEDD5'
+                background: 'warning.900',
+                border: 'warning.700',
+                text: 'warning.100',
+                icon: 'warning.400',
+                title: 'warning.50'
             },
             info: {
-                background: colorPalettes.ocean[900],
-                border: colorPalettes.ocean[700],
-                text: colorPalettes.ocean[100],
-                icon: colorPalettes.ocean[400],
-                title: colorPalettes.ocean[50]
+                background: 'info.900',
+                border: 'info.700',
+                text: 'info.100',
+                icon: 'info.400',
+                title: 'info.50'
             }
         },
-
-        // Estados de Validação
         validation: {
             valid: {
-                border: colorPalettes.forest[600],
-                icon: colorPalettes.forest[400],
-                text: colorPalettes.forest[100],
-                background: colorPalettes.forest[900]
+                border: 'success.600',
+                icon: 'success.400',
+                text: 'success.100',
+                background: 'success.900'
             },
             invalid: {
-                border: colorPalettes.sunset[600],
-                icon: colorPalettes.sunset[400],
-                text: colorPalettes.sunset[100],
-                background: colorPalettes.sunset[900]
+                border: 'error.600',
+                icon: 'error.400',
+                text: 'error.100',
+                background: 'error.900'
             },
             pending: {
-                border: colorPalettes.ocean[600],
-                icon: colorPalettes.ocean[400],
-                text: colorPalettes.ocean[100],
-                background: colorPalettes.ocean[900]
+                border: 'info.600',
+                icon: 'info.400',
+                text: 'info.100',
+                background: 'info.900'
             }
         },
-
-        // Navegação
         navigation: {
             primary: {
-                background: colorPalettes.ocean[900],
+                background: 'palette.900',
                 text: '#FFFFFF',
-                hover: colorPalettes.ocean[800],
-                active: colorPalettes.ocean[700]
+                hover: 'palette.800',
+                active: 'palette.700',
+                border: 'palette.600'
             },
             secondary: {
                 background: 'transparent',
-                text: colorPalettes.ocean[100],
-                hover: colorPalettes.ocean[800],
-                active: colorPalettes.ocean[700]
+                text: 'palette.100',
+                hover: 'palette.800',
+                active: 'palette.700',
+                border: 'palette.700'
             },
             tertiary: {
                 background: 'transparent',
-                text: colorPalettes.ocean[200],
-                hover: colorPalettes.ocean[800],
-                active: colorPalettes.ocean[700]
+                text: 'palette.200',
+                hover: 'palette.800',
+                active: 'palette.700',
+                border: 'transparent'
             }
         },
-
-        // Sobreposições e Modais
         overlay: {
-            backdrop: 'rgba(0, 0, 0, 0.75)', // Mais escuro para melhor contraste
-            surface: colorPalettes.ocean[900],
+            backdrop: 'rgba(0, 0, 0, 0.75)',
+            surface: 'palette.900',
             elevation: 4,
-            border: colorPalettes.ocean[700]
+            border: 'palette.700'
         },
-
-        // Acessibilidade
         a11y: {
             focusVisible: {
-                outline: `2px solid ${colorPalettes.ocean[400]}`,
+                outline: 'palette.400',
                 outlineOffset: '2px'
             },
             contrastText: {
-                high: '#FFFFFF', // Invertido do tema light
-                medium: colorPalettes.ocean[100],
-                low: colorPalettes.ocean[300]
+                high: '#FFFFFF',
+                medium: 'palette.100',
+                low: 'palette.300'
             },
             keyboardFocus: {
-                ring: `0 0 0 4px ${colorPalettes.ocean[700]}`
+                ring: 'palette.700'
             }
         },
-
-        // *** DEFINIÇÕES DE CORES SEMÂNTICAS PARA O TEMA DARK (Pode ajustar as cores
-        // para o tema escuro) ***
         primary: {
-            main: colorPalettes.ocean[300], // Tom mais claro para primary no tema escuro
-            light: colorPalettes.ocean[100],
-            dark: colorPalettes.ocean[500],
-            hover: colorPalettes.ocean[200],
-            active: colorPalettes.ocean[400],
-            disabled: colorPalettes.ocean[700],
-            contrastText: colorPalettes.ocean[900], // Texto contrastante mais escuro no tema escuro
+            main: 'palette.300',
+            light: 'palette.100',
+            dark: 'palette.500',
+            hover: 'palette.200',
+            active: 'palette.400',
+            disabled: 'palette.700',
+            contrastText: 'palette.900'
         },
         secondary: {
-            main: colorPalettes.forest[300], // Ajuste as cores secundárias para o tema escuro
-            light: colorPalettes.forest[100],
-            dark: colorPalettes.forest[500],
-            hover: colorPalettes.forest[200],
-            active: colorPalettes.forest[400],
-            disabled: colorPalettes.forest[700],
-            contrastText: colorPalettes.ocean[900]
+            main: 'secondary.300',
+            light: 'secondary.100',
+            dark: 'secondary.500',
+            hover: 'secondary.200',
+            active: 'secondary.400',
+            disabled: 'secondary.700',
+            contrastText: 'secondary.900'
         },
-        error: { // Ajuste as cores de erro para o tema escuro, se necessário
-            main: colorPalettes.volcano[300],
-            light: colorPalettes.volcano[100],
-            dark: colorPalettes.volcano[500],
-            hover: colorPalettes.volcano[200],
-            active: colorPalettes.volcano[400],
-            disabled: colorPalettes.volcano[700],
-            contrastText: colorPalettes.ocean[900]
+        error: {
+            main: 'error.300',
+            light: 'error.100',
+            dark: 'error.500',
+            hover: 'error.200',
+            active: 'error.400',
+            disabled: 'error.700',
+            contrastText: 'error.900'
         },
-        warning: { // Ajuste as cores de warning para o tema escuro, se necessário
-            main: colorPalettes.sunset[300],
-            light: colorPalettes.sunset[100],
-            dark: colorPalettes.sunset[500],
-            hover: colorPalettes.sunset[200],
-            active: colorPalettes.sunset[400],
-            disabled: colorPalettes.sunset[700],
-            contrastText: colorPalettes.ocean[900]
+        warning: {
+            main: 'warning.300',
+            light: 'warning.100',
+            dark: 'warning.500',
+            hover: 'warning.200',
+            active: 'warning.400',
+            disabled: 'warning.700',
+            contrastText: 'warning.900'
         },
-        success: { // Ajuste as cores de success para o tema escuro, se necessário
-            main: colorPalettes.forest[300],
-            light: colorPalettes.forest[100],
-            dark: colorPalettes.forest[500],
-            hover: colorPalettes.forest[200],
-            active: colorPalettes.forest[400],
-            disabled: colorPalettes.forest[700],
-            contrastText: colorPalettes.ocean[900]
+        success: {
+            main: 'success.300',
+            light: 'success.100',
+            dark: 'success.500',
+            hover: 'success.200',
+            active: 'success.400',
+            disabled: 'success.700',
+            contrastText: 'success.900'
         },
-        info: { // Ajuste as cores de info para o tema escuro, se necessário
-            main: colorPalettes.glacier[300],
-            light: colorPalettes.glacier[100],
-            dark: colorPalettes.glacier[500],
-            hover: colorPalettes.glacier[200],
-            active: colorPalettes.glacier[400],
-            disabled: colorPalettes.glacier[700],
-            contrastText: colorPalettes.ocean[900]
+        info: {
+            main: 'info.300',
+            light: 'info.100',
+            dark: 'info.500',
+            hover: 'info.200',
+            active: 'info.400',
+            disabled: 'info.700',
+            contrastText: 'info.900'
         },
-        mountain: { // Cores cinzas para o tema escuro - use cores base 'mountain' do Material UI, ajustando os tons se necessário
-            50: colorPalettes.mountain[900],
-            100: colorPalettes.mountain[800],
-            200: colorPalettes.mountain[700],
-            300: colorPalettes.mountain[600],
-            400: colorPalettes.mountain[500],
-            500: colorPalettes.mountain[400],
-            600: colorPalettes.mountain[300],
-            700: colorPalettes.mountain[200],
-            800: colorPalettes.mountain[100],
-            900: colorPalettes.mountain[50]
+        neutral: {
+            50: 'neutral.900',
+            100: 'neutral.800',
+            200: 'neutral.700',
+            300: 'neutral.600',
+            400: 'neutral.500',
+            500: 'neutral.400',
+            600: 'neutral.300',
+            700: 'neutral.200',
+            800: 'neutral.100',
+            900: 'neutral.50'
         }
     }
 };

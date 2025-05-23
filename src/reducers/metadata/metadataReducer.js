@@ -201,11 +201,25 @@ socketService: {
             return true
         }
     },
+    caixinhaInvites: {
+        description: 'caixinhaInvites management service',
+        criticalPath: false,
+        phase: 'FEATURES',
+        order: 13.5,
+        dependencies: ['auth', 'users', 'caixinhas'],
+        timeout: 7000,
+        initFn: async () => {
+            console.log('Initializing caixinhaInvites...');
+            await new Promise(resolve => setTimeout(resolve, 2600));
+            console.log('caixinhaInvites Ready.');
+            return true
+        }
+    },
     banking: {
         description: 'Banking management service',
         criticalPath: false,
         phase: 'FEATURES',
-        order: 13.5,
+        order: 14,
         dependencies: ['auth', 'users'],
         timeout: 7000,
         initFn: async () => {
@@ -219,7 +233,7 @@ socketService: {
         description: 'Dashboard management service',
         criticalPath: false,
         phase: 'PRESENTATION',
-        order: 14,
+        order: 14.5,
         dependencies: ['auth', 'users'],
         timeout: 7000,
         initFn: async () => {
@@ -228,10 +242,36 @@ socketService: {
             console.log('DashboardService Ready.');
             return true
         }
+    },
+    loans: {
+        description: 'LoanService management service',
+        criticalPath: false,
+        phase: 'FEATURES',
+        order: 15,
+        dependencies: ['auth', 'caixinhas'],
+        timeout: 7000,
+        initFn: async () => {
+            console.log('Initializing LoanService...');
+            await new Promise(resolve => setTimeout(resolve, 2800));
+            console.log('LoanService Ready.');
+            return true
+        }
+    },
+    disputes: {
+        description: 'DisputeService management service',
+        criticalPath: false,
+        phase: 'FEATURES',
+        order: 15.5,
+        dependencies: ['auth', 'users'],
+        timeout: 7000,
+        initFn: async () => {
+            console.log('Initializing DisputeService...');
+            await new Promise(resolve => setTimeout(resolve, 2800));
+            console.log('DisputeService Ready.');
+            return true
+        }
     }
 };
-
-
 
 function validateDependencies(dependencies, availableServices) {
     return dependencies.every(dep => availableServices.includes(dep));
