@@ -183,10 +183,10 @@ const BankingHistoryItem = ({ entry, onValidate }) => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('banking.agency')}:
+                  {t('banking.bankCode')}:
                 </Typography>
                 <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
-                  {entry.agency}
+                  {entry.bankCode}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -198,14 +198,24 @@ const BankingHistoryItem = ({ entry, onValidate }) => {
                 </Typography>
               </Grid>
               {entry.pixKey && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('banking.pixKey')}:
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
-                    {showSensitiveInfo ? entry.pixKey : maskPixKey(entry.pixKey)}
-                  </Typography>
-                </Grid>
+                <>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('banking.pixKey')}:
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
+                      {showSensitiveInfo ? entry.pixKey : maskPixKey(entry.pixKey)}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('banking.pixKeyType')}:
+                    </Typography>
+                    <Typography variant="body1">
+                      {entry.pixKeyType}
+                    </Typography>
+                  </Grid>
+                </>
               )}
               <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary">
@@ -240,6 +250,7 @@ const BankingHistoryItem = ({ entry, onValidate }) => {
  */
 const BankingHistory = ({ bankingHistory, onValidate, loading }) => {
   const { t } = useTranslation();
+  
   
   if (loading) {
     return (
@@ -413,35 +424,27 @@ const BankingGuide = ({ status }) => {
 const BankingManagement = ({ caixinhaId }) => {
   const { bankingInfo, 
     bankingHistory, 
+    loading,
     refetchBankingInfo, 
     refetchBankingHistory, 
-    setModalOpen } = useBanking();
+    setModalOpen,
+    selectCaixinha,
+    selectedCaixinha } = useBanking();
   const { t } = useTranslation();
   const theme = useTheme();
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [loading, setLoading] = useState(true);
 
+  // Select caixinha when caixinhaId prop changes
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        await Promise.all([
-          refetchBankingInfo(caixinhaId),
-          refetchBankingHistory(caixinhaId)
-        ]);
-      } catch (error) {
-        console.error('Error fetching banking data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, [caixinhaId, refetchBankingInfo, refetchBankingHistory]);
+    if (caixinhaId && selectedCaixinha !== caixinhaId) {
+      selectCaixinha(caixinhaId);
+    }
+  }, [caixinhaId, selectCaixinha, selectedCaixinha]);
+
 
   const handlePaymentComplete = () => {
-    refetchBankingHistory(caixinhaId);
-    refetchBankingInfo(caixinhaId);
+    refetchBankingHistory();
+    refetchBankingInfo();
     setSelectedAccount(null);
   };
 
@@ -530,6 +533,7 @@ const BankingManagement = ({ caixinhaId }) => {
           amount={0.01} // Micropayment value
           description={`${t('banking.accountValidation')}: ${selectedAccount.bankName}`}
           paymentId={selectedAccount.id}
+          caixinhaId={caixinhaId}
           onPaymentComplete={handlePaymentComplete}
         />
       )}

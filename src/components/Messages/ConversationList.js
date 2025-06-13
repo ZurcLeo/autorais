@@ -170,8 +170,8 @@ const ConversationsList = () => {
           unreadCount: existingMessages.filter(msg => 
             msg.uidRemetente === friend.id && !msg.lido && !msg.visto
           ).length,
-          // Online status (simplified)
-          isOnline: Math.random() > 0.5 // Simplified for demo
+          // Online status - TODO: implementar status real do usuário
+          isOnline: false
         };
       });
     }
@@ -416,52 +416,70 @@ const ConversationsList = () => {
                   </ListItemAvatar>
                   
                   <ListItemText 
-                    primary={
-                      <Box sx={{ 
+                    primaryTypographyProps={{
+                      sx: { 
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center'
-                      }}>
-                        <Typography 
-                          variant="subtitle1"
-                          fontWeight={unreadCount > 0 ? 'bold' : 'normal'}
-                          noWrap
+                      }
+                    }}
+                    primary={
+                      <>
+                        <span
+                          style={{
+                            fontWeight: unreadCount > 0 ? 'bold' : 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
                         >
                           {conversation.otherUserName}
-                        </Typography>
+                        </span>
                         
                         {conversation.lastMessage?.timestamp && (
-                          <Typography 
-                            variant="caption" 
-                            color="text.secondary"
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              color: 'gray'
+                            }}
                           >
                             {formatTimeAgo(conversation.lastMessage.timestamp)}
-                          </Typography>
+                          </span>
                         )}
-                      </Box>
+                      </>
                     }
+                    secondaryTypographyProps={{
+                      component: 'div'
+                    }}
                     secondary={
-                      <Box>
-                        <Typography 
-                          variant="body2"
-                          color={unreadCount > 0 ? 'text.primary' : 'text.secondary'}
-                          fontWeight={unreadCount > 0 ? 'medium' : 'normal'}
-                          noWrap
+                      <>
+                        <span
+                          style={{
+                            fontSize: '0.875rem',
+                            color: unreadCount > 0 ? 'inherit' : 'gray',
+                            fontWeight: unreadCount > 0 ? '500' : 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block'
+                          }}
                         >
                           {conversation.lastMessage?.text ? 
                             truncateText(conversation.lastMessage.text, 30) : 
                             'No messages yet'}
-                        </Typography>
+                        </span>
                         
-                        {/* Status text */}
-                        <Typography 
-                          variant="caption"
-                          color={conversation.isOnline ? 'success.main' : 'text.disabled'}
-                          sx={{ display: 'block', mt: 0.5 }}
+                        <span
+                          style={{
+                            fontSize: '0.75rem',
+                            color: conversation.isOnline ? 'green' : 'gray',
+                            display: 'block',
+                            marginTop: '4px'
+                          }}
                         >
                           {conversation.isOnline ? 'Online' : 'Offline'}
-                        </Typography>
-                      </Box>
+                        </span>
+                      </>
                     }
                   />
                 </ListItem>

@@ -30,20 +30,29 @@ export const DashboardProvider = ({ children }) => {
 
         dispatch({ type: DASHBOARD_ACTIONS.FETCH_START });
         try {
-            console.log('...EM OBRAS... serviceStore', serviceStore)
-            console.log('...EM OBRAS... messageStore', messageStore)
-            console.log('...EM OBRAS... notificationStore', notificationStore)
-            console.log('...EM OBRAS... connectionsStore', connectionsStore)
-            console.log('...EM OBRAS... caixinhaStore', caixinhaStore)
+            // Coletando dados das stores existentes
+            const dashboardData = {
+                messages: messageStore?.messages || [],
+                notifications: notificationStore?.notifications || [],
+                connections: {
+                    friends: connectionsStore?.friends || [],
+                    bestFriends: connectionsStore?.bestFriends || []
+                },
+                caixinhas: caixinhaStore?.caixinhas || []
+            };
 
-            // const data = await dashboardService.getDashboardData(userId);
-            // dispatch({ type: DASHBOARD_ACTIONS.FETCH_SUCCESS, payload: data });
+            console.log('DashboardContext - Dados coletados:', dashboardData);
+            
+            dispatch({ 
+                type: DASHBOARD_ACTIONS.FETCH_SUCCESS, 
+                payload: dashboardData 
+            });
         } catch (error) {
             dispatch({ type: DASHBOARD_ACTIONS.FETCH_FAILURE, error: error.message });
             coreLogger.logEvent('DashboardProvider', LOG_LEVELS.ERROR, 'Failed to fetch dashboard data', { error: error.message, userId });
             showToast('Erro ao carregar dados do dashboard', { type: 'error' });
         }
-    }, [userId, dispatch]); // Dependências corretas
+    }, [userId, messageStore, notificationStore, connectionsStore, caixinhaStore, dispatch]);
 
     // Busca os dados quando o componente monta e quando o userId muda
     useEffect(() => {
@@ -75,15 +84,23 @@ export const DashboardProvider = ({ children }) => {
     }, [dispatch]);
 
 
+    // Função para refrescar todos os dados
+    const refreshDashboard = useCallback(() => {
+        if (userId) {
+            fetchDashboardData();
+        }
+    }, [userId, fetchDashboardData]);
+
     // Cria o valor do contexto usando useMemo para otimização
     const contextValue = useMemo(() => ({
         ...state, // Inclui o estado atual
         fetchDashboardData, // Permite que os componentes disparem uma nova busca
+        refreshDashboard, // Função para refresh completo
         updateMessages,       // Funções para atualizar partes específicas
         updateNotifications,
         updateConnections,
         updateCaixinhas
-    }), [state, fetchDashboardData, updateMessages, updateNotifications, updateConnections, updateCaixinhas]);
+    }), [state, fetchDashboardData, refreshDashboard, updateMessages, updateNotifications, updateConnections, updateCaixinhas]);
 
 
     return (

@@ -1,8 +1,8 @@
 // providers/features/BankingContext/index.js
 import React, { createContext, useState, useContext, useCallback, useMemo } from 'react';
-import {BankingService} from '../../services/BankingService';
+import { serviceLocator } from '../../core/services/BaseService';
 import { showToast, showPromiseToast } from '../../utils/toastUtils';
-import { useCachedResource } from '../../utils/cache/cacheManager';
+import { useCachedResource, globalCache } from '../../utils/cache/cacheManager';
 import { validateDocument } from '../../utils/validation';
 
 const BankingContext = createContext();
@@ -35,8 +35,8 @@ export const BankingProvider = ({ children }) => {
     const fetchBankingInfo = useCallback(async () => {
       if (!caixinhaId) return null;
       try {
-        // console.log('BANKING ...EM OBRAS...')
-        const info = await BankingService.getBankingInfo(caixinhaId);
+        const bankingService = serviceLocator.get('banking');
+        const info = await bankingService.getBankingInfo(caixinhaId);
         return info;
       } catch (error) {
         console.error('Error fetching banking info:', error);
@@ -62,9 +62,8 @@ export const BankingProvider = ({ children }) => {
     const fetchBankingHistory = useCallback(async () => {
       if (!caixinhaId) return null;
       try {
-        // console.log('BANKING ...EM OBRAS...')
-
-        const history = await BankingService.getBankingHistory(caixinhaId);
+        const bankingService = serviceLocator.get('banking');
+        const history = await bankingService.getBankingHistory(caixinhaId);
         return history.history;
       } catch (error) {
         console.error('Error fetching banking history:', error);
@@ -107,6 +106,23 @@ export const BankingProvider = ({ children }) => {
     setSelectedCaixinha(caixinhaId);
   }, []);
 
+  // Helper functions to invalidate specific cache keys
+  const invalidateSpecificBankingInfo = useCallback((caixinhaId) => {
+    if (!caixinhaId) return;
+    const key = getBankingInfoCacheKey(caixinhaId);
+    if (key) {
+      globalCache.invalidate(key);
+    }
+  }, [getBankingInfoCacheKey]);
+
+  const invalidateSpecificBankingHistory = useCallback((caixinhaId) => {
+    if (!caixinhaId) return;
+    const key = getBankingHistoryCacheKey(caixinhaId);
+    if (key) {
+      globalCache.invalidate(key);
+    }
+  }, [getBankingHistoryCacheKey]);
+
   // Register bank account
   const registerBankAccount = useCallback(async (caixinhaId, accountData) => {
     if (!caixinhaId || !accountData) {
@@ -114,7 +130,7 @@ export const BankingProvider = ({ children }) => {
       return;
     }
 
-    // Validate account data
+    // Validate account data if document fields are provided
     if (accountData.documentType && accountData.documentNumber) {
       const isValidDocument = validateDocument(
         accountData.documentType,
@@ -124,59 +140,118 @@ export const BankingProvider = ({ children }) => {
         showToast('Invalid document number', { type: 'error' });
         return;
       }
+    }
 
-        try {
-          setLoading(true);
+    try {
+      setLoading(true);
 
-          const response = await BankingService.registerBankAccount(caixinhaId, accountData);
+      const bankingService = serviceLocator.get('banking');
+      const response = await bankingService.registerBankAccount(caixinhaId, accountData);
 
-          // Invalidate caches
-          invalidateBankingInfo();
-          await refetchBankingInfo();
-
-          return response;
-        } catch (error) {
-          console.error('Error registering bank account:', error);
-          setError(error.message);
-          // reject(error);
-        } finally {
-          setLoading(false);
-        }
+      // Invalidate caches for the specific caixinha
+      invalidateSpecificBankingInfo(caixinhaId);
+      invalidateSpecificBankingHistory(caixinhaId);
+      
+      // Also invalidate current selected caixinha cache if it's the same
+      if (selectedCaixinha === caixinhaId) {
+        invalidateBankingInfo();
+        invalidateBankingHistory();
+        
+        await Promise.all([
+          refetchBankingInfo(),
+          refetchBankingHistory()
+        ]);
       }
-    },
-  [invalidateBankingInfo, refetchBankingInfo]);
+
+      showToast('Bank account registered successfully', { type: 'success' });
+      return response;
+    } catch (error) {
+      console.error('Error registering bank account:', error);
+      setError(error.message);
+      showToast(error.message || 'Failed to register bank account', { type: 'error' });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    invalidateSpecificBankingInfo, 
+    invalidateSpecificBankingHistory, 
+    selectedCaixinha,
+    invalidateBankingInfo,
+    invalidateBankingHistory,
+    refetchBankingInfo,
+    refetchBankingHistory
+  ]);
+
+  // Generate PIX for validation
+  const generateValidationPix = useCallback(async (accountId, paymentData = {}) => {
+    if (!accountId) {
+      showToast('Account ID is required', { type: 'error' });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const bankingService = serviceLocator.get('banking');
+      const response = await bankingService.generateValidationPix(accountId, paymentData);
+
+      return response;
+    } catch (error) {
+      console.error('Error generating validation PIX:', error);
+      setError(error.message);
+      showToast(error.message || 'Failed to generate validation PIX', { type: 'error' });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Validate bank account
   const validateBankAccount = useCallback(async (transactionData) => {
-    if (!transactionData || !transactionData.caixinhaId) {
+    if (!transactionData || !transactionData.accountId || !transactionData.transactionId) {
       showToast('Invalid transaction data', { type: 'error' });
       return;
     }
 
     try {
       setLoading(true);
-      console.log('BANKING ...EM OBRAS...')
 
-      const response = await BankingService.validateBankAccount(transactionData);
+      const bankingService = serviceLocator.get('banking');
+      const response = await bankingService.validateBankAccount(transactionData);
 
-      // Invalidate and refetch both info and history
-      invalidateBankingInfo();
-      invalidateBankingHistory();
+      // Invalidate caches for the specific caixinha
+      if (transactionData.caixinhaId) {
+        const caixinhaId = transactionData.caixinhaId;
+        invalidateSpecificBankingInfo(caixinhaId);
+        invalidateSpecificBankingHistory(caixinhaId);
+        
+        // Also invalidate current selected caixinha cache if it's the same
+        if (selectedCaixinha === caixinhaId) {
+          invalidateBankingInfo();
+          invalidateBankingHistory();
+          
+          await Promise.all([
+            refetchBankingInfo(),
+            refetchBankingHistory()
+          ]);
+        }
+      }
 
-      await Promise.all([
-        refetchBankingInfo(),
-        refetchBankingHistory()
-      ]);
-
+      showToast('Bank account validated successfully', { type: 'success' });
       return response;
     } catch (error) {
       console.error('Error validating bank account:', error);
       setError(error.message);
-      // reject(error);
+      showToast(error.message || 'Failed to validate bank account', { type: 'error' });
+      throw error;
     } finally {
       setLoading(false);
     }
   }, [
+    invalidateSpecificBankingInfo,
+    invalidateSpecificBankingHistory,
+    selectedCaixinha,
     invalidateBankingInfo,
     invalidateBankingHistory,
     refetchBankingInfo,
@@ -193,7 +268,8 @@ export const BankingProvider = ({ children }) => {
     try {
       setLoading(true);
 
-      const details = await BankingService.getTransactionDetails(transactionId);
+      const bankingService = serviceLocator.get('banking');
+      const details = await bankingService.getTransactionDetails(transactionId);
       return details;
     } catch (error) {
       console.error('Error fetching transaction details:', error);
@@ -214,16 +290,24 @@ export const BankingProvider = ({ children }) => {
     try {
       setLoading(true);
 
-      const response = await BankingService.transferFunds(transferData);
+      const bankingService = serviceLocator.get('banking');
+      const response = await bankingService.transferFunds(transferData);
 
-      // Invalidate and refetch both info and history
-      invalidateBankingInfo();
-      invalidateBankingHistory();
-
-      await Promise.all([
-        refetchBankingInfo(),
-        refetchBankingHistory()
-      ]);
+      // Invalidate caches for the specific caixinha
+      const caixinhaId = transferData.caixinhaId;
+      invalidateSpecificBankingInfo(caixinhaId);
+      invalidateSpecificBankingHistory(caixinhaId);
+      
+      // Also invalidate current selected caixinha cache if it's the same
+      if (selectedCaixinha === caixinhaId) {
+        invalidateBankingInfo();
+        invalidateBankingHistory();
+        
+        await Promise.all([
+          refetchBankingInfo(),
+          refetchBankingHistory()
+        ]);
+      }
 
       return response;
     } catch (error) {
@@ -234,6 +318,9 @@ export const BankingProvider = ({ children }) => {
       setLoading(false);
     }
   }, [
+    invalidateSpecificBankingInfo,
+    invalidateSpecificBankingHistory,
+    selectedCaixinha,
     invalidateBankingInfo,
     invalidateBankingHistory,
     refetchBankingInfo,
@@ -250,16 +337,25 @@ export const BankingProvider = ({ children }) => {
     try {
       setLoading(true);
 
-      const response = await BankingService.cancelTransaction(transactionId);
+      const bankingService = serviceLocator.get('banking');
+      const response = await bankingService.cancelTransaction(transactionId);
 
-      // Invalidate and refetch both info and history
-      invalidateBankingInfo();
-      invalidateBankingHistory();
-
-      await Promise.all([
-        refetchBankingInfo(),
-        refetchBankingHistory()
-      ]);
+      // If the result includes the caixinha ID, invalidate specific cache
+      if (response.caixinhaId) {
+        invalidateSpecificBankingInfo(response.caixinhaId);
+        invalidateSpecificBankingHistory(response.caixinhaId);
+        
+        // Also invalidate current selected caixinha cache if it's the same
+        if (selectedCaixinha === response.caixinhaId) {
+          invalidateBankingInfo();
+          invalidateBankingHistory();
+          
+          await Promise.all([
+            refetchBankingInfo(),
+            refetchBankingHistory()
+          ]);
+        }
+      }
 
       return response;
     } catch (error) {
@@ -270,11 +366,39 @@ export const BankingProvider = ({ children }) => {
       setLoading(false);
     }
   }, [
+    invalidateSpecificBankingInfo,
+    invalidateSpecificBankingHistory,
+    selectedCaixinha,
     invalidateBankingInfo,
     invalidateBankingHistory,
     refetchBankingInfo,
     refetchBankingHistory
   ]);
+
+  // Process card payment
+  const processCardPayment = useCallback(async (paymentData) => {
+    if (!paymentData || !paymentData.token) {
+      showToast('Invalid payment data or card token', { type: 'error' });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const bankingService = serviceLocator.get('banking');
+      const response = await bankingService.processCardPayment(paymentData);
+
+      showToast('Payment processed successfully', { type: 'success' });
+      return response;
+    } catch (error) {
+      console.error('Error processing card payment:', error);
+      setError(error.message);
+      showToast(error.message || 'Failed to process payment', { type: 'error' });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Clear error
   const clearError = useCallback(() => {
@@ -292,10 +416,12 @@ export const BankingProvider = ({ children }) => {
     selectedCaixinha,
     selectCaixinha,
     registerBankAccount,
+    generateValidationPix,
     validateBankAccount,
     getTransactionDetails,
     transferFunds,
     cancelTransaction,
+    processCardPayment,
     refetchBankingInfo,
     refetchBankingHistory,
     clearError
@@ -312,10 +438,12 @@ export const BankingProvider = ({ children }) => {
     selectedCaixinha,
     selectCaixinha,
     registerBankAccount,
+    generateValidationPix,
     validateBankAccount,
     getTransactionDetails,
     transferFunds,
     cancelTransaction,
+    processCardPayment,
     refetchBankingInfo,
     refetchBankingHistory,
     clearError

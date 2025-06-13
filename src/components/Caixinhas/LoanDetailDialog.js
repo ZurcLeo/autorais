@@ -169,7 +169,7 @@ const LoanDetailDialog = ({
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body2" fontWeight="medium">
-                      {loan.membro.nome}
+                      {loan.membro?.nome || loan.memberName || `Usuário ${(loan.memberId || loan.userId || '').substring(0, 8)}` || 'Nome não disponível'}
                     </Typography>
                   </Grid>
                   

@@ -35,13 +35,13 @@ export const ResilienceConfig = {
         development: {
             retry: {
                 maxRetries: {
-                    critical: 3,    // menos tentativas em dev
-                    normal: 2
+                    critical: 5,    // mais tentativas em dev para debugging
+                    normal: 3
                 }
             },
             circuitBreaker: {
-                failureThreshold: 3,
-                cooldownPeriod: 30000
+                failureThreshold: 8,    // mais tolerante em dev
+                cooldownPeriod: 45000   // mais tempo para recuperação
             },
             logging: {
                 verbose: true,      // mais logs em dev

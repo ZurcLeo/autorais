@@ -571,7 +571,7 @@ _emitEvent(eventType, data = {}) {
     ? eventType 
     : String(eventType);
     
-  serviceEventHub.emit(this._serviceName, cleanEventType, data);    
+  serviceEventHub.emit(this._serviceName, cleanEventType, eventPayload);    
 }
 
     /**

@@ -21,6 +21,7 @@ import { CaixinhaService } from '../../services/CaixinhaService'
 import { CaixinhaInviteService } from '../../services/CaixinhaInviteService';
 import { LoanService } from '../../services/LoanService';
 import { DisputeService } from '../../services/DisputeService';
+import { BankingService } from '../../services/BankingService';
 
 // Definição de serviços por fase
 const SERVICES_DEFINITION = {
@@ -46,7 +47,8 @@ const SERVICES_DEFINITION = {
     { name: 'caixinhas', ServiceClass: CaixinhaService },
     { name: 'caixinhaInvite', ServiceClass: CaixinhaInviteService },
     { name: 'loans', ServiceClass: LoanService },
-    { name: 'disputes', ServiceClass: DisputeService}
+    { name: 'disputes', ServiceClass: DisputeService},
+    { name: 'banking', ServiceClass: BankingService }
   ]
 };
 

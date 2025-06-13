@@ -53,9 +53,9 @@ class RetryManager {
         this.successThreshold = envConfig.circuitBreaker.successThreshold;
 
         // Configurações de detecção de loops
-        this.absoluteTimeLimit = 30000; // 30 segundos máximo para inicialização
-        this.rapidInitThreshold = 1000; // 1 segundo entre tentativas é considerado rápido demais
-        this.maxRapidAttempts = 3; // 3 tentativas rápidas são consideradas um loop
+        this.absoluteTimeLimit = 60000; // 60 segundos máximo para inicialização
+        this.rapidInitThreshold = 3000; // 3 segundos entre tentativas é considerado rápido demais
+        this.maxRapidAttempts = 7; // 7 tentativas rápidas são consideradas um loop
 
         // Métricas
         this.metrics = {

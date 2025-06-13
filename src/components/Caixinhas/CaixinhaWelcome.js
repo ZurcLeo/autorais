@@ -89,86 +89,135 @@ export const CaixinhaCard = ({ caixinha, onClick }) => {
 
   return (
     <Card 
-      elevation={3}
+      elevation={2}
       sx={{
-        height: '90%',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 3,
-        transition: 'transform 0.2s, box-shadow 0.2s',
+        borderRadius: 4,
+        transition: 'all 0.3s ease',
+        cursor: 'pointer',
+        border: `1px solid ${theme?.palette?.divider || 'rgba(0,0,0,0.12)'}`,
+        background: `linear-gradient(135deg, ${theme?.palette?.background?.paper || '#fff'} 0%, ${theme?.palette?.background?.default || '#fafafa'} 100%)`,
         '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: 6
+          transform: 'translateY(-8px)',
+          boxShadow: 8,
+          borderColor: theme?.palette?.primary?.main || '#1976d2'
         }
       }}
+      onClick={() => onClick(caixinha)}
     >
       <Box 
         sx={{ 
           position: 'relative',
-          height: 120,
-          borderRadius: '20px',
-          bgcolor: theme.palette.background.primary,
+          height: 140,
+          borderRadius: '16px 16px 0 0',
+          background: `linear-gradient(135deg, ${theme?.palette?.primary?.main || '#1976d2'} 0%, ${theme?.palette?.primary?.dark || '#1565c0'} 100%)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          p: 2
+          p: 3,
+          overflow: 'hidden'
         }}
       >
-        <Typography variant="h5" component="h2" color={theme.palette.primary.main} align="center" fontWeight="bold">
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -30,
+            right: -30,
+            width: 120,
+            height: 120,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.1)',
+            opacity: 0.7
+          }}
+        />
+        <Typography 
+          variant="h5" 
+          component="h2" 
+          color="white" 
+          align="center" 
+          fontWeight="bold"
+          sx={{ position: 'relative', zIndex: 1 }}
+        >
           {caixinha.name}
         </Typography>
         <Avatar 
           sx={{ 
             position: 'absolute', 
-            bottom: -20, 
+            bottom: -25, 
             right: 20,
-            width: 50, 
-            height: 50,
-            bgcolor: theme.palette.background.primary,
-            border: '3px solid white'
+            width: 60, 
+            height: 60,
+            bgcolor: 'white',
+            color: theme?.palette?.primary?.main || '#1976d2',
+            border: '4px solid white',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            boxShadow: 3
           }}
         >
           {caixinha.name ? caixinha.name.charAt(0).toUpperCase() : "C"}
         </Avatar>
       </Box>
       
-      <CardContent sx={{ flexGrow: 1, pt: 3 }}>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" color={theme.palette.secondary.main} gutterBottom>
-            {t('total')}
+      <CardContent sx={{ flexGrow: 1, pt: 4, pb: 3 }}>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {t('total', 'Saldo Total')}
           </Typography>
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h5" fontWeight="bold" color="primary.main">
             {formatCurrency(caixinha.saldoTotal)}
           </Typography>
         </Box>
         
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
-          <PeopleIcon fontSize="small" color={theme.palette.primary.main} />
-          <Typography variant="body2">
-            {caixinha.members?.length || 0} {t('members')}
-          </Typography>
-        </Box>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={6}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <PeopleIcon fontSize="small" color="primary" />
+              <Box>
+                <Typography variant="h6" fontWeight="bold">
+                  {caixinha.members?.length || 0}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {t('members', 'Membros')}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+          
+          {caixinha.dataFim && (
+            <Grid item xs={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CalendarTodayIcon fontSize="small" color="primary" />
+                <Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    {formatarData(caixinha.dataFim)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {t('endDate', 'Término')}
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
         
-        {caixinha.dataFim && (
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
-            <CalendarTodayIcon fontSize="small" color={theme.palette.primary.main} />
-            <Typography variant="body2">
-              {t('endDate')}: {formatarData(caixinha.dataFim)}
-            </Typography>
-          </Box>
-        )}
-        
-        <Box sx={{ mt: 3 }}>
+        <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body2">{t('progress')}</Typography>
-            <Typography variant="body2" fontWeight="medium">{progresso}%</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('progress', 'Progresso')}
+            </Typography>
+            <Typography variant="body2" fontWeight="bold" color={getColorByProgress(progresso)}>
+              {progresso}%
+            </Typography>
           </Box>
           <Box 
             sx={{ 
               width: '100%', 
-              height: 6, 
-              bgcolor: theme.palette.background.secondary, 
-              borderRadius: 3,
+              height: 8, 
+              bgcolor: 'grey.200', 
+              borderRadius: 4,
               overflow: 'hidden'
             }}
           >
@@ -177,25 +226,14 @@ export const CaixinhaCard = ({ caixinha, onClick }) => {
                 width: `${progresso}%`, 
                 height: '100%', 
                 bgcolor: getColorByProgress(progresso),
-                transition: 'width 1s ease-in-out'
+                borderRadius: 4,
+                transition: 'width 1.5s ease-in-out',
+                background: `linear-gradient(90deg, ${theme?.palette?.[getColorByProgress(progresso).split('.')[0]]?.main || '#1976d2'}, ${theme?.palette?.[getColorByProgress(progresso).split('.')[0]]?.light || '#42a5f5'})`
               }} 
             />
           </Box>
         </Box>
       </CardContent>
-      
-      <Divider />
-      
-      <CardActions sx={{ p: 2, pt: 1.5, pb: 1.5 }}>
-        <Button 
-          fullWidth 
-          variant="contained" 
-          endIcon={<ArrowForwardIcon />}
-          onClick={() => onClick(caixinha)}
-        >
-          {t('accessCaixinha')}
-        </Button>
-      </CardActions>
     </Card>
   );
 };
@@ -220,31 +258,56 @@ const MyCaixinhasSection = ({ caixinhas, onCaixinhaSelect, loading }) => {
 
   return (
     <Box sx={{ mb: 6 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 3
-      }}>
-        <Typography variant="h5" component="h2" fontWeight="bold">
-          {t('myCaixinhas')}
-        </Typography>
-        <CreateCaixinhaButton variant="outlined" size={isMobile ? "small" : "medium"} />
-        <OpenSimulatorButton />
-      </Box>
+      <Paper
+        elevation={1}
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 3,
+          background: `linear-gradient(135deg, ${theme?.palette?.background?.paper || '#fff'} 0%, ${theme?.palette?.grey?.[50] || '#fafafa'} 100%)`,
+          border: `1px solid ${theme?.palette?.divider || 'rgba(0,0,0,0.12)'}`
+        }}
+      >
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2
+        }}>
+          <Box>
+            <Typography variant="h4" component="h2" fontWeight="bold" sx={{ mb: 1 }}>
+              {t('myCaixinhas', 'Minhas Caixinhas')}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {caixinhas.length} {caixinhas.length === 1 ? 'caixinha ativa' : 'caixinhas ativas'}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <CreateCaixinhaButton variant="contained" size={isMobile ? "small" : "medium"} />
+            <OpenSimulatorButton variant="outlined" size={isMobile ? "small" : "medium"} />
+          </Box>
+        </Box>
+      </Paper>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         {caixinhas.map(caixinha => (
           <Grid
             item
-            xs={12} // Em telas extra-pequenas (celular), ocupa 12 colunas (1 cartão por linha)
-            sm={6}  // Em telas pequenas (tablet), ocupa 6 colunas (2 cartões por linha)
-            md={4}  // Em telas médias (desktop), ocupa 4 colunas (3 cartões por linha)
-            lg={4}  // Em telas grandes (desktop), ocupa 4 colunas (3 cartões por linha)
-            xl={4}  // Em telas extra-grandes (desktop), ocupa 4 colunas (3 cartões por linha)
+            xs={12} // Mobile: 1 card per row
+            sm={6}  // Tablet: 2 cards per row
+            md={6}  // Medium desktop: 2 cards per row
+            lg={4}  // Large desktop: 3 cards per row
+            xl={3}  // Extra large: 4 cards per row
             key={caixinha.id}
+            sx={{
+              display: 'flex',
+              '& > *': {
+                width: '100%'
+              }
+            }}
           >            
-          <CaixinhaCard 
+            <CaixinhaCard 
               caixinha={caixinha} 
               onClick={onCaixinhaSelect} 
             />
@@ -256,42 +319,57 @@ const MyCaixinhasSection = ({ caixinhas, onCaixinhaSelect, loading }) => {
 };
 
 // Componente para cartão de recurso/benefício
-const FeatureCard = ({ icon, title, description }) => (
-  <Paper
-    elevation={2}
-    sx={{
-      p: 3,
-      height: '100%',
-      borderRadius: 3,
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-      '&:hover': {
-        transform: 'translateY(-5px)',
-        boxShadow: 6
-      }
-    }}
-  >
-    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+const FeatureCard = ({ icon, title, description }) => {
+  const theme = useTheme();
+  
+  return (
+    <Paper
+      elevation={1}
+      sx={{
+        p: 4,
+        height: '100%',
+        borderRadius: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        border: `1px solid ${theme?.palette?.divider || 'rgba(0,0,0,0.12)'}`,
+        background: `linear-gradient(135deg, ${theme?.palette?.background?.paper || '#fff'} 0%, ${theme?.palette?.grey?.[50] || '#fafafa'} 100%)`,
+        transition: 'all 0.3s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-8px)',
+          boxShadow: 8,
+          borderColor: theme?.palette?.primary?.main || '#1976d2',
+          '& .feature-avatar': {
+            transform: 'scale(1.1)',
+            bgcolor: theme?.palette?.primary?.main || '#1976d2'
+          }
+        }
+      }}
+    >
       <Avatar
+        className="feature-avatar"
         sx={{
-          width: 56,
-          height: 56,
-          bgcolor: 'primary.light',
-          color: 'primary.contrastText'
+          width: 80,
+          height: 80,
+          mb: 3,
+          bgcolor: theme?.palette?.primary?.light || '#64b5f6',
+          color: 'white',
+          transition: 'all 0.3s ease',
+          boxShadow: 3
         }}
       >
         {icon}
       </Avatar>
-    </Box>
-    <Typography variant="h6" gutterBottom align="center">
-      {title}
-    </Typography>
-    <Typography variant="body2" color="text.secondary" align="center">
-      {description}
-    </Typography>
-  </Paper>
-);
+      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
+        {title}
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+        {description}
+      </Typography>
+    </Paper>
+  );
+};
 
 // Componente para tutorial
 const TutorialStep = ({ number, title, description }) => (
@@ -320,19 +398,14 @@ const CaixinhaWelcome = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const caixinhaContext = useCaixinha();
   const [loading, setLoading] = useState(true);
-  console.log('testew: ', caixinhaContext)
 
   // Obter as caixinhas do usuário
   const caixinhasArray = caixinhaContext.caixinhas?.caixinhas || [];  
   
   useEffect(() => {
-    // Simulando carregamento de dados
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    // Usar o loading real do provider em vez de timeout fictício
+    setLoading(caixinhaContext.loading);
+  }, [caixinhaContext.loading]);
 
   const handleCaixinhaSelect = (caixinha) => {
     // Navegar para o CaixinhaOverview com a caixinha selecionada
@@ -347,18 +420,167 @@ const CaixinhaWelcome = () => {
     }).format(value);
   };
 
-  // Exemplo de dados para gráfico
-  const sampleBalanceData = [
-    { month: 'Jan', amount: 1000 },
-    { month: 'Fev', amount: 2000 },
-    { month: 'Mar', amount: 3000 },
-    { month: 'Abr', amount: 4000 },
-    { month: 'Mai', amount: 5000 },
-    { month: 'Jun', amount: 6000 },
-  ];
+  // Dados para gráfico baseados nas caixinhas reais do usuário
+  const generateBalanceData = () => {
+    if (!caixinhasArray || caixinhasArray.length === 0) {
+      // Dados de exemplo apenas quando não há caixinhas
+      return [
+        { month: 'Jan', amount: 1000 },
+        { month: 'Fev', amount: 2000 },
+        { month: 'Mar', amount: 3000 },
+        { month: 'Abr', amount: 4000 },
+        { month: 'Mai', amount: 5000 },
+        { month: 'Jun', amount: 6000 },
+      ];
+    }
+    
+    // Calcular dados reais baseados nas caixinhas do usuário
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+    let cumulativeAmount = 0;
+    
+    return months.map((month, index) => {
+      // Simular crescimento baseado nos saldos reais das caixinhas
+      const totalBalance = caixinhasArray.reduce((sum, caixinha) => sum + (caixinha.saldoTotal || 0), 0);
+      cumulativeAmount += totalBalance / 6; // Distribuir ao longo dos meses
+      
+      return {
+        month,
+        amount: Math.round(cumulativeAmount)
+      };
+    });
+  };
+
+  const sampleBalanceData = generateBalanceData();
+
+  // Calcular métricas das caixinhas
+  const calculateMetrics = () => {
+    if (!caixinhasArray || caixinhasArray.length === 0) {
+      return {
+        totalCaixinhas: 0,
+        totalBalance: 0,
+        totalMembers: 0,
+        activeCaixinhas: 0
+      };
+    }
+    
+    return {
+      totalCaixinhas: caixinhasArray.length,
+      totalBalance: caixinhasArray.reduce((sum, c) => sum + (c.saldoTotal || 0), 0),
+      totalMembers: caixinhasArray.reduce((sum, c) => sum + (c.members?.length || 0), 0),
+      activeCaixinhas: caixinhasArray.filter(c => c.ativo !== false).length
+    };
+  };
+
+  const metrics = calculateMetrics();
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
+      {/* Modern Header with Metrics - Only show if user has caixinhas */}
+      {caixinhasArray.length > 0 && !loading && (
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 3, md: 4 },
+            mb: 4,
+            borderRadius: 4,
+            background: `linear-gradient(135deg, ${theme?.palette?.primary?.main || '#1976d2'} 0%, ${theme?.palette?.primary?.dark || '#1565c0'} 100%)`,
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -50,
+              right: -50,
+              width: 200,
+              height: 200,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
+              opacity: 0.5
+            }}
+          />
+          
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={8}>
+              <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 2 }}>
+                {t('caixinha.welcome.title', 'Minhas Caixinhas')}
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 3, opacity: 0.9 }}>
+                {t('caixinha.welcome.subtitle', 'Gerencie suas economias colaborativas de forma inteligente')}
+              </Typography>
+              
+              {/* Metrics Cards */}
+              <Grid container spacing={2}>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" fontWeight="bold">
+                      {metrics.totalCaixinhas}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                      {t('caixinhas', 'Caixinhas')}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" fontWeight="bold">
+                      {formatCurrency(metrics.totalBalance)}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                      {t('totalBalance', 'Saldo Total')}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" fontWeight="bold">
+                      {metrics.totalMembers}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                      {t('members', 'Membros')}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" fontWeight="bold">
+                      {metrics.activeCaixinhas}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                      {t('active', 'Ativas')}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+            
+            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <CreateCaixinhaButton 
+                  variant="contained"
+                  sx={{ 
+                    bgcolor: 'rgba(255,255,255,0.2)', 
+                    color: 'white',
+                    backdropFilter: 'blur(10px)',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
+                  }}
+                />
+                <OpenSimulatorButton 
+                  sx={{ 
+                    bgcolor: 'rgba(255,255,255,0.1)', 
+                    color: 'white',
+                    borderColor: 'rgba(255,255,255,0.3)',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+                  }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
+
       {/* Seção de Caixinhas existentes */}
       <MyCaixinhasSection 
         caixinhas={caixinhasArray}
@@ -409,10 +631,16 @@ const CaixinhaWelcome = () => {
       )}
 
       {/* Seção de Benefícios */}
-      <Typography variant="h5" component="h2" sx={{ mb: 3, fontWeight: 'bold' }}>
-        {t('caixinha.welcome.benefits.title', 'Benefícios da Caixinha')}
-      </Typography>
-      <Grid container spacing={3} sx={{ mb: 6 }}>
+      <Box sx={{ mb: 6 }}>
+        <Box sx={{ textAlign: 'center', mb: 5 }}>
+          <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold', mb: 2 }}>
+            {t('caixinha.welcome.benefits.title', 'Por que usar a Caixinha?')}
+          </Typography>
+          <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
+            {t('caixinha.welcome.benefits.subtitle', 'Descubra as vantagens de gerenciar suas economias de forma colaborativa e inteligente')}
+          </Typography>
+        </Box>
+        <Grid container spacing={4} sx={{ mb: 6 }}>
         <Grid item xs={12} sm={6} md={3}>
           <FeatureCard
             icon={<GroupIcon fontSize="large" />}
@@ -441,7 +669,8 @@ const CaixinhaWelcome = () => {
             description={t('caixinha.welcome.benefits.payments.description', 'Integração com PIX e validação de conta bancária para transações seguras e eficientes.')}
           />
         </Grid>
-      </Grid>
+        </Grid>
+      </Box>
 
       {/* Seção Como Funciona */}
       <Paper elevation={2} sx={{ p: 3, mb: 6, borderRadius: 3 }}>

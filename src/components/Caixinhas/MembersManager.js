@@ -129,47 +129,60 @@ const MembersManager = ({ caixinha }) => {
       return [];
     }
 
-      // Garantir que processedMembers é um array
-  const members = Array.isArray(processedMembers) ? processedMembers : [];
-  
-  // Garantir que sentInvites é um array
-  const invites = Array.isArray(sentInvites) ? sentInvites : [];
+    // Garantir que processedMembers é um array
+    const members = Array.isArray(processedMembers) ? processedMembers : [];
+    
+    // Garantir que sentInvites é um array
+    const invites = Array.isArray(sentInvites) ? sentInvites : [];
 
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Combining members and invites', {
-      membersCount: processedMembers.length,
-      sentInvitesCount: sentInvites.length,
+      membersCount: members.length,
+      sentInvitesCount: invites.length,
       caixinhaId: caixinha.id
     });
     
+    // Obter IDs dos membros existentes para evitar duplicação
+    const existingMemberIds = members.map(member => member.id);
+    
     // Transformar convites pendentes para um formato compatível com o MembersList
+    // Filtrar apenas convites pendentes que não correspondem a membros existentes
     const pendingInvitesAsMembers = invites
-    .filter(invite => invite.status === 'pending' && invite.caixinhaId === caixinha.id)
-    .map(invite => {
-      // Obter timestamp como número de milissegundos se estiver no formato Firestore
-      const timestamp = invite.createdAt && invite.createdAt._seconds 
-        ? invite.createdAt._seconds * 1000 
-        : invite.createdAt;
+      .filter(invite => {
+        // Só incluir convites pendentes para esta caixinha
+        const isPendingForThisCaixinha = invite.status === 'pending' && invite.caixinhaId === caixinha.id;
         
-      return {
-        id: `invite-${invite.id}`,
-        nome: invite.targetName || 'Usuário Convidado',
-        email: invite.email || '',
-        isAdmin: false,
-        status: 'pending',
-        type: 'caixinha_invite',
-        caxinhaInviteId: invite.id,
-        senderId: invite.senderId,
-        // Converter para timestamp numérico para facilitar o processamento
-        createdAt: timestamp,
-        invitedAt: timestamp
-      };
+        // Verificar se o convite não corresponde a um membro existente
+        const isNotExistingMember = invite.targetId ? !existingMemberIds.includes(invite.targetId) : true;
+        
+        return isPendingForThisCaixinha && isNotExistingMember;
+      })
+      .map(invite => {
+        // Obter timestamp como número de milissegundos se estiver no formato Firestore
+        const timestamp = invite.createdAt && invite.createdAt._seconds 
+          ? invite.createdAt._seconds * 1000 
+          : invite.createdAt;
+          
+        return {
+          id: `invite-${invite.id}`,
+          nome: invite.targetName || 'Usuário Convidado',
+          email: invite.email || '',
+          isAdmin: false,
+          status: 'pending',
+          type: 'caixinha_invite',
+          caxinhaInviteId: invite.id,
+          senderId: invite.senderId,
+          // Converter para timestamp numérico para facilitar o processamento
+          createdAt: timestamp,
+          invitedAt: timestamp
+        };
+      });
+
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, 'Combined members and invites result', {
+      membersCount: members.length,
+      pendingInvitesCount: pendingInvitesAsMembers.length,
+      existingMemberIds,
+      totalCombined: members.length + pendingInvitesAsMembers.length
     });
-    console.log('Members:', members)
-    console.log('pendingInvitesAsMembers:', pendingInvitesAsMembers)
-    console.log('processedMembers:', processedMembers)
-    console.log('sentInvites:', sentInvites)
-
-
 
     return [...members, ...pendingInvitesAsMembers];
   }, [processedMembers, sentInvites, caixinha]);

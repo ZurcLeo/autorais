@@ -4,6 +4,14 @@ import { LOG_LEVELS } from '../../core/constants/config';
 import { coreLogger } from '../../core/logging';
 import { BANKING_ACTIONS, SERVICE_ACTIONS } from '../../core/constants/actions';
 import { BANKING_EVENTS } from '../../core/constants/events';
+import { 
+  generateDeviceId, 
+  waitForMercadoPagoSDK, 
+  initializeMercadoPago,
+  createCardToken,
+  validateCardData 
+} from '../../utils/mercadoPagoUtils';
+import { validatePaymentData, createStandardPaymentData, logPaymentDataSafely } from '../../utils/mercadoPagoValidation';
 
 const MODULE_NAME = 'banking';
 
@@ -27,8 +35,9 @@ class BankingService extends BaseService {
 
     this._log(`📊 Nova instância de ${MODULE_NAME} criada, instanceId: ${this.instanceId}`);
 
-    this.apiService = serviceLocator.get('apiService');
-    this.authService = serviceLocator.get('auth');
+    // Initialize services as null - will be set in initialize()
+    this.apiService = null;
+    this.authService = null;
   }
 
   async initialize() {
@@ -37,6 +46,9 @@ class BankingService extends BaseService {
     this._log(MODULE_NAME, LOG_LEVELS.LIFECYCLE, 'BankingService initializing...', { timestamp: Date.now() });
 
     try {
+      // Get services during initialization instead of constructor
+      this.apiService = serviceLocator.get('apiService');
+      this.authService = serviceLocator.get('auth');
       this._log(MODULE_NAME, LOG_LEVELS.INITIALIZATION, 'Inicializando serviço bancário');
       
       // Setup completo, marcar como inicializado
@@ -89,6 +101,11 @@ class BankingService extends BaseService {
   }
 
   async getBankingInfo(caixinhaId) {
+    // Ensure service is initialized
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    
     // Obter o usuário atual de forma segura
     const currentUser = this.getCurrentUser();
 
@@ -120,6 +137,11 @@ class BankingService extends BaseService {
   }
 
   async getBankingHistory(caixinhaId) {
+    // Ensure service is initialized
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    
     // Verificar se o ID da caixinha foi fornecido
     if (!caixinhaId) {
       this._log(MODULE_NAME, LOG_LEVELS.WARNING, 'Tentativa de obter histórico bancário sem ID da caixinha');
@@ -189,9 +211,89 @@ class BankingService extends BaseService {
     }
   }
 
+  async generateValidationPix(accountId, paymentData = {}) {
+    if (!accountId) {
+      throw new Error('Account ID is required');
+    }
+
+    this._emitEvent(BANKING_EVENTS.VALIDATE_START);
+
+    try {
+      // Get current user data for validation
+      const currentUser = this.getCurrentUser();
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+
+      // Wait for MercadoPago SDK and generate device ID
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Waiting for MercadoPago SDK...');
+      await waitForMercadoPagoSDK(3000); // Wait up to 3 seconds for SDK
+      
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Generating device ID...');
+      const deviceId = await generateDeviceId();
+      
+      if (!deviceId) {
+        throw new Error('Failed to generate device ID - required for MercadoPago integration');
+      }
+
+      // Create user info object with fallbacks
+      const userInfo = {
+        email: paymentData.email || currentUser.email,
+        firstName: paymentData.firstName || currentUser.displayName?.split(' ')[0] || 'Usuario',
+        lastName: paymentData.lastName || currentUser.displayName?.split(' ').slice(1).join(' ') || 'ElosCloud',
+        identificationType: paymentData.identificationType || "CPF",
+        identificationNumber: paymentData.identificationNumber || ""
+      };
+
+      // Create standardized payment data following MercadoPago recommendations
+      const completePaymentData = createStandardPaymentData(
+        userInfo,
+        deviceId,
+        paymentData.amount || 1.00,
+        accountId
+      );
+
+      // Validate payment data before sending
+      const validation = validatePaymentData(completePaymentData);
+      
+      if (!validation.isValid) {
+        this._log(MODULE_NAME, LOG_LEVELS.ERROR, 'Payment data validation failed', { errors: validation.errors });
+        throw new Error(`Payment data validation failed: ${validation.errors.join(', ')}`);
+      }
+
+      if (validation.warnings.length > 0) {
+        this._log(MODULE_NAME, LOG_LEVELS.WARNING, 'Payment data validation warnings', { warnings: validation.warnings });
+      }
+
+      // Log payment data safely (without sensitive info)
+      logPaymentDataSafely(completePaymentData);
+
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Payment data validation successful', validation.summary);
+
+      const response = await this._executeWithRetry(async () => {
+        return await this.apiService.post(`/api/banking/${accountId}/generate-validation-pix`, completePaymentData);
+      }, 'generateValidationPix');
+
+      const result = response.data;
+      
+      // Emitir evento
+      this._emitEvent(BANKING_EVENTS.PIX_GENERATED, { 
+        accountId,
+        pixData: result.pixData,
+        paymentData: completePaymentData
+      });
+      
+      return result;
+    } catch (error) {
+      this._logError(error, 'generateValidationPix');
+      this._emitEvent(BANKING_EVENTS.VALIDATE_FAILURE, { error: error.message });
+      throw error;
+    }
+  }
+
   async validateBankAccount(transactionData) {
-    if (!transactionData || !transactionData.accountId) {
-      throw new Error('Invalid transaction data');
+    if (!transactionData || !transactionData.accountId || !transactionData.transactionId) {
+      throw new Error('Invalid transaction data: accountId and transactionId are required');
     }
 
     const accountId = transactionData.accountId;
@@ -199,7 +301,10 @@ class BankingService extends BaseService {
 
     try {
       const response = await this._executeWithRetry(async () => {
-        return await this.apiService.post(`/api/banking/${accountId}/validate`, transactionData);
+        return await this.apiService.post(`/api/banking/${accountId}/validate`, {
+          accountId: transactionData.accountId,
+          transactionId: transactionData.transactionId
+        });
       }, 'validateBankAccount');
 
       const result = response.data;
@@ -304,6 +409,144 @@ class BankingService extends BaseService {
       return details;
     } catch (error) {
       this._logError(error, 'getTransactionDetails');
+      throw error;
+    }
+  }
+
+  async processCardPayment(paymentData) {
+    if (!paymentData || !paymentData.token) {
+      throw new Error('Payment data or card token is required');
+    }
+
+    // Ensure service is initialized
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
+    // Get current user
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) {
+      this._log(MODULE_NAME, LOG_LEVELS.WARNING, 'Attempt to process card payment without authenticated user');
+      throw new Error('User not authenticated');
+    }
+
+    this._emitEvent(BANKING_EVENTS.PAYMENT_START);
+
+    try {
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Processing card payment with MercadoPago token');
+
+      // Validate that we have required payment data
+      if (!paymentData.amount || paymentData.amount <= 0) {
+        throw new Error('Invalid payment amount');
+      }
+
+      if (!paymentData.payer || !paymentData.payer.email) {
+        throw new Error('Payer information is required');
+      }
+
+      // Prepare payment data for backend
+      const completePaymentData = {
+        // Token and device ID from MercadoPago SDK V2
+        token: paymentData.token,
+        device_id: paymentData.device_id, // Automatically included by SDK V2
+        
+        // Payment details
+        amount: paymentData.amount,
+        currency: paymentData.currency || 'BRL',
+        description: paymentData.description || 'Pagamento com cartão',
+        
+        // Payer information
+        payer: {
+          email: paymentData.payer.email,
+          identification: paymentData.payer.identification
+        },
+        
+        // Additional payment options
+        installments: paymentData.installments || 1,
+        payment_method_id: paymentData.payment_method_id,
+        issuer_id: paymentData.issuer_id,
+        
+        // Metadata for tracking
+        metadata: {
+          user_id: currentUser.uid,
+          payment_type: 'credit_card',
+          sdk_version: 'v2',
+          tokenization_method: 'mercadopago_sdk',
+          ...paymentData.metadata
+        }
+      };
+
+      // Log payment data safely (without sensitive info)
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Card payment data prepared', {
+        hasToken: !!completePaymentData.token,
+        hasDeviceId: !!completePaymentData.device_id,
+        amount: completePaymentData.amount,
+        installments: completePaymentData.installments,
+        paymentMethodId: completePaymentData.payment_method_id
+      });
+
+      // Send payment to backend for processing
+      const response = await this._executeWithRetry(async () => {
+        return await this.apiService.post('/api/banking/payments/card', completePaymentData);
+      }, 'processCardPayment');
+
+      const result = response.data;
+
+      // Emit success event
+      this._emitEvent(BANKING_EVENTS.PAYMENT_SUCCESS, {
+        paymentId: result.id,
+        amount: completePaymentData.amount,
+        status: result.status
+      });
+
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Card payment processed successfully', {
+        paymentId: result.id,
+        status: result.status
+      });
+
+      return result;
+
+    } catch (error) {
+      this._logError(error, 'processCardPayment');
+      this._emitEvent(BANKING_EVENTS.PAYMENT_FAILURE, { error: error.message });
+      throw error;
+    }
+  }
+
+  async tokenizeCard(cardData) {
+    if (!cardData) {
+      throw new Error('Card data is required');
+    }
+
+    try {
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Starting card tokenization with MercadoPago SDK V2');
+
+      // Wait for MercadoPago SDK
+      await waitForMercadoPagoSDK(5000);
+
+      // Initialize MercadoPago if needed
+      await initializeMercadoPago();
+
+      // Validate card data
+      const validation = validateCardData(cardData);
+      if (!validation.isValid) {
+        throw new Error(`Card validation failed: ${validation.errors.join(', ')}`);
+      }
+
+      // Create card token using MercadoPago SDK V2
+      const token = await createCardToken(cardData);
+
+      this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Card tokenized successfully', {
+        tokenId: token.id,
+        hasDeviceId: !!token.device_id,
+        cardBrand: validation.cardBrand,
+        paymentMethodId: token.payment_method_id
+      });
+
+      return token;
+
+    } catch (error) {
+      this._logError(error, 'tokenizeCard');
       throw error;
     }
   }

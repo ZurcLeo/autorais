@@ -296,6 +296,9 @@ const BankAccountModal = ({ caixinhaId }) => {
           newErrors.pixKey = t('banking.errors.pixKeyRequired');
         }
         break;
+      default:
+        // No validation needed for unknown steps
+        break;
     }
 
     setErrors(newErrors);
@@ -349,6 +352,27 @@ const BankAccountModal = ({ caixinhaId }) => {
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      bankCode: '',
+      bankName: '',
+      accountNumber: '',
+      accountHolder: '',
+      agency: '',
+      accountType: '',
+      pixKeyType: '',
+      pixKey: ''
+    });
+    setErrors({});
+    setActiveStep(0);
+    setError(null);
+  };
+
+  const handleCloseModal = () => {
+    resetForm();
+    setModalOpen(false);
+  };
+
   const handleSubmit = async () => {
     if (loading) return;
     if (!validateStep(activeStep)) return;
@@ -361,9 +385,10 @@ const BankAccountModal = ({ caixinhaId }) => {
       };
   
       await registerBankAccount(caixinhaId, formattedData);
+      resetForm();
       setModalOpen(false);
     } catch (err) {
-      setError(t('banking.errors.registerAccountFailed'));
+      setError(err.message || t('banking.errors.registerAccountFailed'));
     } finally {
       setLoading(false);
     }
@@ -379,7 +404,7 @@ const BankAccountModal = ({ caixinhaId }) => {
   return (
     <Dialog
       open={isModalOpen}
-      onClose={() => setModalOpen(false)}
+      onClose={handleCloseModal}
       maxWidth="md"
       fullWidth
       sx={{
@@ -430,7 +455,7 @@ const BankAccountModal = ({ caixinhaId }) => {
 
       <DialogActions sx={{ px: 3, pb: 3 }}>
         <Button
-          onClick={() => setModalOpen(false)}
+          onClick={handleCloseModal}
           startIcon={<Close />}
           disabled={loading}
         >

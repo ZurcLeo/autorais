@@ -52,7 +52,6 @@ export const DisputeProvider = ({ children }) => {
       // Verificar cache
       const cacheKey = `disputes:${caixinhaId}:${status}`;
       const cachedData = globalCache.getItem(cacheKey);
-      disputesCache.current[cacheKey] = disputesData;
 
       if (cachedData && Date.now() - cachedData.timestamp < 2 * 60 * 1000) { // Cache de 2 minutos
         coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Using cached disputes data', {
@@ -166,8 +165,7 @@ export const DisputeProvider = ({ children }) => {
             }
           });
           
-          // Atualizar a lista completa
-        getDisputes();
+          // Nota: Lista será atualizada quando o componente chamar getDisputes explicitamente
         }
       }
     );
@@ -191,8 +189,7 @@ export const DisputeProvider = ({ children }) => {
             }
           });
           
-          // Atualizar a lista completa para refletir possíveis mudanças de status
-          getDisputes();
+          // Nota: Lista será atualizada quando o componente chamar getDisputes explicitamente
         }
       }
     );
@@ -216,8 +213,7 @@ export const DisputeProvider = ({ children }) => {
             }
           });
           
-          // Atualizar a lista completa
-          getDisputes();
+          // Nota: Lista será atualizada quando o componente chamar getDisputes explicitamente
         }
       }
     );
@@ -496,14 +492,12 @@ export const DisputeProvider = ({ children }) => {
     }
   }, [currentUser, t, showToast]);
 
-  // Inicialização - Carregar disputas quando o provider for montado com caixinhaId
+  // Inicialização - Limpar estado quando não há usuário
   useEffect(() => {
-    if (currentUser) {
-      getDisputes();
-    } else {
+    if (!currentUser) {
       dispatch({ type: DISPUTE_ACTIONS.CLEAR_STATE });
     }
-  }, [currentUser, getDisputes]);
+  }, [currentUser]);
 
   // Memoizar o valor do contexto para evitar re-renderizações desnecessárias
   const contextValue = useMemo(() => ({

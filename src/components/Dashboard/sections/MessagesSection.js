@@ -28,8 +28,51 @@ export const MessagesSection = ({ data, maxInitialMessages = 3 }) => {
   const [showAll, setShowAll] = useState(false);
   const navigate = useNavigate();
   
+  // Transformar dados das mensagens para o formato esperado
+  const transformMessageData = (rawMessages) => {
+    if (!rawMessages || !Array.isArray(rawMessages)) {
+      console.log('MessagesSection: Dados não são array ou estão undefined:', rawMessages);
+      return [];
+    }
+    
+    console.log('MessagesSection: Dados originais recebidos:', rawMessages);
+    
+    return rawMessages.map((msg, index) => {
+      // Log da estrutura da primeira mensagem para debug
+      if (index === 0) {
+        console.log('MessagesSection: Estrutura da primeira mensagem:', {
+          originalKeys: Object.keys(msg),
+          sampleMessage: msg
+        });
+      }
+      
+      // Mapear diferentes estruturas de dados de mensagem
+      const transformed = {
+        id: msg.id || msg._id || msg.messageId || index,
+        userId: msg.senderId || msg.userId || msg.from || msg.user?.id,
+        nome: msg.senderName || msg.nome || msg.fromName || msg.displayName || msg.user?.name || msg.user?.displayName || 'Usuário',
+        foto: msg.senderPhoto || msg.foto || msg.avatar || msg.photoURL || msg.user?.photoURL || msg.user?.avatar,
+        content: msg.text || msg.content || msg.message || msg.body || msg.lastMessage || 'Mensagem sem conteúdo',
+        timestamp: msg.timestamp || msg.createdAt || msg.time || msg.updatedAt || new Date(),
+        unread: msg.unread !== undefined ? msg.unread : !msg.read,
+        sender: msg.sender || (msg.senderId === 'currentUserId' ? 'me' : 'other'),
+        online: msg.online || msg.user?.online || false,
+        unreadCount: msg.unreadCount || msg.unreadMessages || 0
+      };
+      
+      // Log da primeira transformação para debug
+      if (index === 0) {
+        console.log('MessagesSection: Mensagem transformada:', transformed);
+      }
+      
+      return transformed;
+    });
+  };
+
+  const messages = transformMessageData(data);
+  
   // Handle empty state
-  if (!data || data.length === 0) {
+  if (!messages || messages.length === 0) {
     return (
       <Card sx={{ width: '100%', p: 4, mb: 4 }}>
         <Typography variant="h6">
@@ -69,10 +112,10 @@ export const MessagesSection = ({ data, maxInitialMessages = 3 }) => {
 
   // Controle de quais mensagens exibir
   const displayedMessages = showAll 
-    ? data 
-    : data.slice(0, maxInitialMessages);
+    ? messages 
+    : messages.slice(0, maxInitialMessages);
   
-  const hiddenCount = data.length - maxInitialMessages;
+  const hiddenCount = messages.length - maxInitialMessages;
   
   // Navega para a página de mensagens
   const goToMessagesPage = () => {
@@ -143,10 +186,12 @@ export const MessagesSection = ({ data, maxInitialMessages = 3 }) => {
                         width: 48, 
                         height: 48,
                         border: message.unread ? `2px solid` : 'none',
-                        borderColor: message.unread ? 'info.main' : 'transparent'
+                        borderColor: message.unread ? 'info.main' : 'transparent',
+                        bgcolor: message.foto ? 'transparent' : 'primary.main',
+                        color: message.foto ? 'text.primary' : 'primary.contrastText'
                       }}
                     >
-                      {message.nome?.[0]}
+                      {!message.foto && (message.nome?.[0]?.toUpperCase() || 'U')}
                     </Avatar>
                   </Badge>
                 </ListItemAvatar>
@@ -185,7 +230,10 @@ export const MessagesSection = ({ data, maxInitialMessages = 3 }) => {
                         }}
                       >
                         {message.sender === 'me' && 'Você: '}
-                        {truncateMessage(message.content)}
+                        {message.content && message.content !== 'Mensagem sem conteúdo' 
+                          ? truncateMessage(message.content)
+                          : 'Nova conversa iniciada'
+                        }
                       </Typography>
                     </Box>
                   }
@@ -212,7 +260,7 @@ export const MessagesSection = ({ data, maxInitialMessages = 3 }) => {
           ))}
         </List>
         
-        {data.length > maxInitialMessages && (
+        {messages.length > maxInitialMessages && (
           <Box sx={{ p: 2, textAlign: 'center' }}>
             <Button
               onClick={() => setShowAll(!showAll)}

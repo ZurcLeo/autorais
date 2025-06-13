@@ -5,7 +5,10 @@ import {
   TableCell, 
   Chip, 
   IconButton, 
-  Tooltip 
+  Tooltip,
+  Avatar,
+  Box,
+  Typography
 } from '@mui/material';
 import { 
   Payment as PaymentIcon, 
@@ -66,6 +69,58 @@ const LoanTableRow = ({
     }
   };
 
+  // Renderizar informações do membro com avatar
+  const renderMemberInfo = () => {
+    const membro = loan.membro || {};
+    
+    // Debug: verificar estrutura do loan
+    if (process.env.NODE_ENV === 'development') {
+      console.log('LoanTableRow - loan data:', {
+        loanId: loan.id,
+        memberId: loan.memberId,
+        userId: loan.userId,
+        membro: loan.membro,
+        fullLoan: loan
+      });
+    }
+    
+    // Tentar múltiplas fontes para o nome
+    const nome = membro.nome || 
+                 membro.displayName || 
+                 loan.memberName || 
+                 `Usuário ${(loan.memberId || loan.userId || '').substring(0, 8)}` ||
+                 'Nome não disponível';
+    
+    const fotoPerfil = membro.fotoPerfil || membro.photoURL || membro.fotoDoPerfil;
+    
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Avatar 
+          src={fotoPerfil && fotoPerfil.startsWith('http') ? fotoPerfil : undefined}
+          alt={nome}
+          sx={{ width: 40, height: 40 }}
+        >
+          {nome.charAt(0).toUpperCase()}
+        </Avatar>
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+            {nome}
+          </Typography>
+          {membro.email && (
+            <Typography variant="caption" color="text.secondary">
+              {membro.email}
+            </Typography>
+          )}
+          {process.env.NODE_ENV === 'development' && (
+            <Typography variant="caption" color="text.disabled" sx={{ display: 'block' }}>
+              ID: {loan.memberId || loan.userId || 'N/A'}
+            </Typography>
+          )}
+        </Box>
+      </Box>
+    );
+  };
+
   // Rendering cells based on loan type
   const renderCells = () => {
     switch (type) {
@@ -73,7 +128,7 @@ const LoanTableRow = ({
         return (
           <>
             <TableCell component="th" scope="row">
-              {loan.membro.nome}
+              {renderMemberInfo()}
             </TableCell>
             <TableCell align="right">{formatCurrency(loan.valor)}</TableCell>
             <TableCell align="right">
@@ -120,7 +175,7 @@ const LoanTableRow = ({
         return (
           <>
             <TableCell component="th" scope="row">
-              {loan.membro.nome}
+              {renderMemberInfo()}
             </TableCell>
             <TableCell align="right">{formatCurrency(loan.valor)}</TableCell>
             <TableCell>{loan.motivo}</TableCell>
@@ -170,7 +225,7 @@ const LoanTableRow = ({
         return (
           <>
             <TableCell component="th" scope="row">
-              {loan.membro.nome}
+              {renderMemberInfo()}
             </TableCell>
             <TableCell align="right">{formatCurrency(loan.valor)}</TableCell>
             <TableCell align="right">{formatDate(loan.dataConclusao)}</TableCell>

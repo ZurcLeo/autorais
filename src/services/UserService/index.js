@@ -1,4 +1,4 @@
-// src/services/user/UserService.js
+// src/services/UserService/index.js
 import {BaseService, serviceLocator} from '../../core/services/BaseService';
 import {USER_EVENTS, AUTH_EVENTS} from '../../core/constants/events.js';
 import {LOG_LEVELS, USER_CACHE_KEYS} from '../../core/constants/config.js';
@@ -320,38 +320,7 @@ class UserService extends BaseService {
                 return profileData;
             } catch (error) {
                 console.log('[UserService] getUserProfile failed, error:', error);
-                //
                 this._logError(error, 'getUserProfile');
-
-                // Em ambiente de desenvolvimento, use um perfil mock
-                if (process.env.NODE_ENV !== 'production') {
-                    console.log('[UserService] Returning mock profile data for development');
-                    const mockProfileData = {
-                        id: userId,
-                        uid: userId,
-                        nome: 'Usuário Teste',
-                        email: 'teste@exemplo.com',
-                        isOwnerOrAdmin: true
-                    };
-
-                    // Emitir evento de perfil mesmo em modo de desenvolvimento
-                    this._emitEvent(USER_EVENTS.PROFILE_FETCHED, {
-                        userId,
-                        payload: mockProfileData,
-                        fromCache: false,
-                        isMock: true
-                    });
-
-                    // Sinalizar que a sessão está pronta (modo desenvolvimento)
-                    this._emitEvent(USER_EVENTS.USER_SESSION_READY, {
-                        userId,
-                        user: mockProfileData,
-                        isMock: true,
-                        timestamp: Date.now()
-                    });
-
-                    return mockProfileData;
-                }
                 throw error;
             }
         }, 'getUserProfile');

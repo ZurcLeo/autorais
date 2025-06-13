@@ -12,8 +12,8 @@ import {
   Fade
 } from '@mui/material';
 import { useInterests } from '../../providers/InterestsProvider';
-import TopNavBar from './TopNavBar';
-import Sidebar from './Sidebar';
+import ModernTopNavBar from './ModernTopNavBar';
+import ModernSidebar from './ModernSidebar';
 import { coreLogger } from '../../core/logging';
 import { LOG_LEVELS } from '../../core/constants/config';
 import { useTranslation } from 'react-i18next';
@@ -175,16 +175,16 @@ const Layout = ({ children }) => {
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>  
       <CssBaseline />
       
-      {/* Top Navigation Bar */}
-      <TopNavBar 
+      {/* Modern Top Navigation Bar */}
+      <ModernTopNavBar 
         sidebarOpen={sidebarOpen} 
         toggleSidebar={toggleSidebar}
         isMobile={isMobile}
         sidebarWidth={sidebarWidth}
       />
       
-      {/* Sidebar Navigation */}
-      <Sidebar 
+      {/* Modern Sidebar Navigation */}
+      <ModernSidebar 
         open={isMobile ? mobileOpen : sidebarOpen}
         toggleSidebar={toggleSidebar}
         isMobile={isMobile}

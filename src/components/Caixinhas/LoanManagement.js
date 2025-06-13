@@ -1,10 +1,11 @@
 // src/components/Loans/LoanManagement.js
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Paper, Tabs, Tab } from '@mui/material';
-import { Add as AddIcon, Payment as PaymentIcon, ReceiptLong as ReceiptLongIcon, Paid as PaidIcon } from '@mui/icons-material';
+import { Box, Button, Typography, Paper, Tabs, Tab, Card, CardContent, Chip } from '@mui/material';
+import { Add as AddIcon, Payment as PaymentIcon, ReceiptLong as ReceiptLongIcon, Paid as PaidIcon, Gavel as GavelIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../providers/ToastProvider';
 import { useLoan } from '../../providers/LoanProvider';
+import { useDispute } from '../../providers/DisputeProvider';
 
 // Componentes
 import LoanSummaryCard from './LoanSummaryCard';
@@ -13,6 +14,7 @@ import LoanTable from './LoanTable';
 import RequestLoanDialog from './RequestLoanDialog';
 import MakePaymentDialog from './MakePaymentDialog';
 import LoanDetailDialog from './LoanDetailDialog';
+import DisputeDetailDialog from './DisputeDetailDialog';
 
 const LoanManagement = ({ caixinha }) => {
   const { t } = useTranslation();
@@ -22,24 +24,37 @@ const LoanManagement = ({ caixinha }) => {
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
   const [openLoanDetailDialog, setOpenLoanDetailDialog] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
+  const [openDisputeDialog, setOpenDisputeDialog] = useState(false);
+  const [selectedDispute, setSelectedDispute] = useState(null);
   
   // Hooks personalizados
   const {
     loans,
     getLoans,
-    pendingLoans,
-    completedLoans,
     loading,
-    createLoan,
-    payLoan,
-    approveLoanRequest,
-    rejectLoanRequest
+    requestLoan,
+    makePayment,
+    approveLoan,
+    rejectLoan,
+    getActiveLoans,
+    getPendingLoans,
+    getCompletedLoans
   } = useLoan();
+
+  // Hook de disputas
+  const {
+    loanDisputes,
+    checkDisputeRequirement,
+    createDispute,
+    getDisputes,
+    loading: disputeLoading
+  } = useDispute();
   
-// Garantir que todos os arrays estão definidos
-const safeLoans = Array.isArray(loans) ? loans : [];
-const safePendingLoans = Array.isArray(pendingLoans) ? pendingLoans : [];
-const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
+// Garantir que todos os arrays estão definidos usando as funções do provider
+const safeLoans = Array.isArray(getActiveLoans(caixinha?.id)) ? getActiveLoans(caixinha?.id) : [];
+const safePendingLoans = Array.isArray(getPendingLoans(caixinha?.id)) ? getPendingLoans(caixinha?.id) : [];
+const safeCompletedLoans = Array.isArray(getCompletedLoans(caixinha?.id)) ? getCompletedLoans(caixinha?.id) : [];
+const safeLoanDisputes = Array.isArray(loanDisputes) ? loanDisputes : [];
 
   // Calcular métricas financeiras
   const maxLoanValue = caixinha?.saldoTotal ? caixinha.saldoTotal * 0.7 : 0;
@@ -48,12 +63,13 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
     : 0;
   const availableFundsForLoans = maxLoanValue - totalActiveLoans;
 
-  // Carregar empréstimos quando o componente montar
+  // Carregar empréstimos e disputas quando o componente montar
   useEffect(() => {
     if (caixinha && caixinha.id) {
-      getLoans();
+      getLoans(caixinha.id);
+      getDisputes(caixinha.id, 'all');
     }
-  }, [caixinha, getLoans]);
+  }, [caixinha, getLoans, getDisputes]);
 
   // Handlers para ações de empréstimo
   const handleOpenLoanDetail = (loan) => {
@@ -66,10 +82,40 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
     setOpenPaymentDialog(true);
   };
 
+  const handleOpenDispute = (dispute) => {
+    setSelectedDispute(dispute);
+    setOpenDisputeDialog(true);
+  };
+
+  const handleCreateLoanDispute = async (loanData) => {
+    try {
+      const disputeRequirement = await checkDisputeRequirement(caixinha.id, 'LOAN_APPROVAL');
+      
+      if (disputeRequirement.requiresDispute) {
+        const dispute = await createDispute(caixinha.id, {
+          type: 'LOAN_APPROVAL',
+          title: `Aprovação de Empréstimo - R$ ${loanData.valor}`,
+          description: `Solicitação de empréstimo de R$ ${loanData.valor} em ${loanData.parcelas} parcelas. Motivo: ${loanData.motivo}`,
+          proposedChanges: {
+            loan: loanData
+          }
+        });
+        
+        showToast('Disputa criada para aprovação do empréstimo', { type: 'success' });
+        return dispute;
+      } else {
+        return await requestLoan(caixinha.id, loanData);
+      }
+    } catch (error) {
+      console.error('Error handling loan request:', error);
+      throw error;
+    }
+  };
+
   const handleApprove = async (loanId) => {
     try {
-      await approveLoanRequest(loanId);
-      getLoans(); // Atualizar a lista após aprovação
+      await approveLoan(caixinha.id, loanId);
+      getLoans(caixinha.id); // Atualizar a lista após aprovação
     } catch (error) {
       console.error('Error approving loan:', error);
     }
@@ -77,8 +123,8 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
 
   const handleReject = async (loanId) => {
     try {
-      await rejectLoanRequest(loanId);
-      getLoans(); // Atualizar a lista após rejeição
+      await rejectLoan(caixinha.id, loanId);
+      getLoans(caixinha.id); // Atualizar a lista após rejeição
     } catch (error) {
       console.error('Error rejecting loan:', error);
     }
@@ -161,6 +207,11 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
               label={`${t('loanManagement.completed')} (${safeCompletedLoans.length})`}
               iconPosition="start"
             />
+            <Tab 
+              icon={<GavelIcon />} 
+              label={`Disputas (${safeLoanDisputes.length})`}
+              iconPosition="start"
+            />
           </Tabs>
         </Box>
 
@@ -193,6 +244,51 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
               loading={loading}
             />
           )}
+          {activeTab === 3 && (
+            <Box>
+              {safeLoanDisputes.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <GavelIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary">
+                    Nenhuma disputa de empréstimo
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Disputas de aprovação de empréstimo aparecerão aqui
+                  </Typography>
+                </Box>
+              ) : (
+                <Box>
+                  {safeLoanDisputes.map((dispute) => (
+                    <Card key={dispute.id} sx={{ mb: 2, borderLeft: '4px solid', borderLeftColor: 'primary.main' }}>
+                      <CardContent>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box>
+                            <Typography variant="h6">
+                              {dispute.title}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {dispute.description}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                              <Chip size="small" label={dispute.status} color="primary" />
+                              <Chip size="small" label="Empréstimo" variant="outlined" />
+                            </Box>
+                          </Box>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => handleOpenDispute(dispute)}
+                          >
+                            Ver Detalhes
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
       </Box>
 
@@ -202,7 +298,7 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
         onClose={() => setOpenRequestLoanDialog(false)}
         caixinha={caixinha}
         availableFundsForLoans={availableFundsForLoans}
-        onSubmit={(loanData) => createLoan(loanData)}
+        onSubmit={handleCreateLoanDispute}
         loading={loading}
       />
 
@@ -210,7 +306,7 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
         open={openPaymentDialog}
         onClose={() => setOpenPaymentDialog(false)}
         loan={selectedLoan}
-        onSubmit={(paymentData) => payLoan(selectedLoan?.id, paymentData)}
+        onSubmit={(paymentData) => makePayment(caixinha.id, selectedLoan?.id, paymentData)}
         loading={loading}
       />
 
@@ -222,6 +318,14 @@ const safeCompletedLoans = Array.isArray(completedLoans) ? completedLoans : [];
         onApprove={handleApprove}
         onReject={handleReject}
         loading={loading}
+      />
+
+      <DisputeDetailDialog
+        open={openDisputeDialog}
+        onClose={() => setOpenDisputeDialog(false)}
+        dispute={selectedDispute}
+        caixinha={caixinha}
+        currentUserId={caixinha?.currentUserId}
       />
     </>
   );

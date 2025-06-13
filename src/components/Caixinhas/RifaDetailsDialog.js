@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
+  Slide,
+  Zoom,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -21,6 +23,7 @@ import {
   Tooltip,
   Badge
 } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion'; 
 import {
   ConfirmationNumber as TicketIcon,
   Person as PersonIcon,
@@ -52,90 +55,260 @@ const RifaDetailsDialog = ({ open, onClose, caixinhaId, rifaId }) => {
   const [rifa, setRifa] = useState(null);
   const [authenticity, setAuthenticity] = useState(null);
   const [showVerification, setShowVerification] = useState(false);
-
-  // Buscar rifa e membros ao abrir o diálogo
-  useEffect(() => {
-    if (open && rifaId) {
-      // Buscar dados da rifa
-      const fetchRifa = async () => {
-        try {
-          const rifaData = await getRifaById(caixinhaId, rifaId);
-          setRifa(rifaData);
-        } catch (err) {
-          console.error('Erro ao buscar detalhes da rifa:', err);
-        }
-      };
-      
-      fetchRifa();
-      
-      // Buscar membros da caixinha
-      getMembers(caixinhaId);
-    }
-  }, [rifaId, caixinhaId, open, getMembers]);
-
-  // Processar membros para fácil acesso
-  const membersMap = useMemo(() => {
-    if (!members) return {};
-    
-    return members.reduce((acc, member) => {
-      // O ID a ser usado como chave precisa corresponder ao membroId dos bilhetes
-      // Como mostrado nos dados, userId é provavelmente a chave correta
-      const memberId = member.userId || member.id;
-      
-      acc[memberId] = {
-        id: memberId,
-        nome: member.nome || member.name,
-        email: member.email,
-        isAdmin: Boolean(member.isAdmin || member.role === 'admin'),
-        fotoPerfil: member.fotoDoPerfil || member.fotoPerfil || member.photoURL
-      };
-      return acc;
-    }, {});
-  }, [members]);
-
-  // Função para obter estatísticas de membros com mais bilhetes
-  const memberStats = useMemo(() => {
-    if (!rifa?.bilhetesVendidos) return [];
-    
-    // Contar bilhetes por membro
-    const statsByMember = {};
-    rifa.bilhetesVendidos.forEach(bilhete => {
-      if (!statsByMember[bilhete.membroId]) {
-        statsByMember[bilhete.membroId] = {
-          membroId: bilhete.membroId,
-          quantidadeBilhetes: 0,
-          bilhetes: []
+    // Novos estados para a animação de sorteio e celebração
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [showCelebration, setShowCelebration] = useState(false);
+    const [drawComplete, setDrawComplete] = useState(false);
+    const [winningNumber, setWinningNumber] = useState(null); // Para guardar o número vencedor e animar
+  
+    useEffect(() => {
+      if (open && rifaId) {
+        const fetchRifa = async () => {
+          try {
+            const rifaData = await getRifaById(caixinhaId, rifaId);
+            setRifa(rifaData);
+            // Se a rifa já foi sorteada, define drawComplete como true
+            if (rifaData?.sorteioResultado?.numeroSorteado) {
+              setDrawComplete(true);
+              setWinningNumber(rifaData.sorteioResultado.numeroSorteado);
+            } else {
+              setDrawComplete(false);
+              setWinningNumber(null);
+            }
+          } catch (err) {
+            console.error('Erro ao buscar detalhes da rifa:', err);
+          }
         };
+  
+        fetchRifa();
+        getMembers(caixinhaId);
       }
-      statsByMember[bilhete.membroId].quantidadeBilhetes += 1;
-      statsByMember[bilhete.membroId].bilhetes.push(bilhete.numero);
-    });
-    
-    // Converter para array e ordenar por quantidade
-    return Object.values(statsByMember)
-      .sort((a, b) => b.quantidadeBilhetes - a.quantidadeBilhetes);
-  }, [rifa?.bilhetesVendidos]);
+    }, [rifaId, caixinhaId, open, getMembers, getRifaById]); // Adicione getRifaById às dependências
+  
+    const membersMap = useMemo(() => {
+      if (!members) return {};
+  
+      return members.reduce((acc, member) => {
+        const memberId = member.userId || member.id;
+        acc[memberId] = {
+          id: memberId,
+          nome: member.nome || member.name,
+          email: member.email,
+          isAdmin: Boolean(member.isAdmin || member.role === 'admin'),
+          fotoPerfil: member.fotoDoPerfil || member.fotoPerfil || member.photoURL
+        };
+        return acc;
+      }, {});
+    }, [members]);
+  
+    const memberStats = useMemo(() => {
+      if (!rifa?.bilhetesVendidos) return [];
+  
+      const statsByMember = {};
+      rifa.bilhetesVendidos.forEach(bilhete => {
+        if (!statsByMember[bilhete.membroId]) {
+          statsByMember[bilhete.membroId] = {
+            membroId: bilhete.membroId,
+            quantidadeBilhetes: 0,
+            bilhetes: []
+          };
+        }
+        statsByMember[bilhete.membroId].quantidadeBilhetes += 1;
+        statsByMember[bilhete.membroId].bilhetes.push(bilhete.numero);
+      });
+  
+      return Object.values(statsByMember)
+        .sort((a, b) => b.quantidadeBilhetes - a.quantidadeBilhetes);
+    }, [rifa?.bilhetesVendidos]);
+  
+    const handleVerifyAuthenticity = async () => {
+      try {
+        const result = await verifyAuthenticity(caixinhaId, rifaId);
+        setAuthenticity(result);
+        setShowVerification(true);
+      } catch (err) {
+        console.error('Erro ao verificar autenticidade:', err);
+      }
+    };
+  
+    const handlePerformDraw = async () => {
+      try {
+        // 1. Iniciar animação de sorteio
+        setIsDrawing(true);
+        setDrawComplete(false);
+        setShowCelebration(false);
+        setWinningNumber(null); // Reseta o número vencedor antes de sortear
+  
+        const metodo = rifa.sorteioMetodo;
+        const referencia = rifa.sorteioReferencia;
+  
+        // 2. Executar o sorteio (com delay para animação)
+        // O performDraw do hook simula um delay, então não precisa de setTimeout aqui
+        await performDraw(caixinhaId, rifaId, metodo, referencia);
+  
+        // 3. Recarregar a rifa para mostrar o resultado
+        const updatedRifa = await getRifaById(caixinhaId, rifaId);
+        setRifa(updatedRifa);
+  
+        // 4. Revelar o número vencedor com animação após um pequeno delay
+        setTimeout(() => {
+          setWinningNumber(updatedRifa.sorteioResultado?.numeroSorteado);
+          setIsDrawing(false);
+          setDrawComplete(true);
+        }, 1000); // Delay para mostrar o número girando antes de parar
+  
+        // 5. Mostrar celebração após um pequeno delay adicional
+        setTimeout(() => {
+          setShowCelebration(true);
+        }, 2000); // Delay maior para a celebração aparecer após o número ser revelado
+  
+      } catch (err) {
+        console.error('Erro ao realizar sorteio:', err);
+        setIsDrawing(false);
+      }
+    };
 
-  const handleVerifyAuthenticity = async () => {
-    try {
-      const result = await verifyAuthenticity(caixinhaId, rifaId);
-      setAuthenticity(result);
-      setShowVerification(true);
-    } catch (err) {
-      console.error('Erro ao verificar autenticidade:', err);
+  const drawButtonVariants = {
+    idle: { scale: 1, boxShadow: "0px 4px 8px rgba(0,0,0,0.2)" },
+    hover: { scale: 1.05, boxShadow: "0px 6px 12px rgba(0,0,0,0.3)" },
+    tap: { scale: 0.95 },
+    drawing: {
+      scale: [1, 1.1, 1],
+      rotate: [0, 5, -5, 0],
+      transition: { repeat: Infinity, duration: 0.5 }
     }
   };
 
-  const handlePerformDraw = async () => {
-    try {
-      await performDraw(rifaId, rifa.sorteioMetodo, rifa.sorteioReferencia);
-      // Recarregar a rifa para mostrar o resultado
-      const updatedRifa = await getRifaById(caixinhaId, rifaId);
-      setRifa(updatedRifa);
-    } catch (err) {
-      console.error('Erro ao realizar sorteio:', err);
+  const numberRevealVariants = {
+    hidden: {
+      scale: 0,
+      opacity: 0,
+      rotate: -180
+    },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      rotate: 0,
+      transition: {
+        type: "spring",
+        damping: 15,
+        stiffness: 300,
+        duration: 0.8
+      }
+    },
+    celebration: {
+      scale: [1, 1.2, 1],
+      rotate: [0, 10, -10, 0],
+      transition: {
+        repeat: 3,
+        duration: 0.6
+      }
     }
   };
+
+  const celebrationOverlayVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { duration: 0.5 }
+    },
+    exit: {
+      opacity: 0,
+      transition: { duration: 0.5 }
+    }
+  };
+
+  const confettiVariants = {
+    hidden: { y: -100, opacity: 0, rotate: 0 },
+    visible: (i) => ({
+      y: window.innerHeight + 100,
+      opacity: [0, 1, 1, 0],
+      rotate: 360 * 3,
+      transition: {
+        duration: 3 + Math.random() * 2,
+        delay: Math.random() * 0.5,
+        ease: "easeOut"
+      }
+    })
+  };
+
+  const winnerCardVariants = {
+    hidden: {
+      y: 50,
+      opacity: 0,
+      scale: 0.8
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 300,
+        delay: 0.3
+      }
+    }
+  };
+
+  // Componente de Confetes Animados (usará o Dialog para o overlay)
+  const AnimatedConfetti = () => (
+    <Box sx={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      pointerEvents: 'none',
+      zIndex: 1000
+    }}>
+      {[...Array(50)].map((_, i) => (
+        <motion.div
+          key={i}
+          custom={i}
+          variants={confettiVariants}
+          initial="hidden"
+          animate="visible"
+          style={{
+            position: 'absolute',
+            left: `${Math.random() * 100}%`,
+            fontSize: '2rem',
+          }}
+        >
+          {['🎉', '🎊', '⭐', '✨', '🎁', '🏆'][Math.floor(Math.random() * 6)]}
+        </motion.div>
+      ))}
+    </Box>
+  );
+
+  // Componente de Números Girando (Loading)
+  const SpinningNumbers = () => (
+    <Box sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '10px',
+      fontSize: '3rem',
+      fontWeight: 'bold',
+      color: 'primary.main' // Usando cor do tema MUI
+    }}>
+      {[...Array(3)].map((_, i) => (
+        <motion.div
+          key={i}
+          animate={{
+            rotateX: [0, 360],
+            scale: [1, 1.2, 1]
+          }}
+          transition={{
+            duration: 0.5,
+            repeat: Infinity,
+            delay: i * 0.1
+          }}
+        >
+          {Math.floor(Math.random() * 10)}
+        </motion.div>
+      ))}
+    </Box>
+  );
 
   // Renderizar bilhete com informações aprimoradas do membro
   const renderBilhete = (bilhete) => {
@@ -334,93 +507,151 @@ const RifaDetailsDialog = ({ open, onClose, caixinhaId, rifaId }) => {
                 </Paper>
                 
                 {rifa.status === 'FINALIZADA' && rifa.sorteioResultado && (
-                  <Paper sx={{ p: 2, mt: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                      {t('rifas.drawResult')}
-                    </Typography>
-                    
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
-                      <Typography variant="h2" color="primary" fontWeight="bold">
-                        {rifa.sorteioResultado.numeroSorteado}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('rifas.winningNumber')}
-                      </Typography>
-                    </Box>
-                    
-                    <Divider sx={{ my: 2 }} />
-                    
-                    {rifa.sorteioResultado.bilheteVencedor ? (
-                      <Box>
-                        <Typography variant="subtitle2" gutterBottom>
-                          {t('rifas.winner')}:
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          {membersMap[rifa.sorteioResultado.bilheteVencedor.membroId] ? (
-                            <>
-                              <Avatar 
-                                src={membersMap[rifa.sorteioResultado.bilheteVencedor.membroId].fotoPerfil}
-                                sx={{ bgcolor: 'success.main', mr: 1 }}
-                              >
-                                {!membersMap[rifa.sorteioResultado.bilheteVencedor.membroId].fotoPerfil && <PersonIcon />}
-                              </Avatar>
-                              <Typography>
-                                {membersMap[rifa.sorteioResultado.bilheteVencedor.membroId].nome}
-                              </Typography>
-                            </>
-                          ) : (
-                            <>
-                              <Avatar sx={{ bgcolor: 'success.main', mr: 1 }}>
-                                <PersonIcon />
-                              </Avatar>
-                              <Typography>
-                                {rifa.sorteioResultado.bilheteVencedor.membroId}
-                              </Typography>
-                            </>
-                          )}
-                        </Box>
-                      </Box>
-                    ) : (
-                      <Alert severity="info">
-                        {t('rifas.noWinner')}
-                      </Alert>
-                    )}
-                    
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={handleVerifyAuthenticity}
-                        startIcon={<VerifiedIcon />}
-                        fullWidth
-                      >
-                        {t('rifas.verifyAuthenticity')}
-                      </Button>
-                    </Box>
-                  </Paper>
-                )}
-                
-                {rifa.status === 'ABERTA' && new Date() >= new Date(rifa.sorteioData) && (
-                  <Paper sx={{ p: 2, mt: 2 }}>
-                    <Typography variant="h6" gutterBottom>
-                      {t('rifas.performDraw')}
-                    </Typography>
-                    
-                    <Alert severity="info" sx={{ mb: 2 }}>
-                      {t('rifas.drawInfo')}
-                    </Alert>
-                    
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handlePerformDraw}
-                      startIcon={<DrawIcon />}
-                      fullWidth
-                      disabled={loading}
-                    >
-                      {loading ? t('rifas.processing') : t('rifas.performDraw')}
-                    </Button>
-                  </Paper>
+  <Paper sx={{ p: 2, mt: 2 }}>
+    <Typography variant="h6" gutterBottom>
+      {t('rifas.drawResult')}
+    </Typography>
+
+    <AnimatePresence>
+      {drawComplete && winningNumber && (
+        <motion.div
+          variants={numberRevealVariants}
+          initial="hidden"
+          // Animação de "celebration" no número após o sorteio
+          animate={showCelebration ? "celebration" : "visible"}
+          style={{ marginTop: '1rem' }}
+        >
+          <Typography variant="h4" gutterBottom>🎊 {t('rifas.winningNumber')}:</Typography>
+          <motion.div
+            style={{
+              fontSize: '4rem',
+              fontWeight: 'bold',
+              color: '#ffd700', // Dourado
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+              background: 'linear-gradient(45deg, #ffd700, #ffed4e)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              margin: '1rem 0'
+            }}
+          >
+            {winningNumber}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    <Divider sx={{ my: 2 }} />
+
+    {/* Card do Vencedor (se houver) */}
+    <AnimatePresence>
+      {drawComplete && rifa.sorteioResultado?.bilheteVencedor && (
+        <motion.div
+          variants={winnerCardVariants}
+          initial="hidden"
+          animate="visible"
+          style={{
+            backgroundColor: 'rgba(76, 175, 80, 0.2)',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            marginTop: '1.5rem',
+            border: '2px solid #4caf50'
+          }}
+        >
+          <Typography variant="h5" sx={{ color: 'success.main', mb: 1 }}>
+            🏆 {t('rifas.winnerTitle')}
+          </Typography>
+          {membersMap[rifa.sorteioResultado.bilheteVencedor.membroId] ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Avatar
+                src={membersMap[rifa.sorteioResultado.bilheteVencedor.membroId].fotoPerfil}
+                sx={{ bgcolor: 'success.main', mr: 1, width: 56, height: 56 }}
+              >
+                {!membersMap[rifa.sorteioResultado.bilheteVencedor.membroId].fotoPerfil && <PersonIcon sx={{ fontSize: 32 }} />}
+              </Avatar>
+              <Typography variant="h6">
+                {membersMap[rifa.sorteioResultado.bilheteVencedor.membroId].nome}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Avatar sx={{ bgcolor: 'success.main', mr: 1, width: 56, height: 56 }}>
+                <PersonIcon sx={{ fontSize: 32 }} />
+              </Avatar>
+              <Typography variant="h6">
+                {rifa.sorteioResultado.bilheteVencedor.membroId}
+              </Typography>
+            </Box>
+          )}
+          <Typography variant="body1" sx={{ mt: 1 }}>
+            {t('rifas.winningTicket')}: #{winningNumber}
+          </Typography>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    <Box sx={{ mt: 2 }}>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={handleVerifyAuthenticity}
+        startIcon={<VerifiedIcon />}
+        fullWidth
+      >
+        {t('rifas.verifyAuthenticity')}
+      </Button>
+    </Box>
+  </Paper>
+)}
+               {rifa.status === 'ABERTA' && new Date() >= new Date(rifa.sorteioData) && (
+<Paper sx={{ p: 2, mt: 2 }}>
+  <Typography variant="h6" gutterBottom>
+    {t('rifas.performDraw')}
+  </Typography>
+
+  <Alert severity="info" sx={{ mb: 2 }}>
+    {t('rifas.drawInfo')}
+  </Alert>
+
+  <motion.button
+    variants={drawButtonVariants} // Use as variantes definidas
+    initial="idle"
+    whileHover={!isDrawing ? "hover" : ""}
+    whileTap={!isDrawing ? "tap" : ""}
+    animate={isDrawing ? "drawing" : "idle"}
+    onClick={handlePerformDraw}
+    disabled={isDrawing || loading}
+    // Estilos para parecer um botão do Material-UI, mas permitindo motion
+    style={{
+      padding: '1rem 2rem',
+      fontSize: '1.2rem',
+      backgroundColor: isDrawing ? '#ff9800' : drawComplete ? '#4caf50' : '#1976d2', // Cores do Material-UI
+      color: 'white',
+      border: 'none',
+      borderRadius: '50px',
+      cursor: isDrawing || drawComplete ? 'not-allowed' : 'pointer',
+      marginTop: '1rem',
+      transition: 'background-color 0.3s ease',
+      width: '100%' // Ajuste de largura para preencher o Paper
+    }}
+  >
+    {isDrawing ? t('rifas.drawing') : drawComplete ? t('rifas.drawCompleted') : t('rifas.performDrawButton')}
+  </motion.button>
+
+  {/* Animação de Loading (SpinningNumbers) */}
+  <AnimatePresence>
+    {isDrawing && (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        style={{ marginTop: '2rem' }}
+      >
+        <Typography variant="body1" sx={{ mb: 1 }}>{t('rifas.generatingRandomNumber')}</Typography>
+        <SpinningNumbers />
+      </motion.div>
+    )}
+  </AnimatePresence>
+</Paper>
                 )}
               </Grid>
               
@@ -545,6 +776,73 @@ const RifaDetailsDialog = ({ open, onClose, caixinhaId, rifaId }) => {
             </Grid>
           </Box>
         )}
+        <AnimatePresence>
+  {showCelebration && (
+    <Dialog
+      open={showCelebration}
+      onClose={() => setShowCelebration(false)}
+      TransitionComponent={Slide} // Adiciona animação de transição do MUI
+      TransitionProps={{ direction: "up" }}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        component: motion.div, // Permite Framer Motion no Paper
+        variants: celebrationOverlayVariants,
+        initial: "hidden",
+        animate: "visible",
+        exit: "exit",
+        sx: {
+          borderRadius: '24px',
+          backgroundColor: 'white',
+          color: '#333',
+          padding: '3rem',
+          textAlign: 'center',
+          boxShadow: 24 // Elevação do MUI
+        }
+      }}
+      onClick={() => setShowCelebration(false)} // Fechar ao clicar fora ou no overlay
+      sx={{
+        '& .MuiDialog-container': {
+          background: 'rgba(0,0,0,0.3)', // Overlay escurecido
+        }
+      }}
+    >
+      <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <motion.div
+          animate={{
+            rotate: [0, 10, -10, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 2
+          }}
+          style={{ fontSize: '4rem', marginBottom: '1rem' }}
+        >
+          🎉
+        </motion.div>
+        <Typography variant="h4" color="primary" sx={{ margin: '1rem 0' }}>
+          {t('rifas.congratulations')}!
+        </Typography>
+        <Typography variant="body1" paragraph>
+          {t('rifas.drawSuccessMessage')}
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setShowCelebration(false)}
+          sx={{ mt: 2 }}
+          component={motion.button} // Permite Framer Motion no botão
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {t('common.close')}
+        </Button>
+      </DialogContent>
+      <AnimatedConfetti /> {/* Confetes sempre no topo */}
+    </Dialog>
+  )}
+</AnimatePresence>
       </DialogContent>
 
       <DialogActions>

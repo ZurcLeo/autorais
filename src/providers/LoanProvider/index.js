@@ -29,10 +29,12 @@ export const LoanProvider = ({ children }) => {
   // Obter serviços necessários
   let loanService;
   let caixinhaService;
+  let userService;
   let serviceStore;
   try {
     loanService = serviceLocator.get('loans');
     caixinhaService = serviceLocator.get('caixinhas');
+    userService = serviceLocator.get('users');
     serviceStore = serviceLocator.get('store').getState()?.auth;
   } catch (err) {
     console.warn('Error accessing services:', err);
@@ -51,21 +53,35 @@ export const LoanProvider = ({ children }) => {
     const loansFetchedListener = serviceEventHub.on(
       'loans',
       LOAN_EVENTS.LOANS_FETCHED,
-      (data) => {
+      async (data) => {
         coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Loans fetched event received', {
           caixinhaId: data.caixinhaId,
-          count: data.loans?.length || 0
+          count: Array.isArray(data.loans) ? data.loans.length : 0
         });
         
-        // Atualizar o cache de empréstimos para esta caixinha
-        if (data.caixinhaId && data.loans) {
-          loansCache.current[data.caixinhaId] = data.loans;
+        let loansToProcess = data.loans;
+        
+        // Enriquecer empréstimos com dados do usuário e atualizar cache
+        if (data.caixinhaId && data.loans && Array.isArray(data.loans)) {
+          try {
+            const enrichedLoans = await enrichLoansWithUserData(data.loans);
+            loansCache.current[data.caixinhaId] = Array.isArray(enrichedLoans) ? enrichedLoans : [];
+            loansToProcess = enrichedLoans;
+          } catch (error) {
+            coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Failed to enrich loans in event listener', {
+              caixinhaId: data.caixinhaId,
+              error: error.message
+            });
+            loansCache.current[data.caixinhaId] = Array.isArray(data.loans) ? data.loans : [];
+          }
+        } else if (data.caixinhaId) {
+          loansCache.current[data.caixinhaId] = [];
         }
         
         dispatch({
           type: LOAN_ACTIONS.FETCH_SUCCESS,
           payload: {
-            loans: data.loans,
+            loans: loansToProcess,
             caixinhaId: data.caixinhaId
           }
         });
@@ -221,26 +237,39 @@ export const LoanProvider = ({ children }) => {
           count: loansCache.current[caixinhaId].length
         });
         
+        const cachedLoans = loansCache.current[caixinhaId];
         dispatch({
           type: LOAN_ACTIONS.FETCH_SUCCESS,
           payload: {
-            loans: loansCache.current[caixinhaId],
+            loans: cachedLoans,
             caixinhaId
           }
         });
         
-        return loansCache.current[caixinhaId];
+        return cachedLoans;
       }
 
       // Buscar empréstimos do serviço
-      const response = await loanService.getLoans(caixinhaId);
+      const loans = await loanService.getLoans(caixinhaId);
+      
+      // Enriquecer dados com informações do usuário
+      const enrichedLoans = await enrichLoansWithUserData(loans);
       
       // Atualizar o cache
-      if (response.data) {
-        loansCache.current[caixinhaId] = response.data;
+      if (enrichedLoans) {
+        loansCache.current[caixinhaId] = Array.isArray(enrichedLoans) ? enrichedLoans : [];
       }
       
-      return response.data;
+      // Disparar evento de sucesso com dados enriquecidos
+      dispatch({
+        type: LOAN_ACTIONS.FETCH_SUCCESS,
+        payload: {
+          loans: enrichedLoans,
+          caixinhaId
+        }
+      });
+      
+      return enrichedLoans;
       
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to fetch loans', {
@@ -261,7 +290,84 @@ export const LoanProvider = ({ children }) => {
       
       throw error;
     }
-  }, [currentUser, loanService, t, showToast]);
+  }, [currentUser, loanService, userService, t, showToast]);
+
+  // Função para enriquecer empréstimos com dados do usuário
+  const enrichLoansWithUserData = useCallback(async (loans) => {
+    if (!loans || !Array.isArray(loans) || !userService) {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Cannot enrich loans - missing data or service', {
+        hasLoans: !!loans,
+        isArray: Array.isArray(loans),
+        hasUserService: !!userService,
+        loansCount: loans?.length || 0
+      });
+      return loans;
+    }
+
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Starting loan enrichment', {
+      loansCount: loans.length
+    });
+
+    try {
+      const enrichedLoans = await Promise.all(
+        loans.map(async (loan) => {
+          coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.DEBUG, 'Processing loan for enrichment', {
+            loanId: loan.id,
+            memberId: loan.memberId,
+            userId: loan.userId
+          });
+
+          if (!loan.memberId && !loan.userId) {
+            coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Loan has no memberId or userId', {
+              loanId: loan.id,
+              loanData: loan
+            });
+            return loan;
+          }
+
+          const userId = loan.memberId || loan.userId;
+          
+          try {
+            // Buscar dados do usuário
+            const userProfile = await userService.getUserProfile(userId);
+            
+            return {
+              ...loan,
+              membro: {
+                id: userId,
+                nome: userProfile?.nome || userProfile?.displayName || 'Nome não disponível',
+                fotoPerfil: userProfile?.fotoDoPerfil || userProfile?.fotoPerfil || userProfile?.photoURL || null,
+                email: userProfile?.email || null
+              }
+            };
+          } catch (userError) {
+            coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.WARN, 'Failed to fetch user data for loan', {
+              userId,
+              loanId: loan.id,
+              error: userError.message
+            });
+            
+            return {
+              ...loan,
+              membro: {
+                id: userId,
+                nome: 'Usuário não encontrado',
+                fotoPerfil: null,
+                email: null
+              }
+            };
+          }
+        })
+      );
+      
+      return enrichedLoans;
+    } catch (error) {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to enrich loans with user data', {
+        error: error.message
+      });
+      return loans;
+    }
+  }, [userService]);
 
   // Função para buscar detalhes de um empréstimo específico
   const getLoanById = useCallback(async (caixinhaId, loanId) => {
@@ -296,12 +402,19 @@ export const LoanProvider = ({ children }) => {
       // Buscar detalhes do empréstimo
       const response = await loanService.getLoanById(caixinhaId, loanId);
       
-      // Atualizar o cache
-      if (response.data) {
-        loanDetailsCache.current[cacheKey] = response.data;
+      // Enriquecer com dados do usuário
+      let enrichedLoan = response.data;
+      if (response.data && (response.data.memberId || response.data.userId)) {
+        const enrichedLoans = await enrichLoansWithUserData([response.data]);
+        enrichedLoan = enrichedLoans[0] || response.data;
       }
       
-      return response.data;
+      // Atualizar o cache
+      if (enrichedLoan) {
+        loanDetailsCache.current[cacheKey] = enrichedLoan;
+      }
+      
+      return enrichedLoan;
       
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to fetch loan details', {
@@ -324,7 +437,7 @@ export const LoanProvider = ({ children }) => {
       
       throw error;
     }
-  }, [currentUser, loanService, t, showToast]);
+  }, [currentUser, loanService, userService, enrichLoansWithUserData, t, showToast]);
 
   // Função para solicitar empréstimo
   const requestLoan = useCallback(async (caixinhaId, loanData) => {
@@ -530,14 +643,14 @@ export const LoanProvider = ({ children }) => {
     if (!caixinhaId) return [];
     
     // Se temos empréstimos em cache para esta caixinha
-    if (loansCache.current[caixinhaId]) {
+    if (loansCache.current[caixinhaId] && Array.isArray(loansCache.current[caixinhaId])) {
       return loansCache.current[caixinhaId].filter(
         loan => loan.status === 'aprovado' && loan.saldoDevedor > 0
       );
     }
     
     // Caso contrário, usar o estado global (pode estar desatualizado)
-    if (state.caixinhaId === caixinhaId) {
+    if (state.caixinhaId === caixinhaId && Array.isArray(state.loans)) {
       return state.loans.filter(
         loan => loan.status === 'aprovado' && loan.saldoDevedor > 0
       );
@@ -550,14 +663,14 @@ export const LoanProvider = ({ children }) => {
     if (!caixinhaId) return [];
     
     // Se temos empréstimos em cache para esta caixinha
-    if (loansCache.current[caixinhaId]) {
+    if (loansCache.current[caixinhaId] && Array.isArray(loansCache.current[caixinhaId])) {
       return loansCache.current[caixinhaId].filter(
         loan => loan.status === 'pendente'
       );
     }
     
     // Caso contrário, usar o estado global (pode estar desatualizado)
-    if (state.caixinhaId === caixinhaId) {
+    if (state.caixinhaId === caixinhaId && Array.isArray(state.loans)) {
       return state.loans.filter(loan => loan.status === 'pendente');
     }
     
@@ -568,14 +681,14 @@ export const LoanProvider = ({ children }) => {
     if (!caixinhaId) return [];
     
     // Se temos empréstimos em cache para esta caixinha
-    if (loansCache.current[caixinhaId]) {
+    if (loansCache.current[caixinhaId] && Array.isArray(loansCache.current[caixinhaId])) {
       return loansCache.current[caixinhaId].filter(
         loan => loan.status === 'pago' || (loan.status === 'aprovado' && loan.saldoDevedor === 0)
       );
     }
     
     // Caso contrário, usar o estado global (pode estar desatualizado)
-    if (state.caixinhaId === caixinhaId) {
+    if (state.caixinhaId === caixinhaId && Array.isArray(state.loans)) {
       return state.loans.filter(
         loan => loan.status === 'pago' || (loan.status === 'aprovado' && loan.saldoDevedor === 0)
       );
@@ -635,7 +748,9 @@ export const LoanProvider = ({ children }) => {
     // Status do serviço
     currentUser,
     loanService,
-    serviceError
+    userService,
+    serviceError,
+    enrichLoansWithUserData
   ]);
 
   return (
