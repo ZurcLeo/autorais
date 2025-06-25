@@ -262,16 +262,27 @@ class UserService extends BaseService {
     async getUserProfile(userId) {
         console.log('[UserService] getUserProfile INICIADO com userId:', userId);
 
-        //
+        if (!userId) {
+            throw new Error('userId é obrigatório');
+        }
+
         return this._executeWithRetry(async () => {
             console.log(
                 '[UserService] Fazendo requisição API para:',
                 `/api/users/${userId}`
             );
-            // const startTime = performance.now();
 
             try {
-                const response = await this.apiService.get(`/api/users/${userId}`);
+                // Criar timeout personalizado de 5 segundos
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+                const response = await this.apiService.get(`/api/users/${userId}`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
                 const profileData = response.data;
                 console.log(
                     '[UserService] getUserProfile successful, returning data:',
@@ -291,13 +302,6 @@ class UserService extends BaseService {
 
                 // Verificar se o perfil está completo e emitir o evento adequado
                 if (isComplete) {
-                    // console.log('[UserService] Emitindo USER_SIGN_IN e USER_SESSION_READY');
-                    // this._emitEvent(USER_EVENTS.USER_SIGN_IN, {
-                    //     userId,
-                    //     user: profileData,
-                    //     timestamp: Date.now()
-                    // });
-
                     // Sinalizar que a sessão está pronta
                     this._emitEvent(USER_EVENTS.USER_SESSION_READY, {
                         userId,
@@ -316,10 +320,24 @@ class UserService extends BaseService {
                     });
                 }
 
-                //
                 return profileData;
             } catch (error) {
                 console.log('[UserService] getUserProfile failed, error:', error);
+                
+                // Verificar se é erro de timeout
+                if (error.name === 'AbortError') {
+                    const timeoutError = new Error(`Timeout ao buscar usuário ${userId}: API não respondeu em 5 segundos`);
+                    timeoutError.code = 'USER_API_TIMEOUT';
+                    throw timeoutError;
+                }
+                
+                // Verificar se é erro 404 (usuário não encontrado)
+                if (error.response?.status === 404) {
+                    const notFoundError = new Error(`Usuário ${userId} não encontrado`);
+                    notFoundError.code = 'USER_NOT_FOUND';
+                    throw notFoundError;
+                }
+                
                 this._logError(error, 'getUserProfile');
                 throw error;
             }

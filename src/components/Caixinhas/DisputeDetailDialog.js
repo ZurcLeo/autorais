@@ -69,7 +69,9 @@ const DisputeDetailDialog = ({
 
   const loadDisputeDetails = async () => {
     try {
+      console.log('[DisputeDetailDialog] Loading dispute details for:', { caixinhaId: caixinha.id, disputeId: dispute.id });
       const details = await getDisputeById(caixinha.id, dispute.id);
+      console.log('[DisputeDetailDialog] Dispute details loaded:', details);
       setDetailedDispute(details);
     } catch (error) {
       console.error('Error loading dispute details:', error);
@@ -81,10 +83,39 @@ const DisputeDetailDialog = ({
 
   // Buscar perfil do criador da disputa
   useEffect(() => {
-    if (currentDispute?.proposedBy && open) {
-      loadCreatorProfile(currentDispute.proposedBy);
+    console.log('[DisputeDetailDialog] useEffect for creator profile triggered:', {
+      open,
+      proposedBy: currentDispute?.proposedBy,
+      loanMemberId: currentDispute?.proposedChanges?.loan?.memberId,
+      loanUserId: currentDispute?.proposedChanges?.loan?.userId,
+      caixinhaMembers: caixinha?.membros?.length || 0,
+      currentDispute
+    });
+
+    if (!open) return;
+
+    let userIdToLoad = null;
+
+    if (currentDispute?.proposedBy) {
+      userIdToLoad = currentDispute.proposedBy;
+      console.log('[DisputeDetailDialog] Using proposedBy:', userIdToLoad);
+    } else if (currentDispute?.proposedChanges?.loan?.memberId) {
+      userIdToLoad = currentDispute.proposedChanges.loan.memberId;
+      console.log('[DisputeDetailDialog] Using loan memberId:', userIdToLoad);
+    } else if (currentDispute?.proposedChanges?.loan?.userId) {
+      userIdToLoad = currentDispute.proposedChanges.loan.userId;
+      console.log('[DisputeDetailDialog] Using loan userId:', userIdToLoad);
+    } else if (currentDispute?.proposedChanges?.loan?.solicitadoPor?.id) {
+      userIdToLoad = currentDispute.proposedChanges.loan.solicitadoPor.id;
+      console.log('[DisputeDetailDialog] Using loan solicitadoPor.id:', userIdToLoad);
+    } else {
+      console.log('[DisputeDetailDialog] No valid userId found for creator profile');
     }
-  }, [currentDispute?.proposedBy, open]);
+
+    if (userIdToLoad) {
+      loadCreatorProfile(userIdToLoad);
+    }
+  }, [currentDispute?.proposedBy, currentDispute?.proposedChanges?.loan?.memberId, currentDispute?.proposedChanges?.loan?.userId, currentDispute?.proposedChanges?.loan?.solicitadoPor?.id, open, caixinha?.membros]);
 
   // Buscar perfis dos votantes
   useEffect(() => {
@@ -93,13 +124,79 @@ const DisputeDetailDialog = ({
     }
   }, [currentDispute?.votes, open]);
 
+  // Função para buscar usuário nos membros da caixinha
+  const findUserInCaixinhaMembers = (userId) => {
+    if (!caixinha || !userId) return null;
+    
+    // Verificar se há membros na caixinha
+    const members = caixinha.membros || caixinha.members || [];
+    
+    // Buscar o membro com o ID correspondente
+    const member = members.find(m => 
+      m.id === userId || 
+      m.uid === userId || 
+      m.userId === userId ||
+      m.memberId === userId
+    );
+    
+    if (member) {
+      console.log('[DisputeDetailDialog] Found user in caixinha members:', member);
+      return {
+        id: userId,
+        nome: member.nome || member.name || member.displayName || 'Membro da caixinha',
+        email: member.email || null,
+        fotoPerfil: member.fotoPerfil || member.fotoDoPerfil || member.photoURL || null
+      };
+    }
+    
+    return null;
+  };
+
   const loadCreatorProfile = async (userId) => {
     try {
-      const profile = await getUserById(userId);
+      console.log('[DisputeDetailDialog] Loading creator profile for userId:', userId);
+      
+      // Primeiro, tentar buscar nos membros da caixinha (mais rápido)
+      const memberProfile = findUserInCaixinhaMembers(userId);
+      if (memberProfile) {
+        console.log('[DisputeDetailDialog] Using member profile from caixinha:', memberProfile);
+        setCreatorProfile(memberProfile);
+        return;
+      }
+      
+      // Se não encontrar nos membros, tentar via API com timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: Dados do usuário não encontrados')), 5000)
+      );
+      
+      const profile = await Promise.race([
+        getUserById(userId),
+        timeoutPromise
+      ]);
+      
+      console.log('[DisputeDetailDialog] Creator profile loaded from API:', profile);
       setCreatorProfile(profile);
     } catch (error) {
-      console.error('Error loading creator profile:', error);
-      setCreatorProfile(null);
+      console.error('[DisputeDetailDialog] Error loading creator profile:', error);
+      
+      // Tentar novamente buscar nos membros da caixinha como fallback final
+      const memberProfile = findUserInCaixinhaMembers(userId);
+      if (memberProfile) {
+        console.log('[DisputeDetailDialog] Using fallback member profile:', memberProfile);
+        setCreatorProfile(memberProfile);
+        return;
+      }
+      
+      // Definir um perfil padrão com informações mínimas
+      const fallbackProfile = {
+        id: userId,
+        nome: 'Usuário não encontrado',
+        email: null,
+        fotoPerfil: null,
+        error: true
+      };
+      console.log('[DisputeDetailDialog] Setting final fallback profile:', fallbackProfile);
+      setCreatorProfile(fallbackProfile);
     }
   };
 
@@ -110,14 +207,36 @@ const DisputeDetailDialog = ({
         votes.map(async (vote) => {
           if (vote.userId && !voterProfiles[vote.userId]) {
             try {
-              const profile = await getUserById(vote.userId);
+              // Primeiro tentar buscar nos membros da caixinha
+              const memberProfile = findUserInCaixinhaMembers(vote.userId);
+              if (memberProfile) {
+                profiles[vote.userId] = memberProfile;
+                return;
+              }
+              
+              // Se não encontrar, tentar via API com timeout reduzido
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Timeout')), 3000)
+              );
+              
+              const profile = await Promise.race([
+                getUserById(vote.userId),
+                timeoutPromise
+              ]);
               profiles[vote.userId] = profile;
             } catch (error) {
               console.error(`Error loading voter profile for ${vote.userId}:`, error);
-              profiles[vote.userId] = {
-                nome: vote.userName || `Usuário ${vote.userId.substring(0, 8)}`,
-                fotoPerfil: null
-              };
+              
+              // Tentar fallback nos membros da caixinha
+              const memberProfile = findUserInCaixinhaMembers(vote.userId);
+              if (memberProfile) {
+                profiles[vote.userId] = memberProfile;
+              } else {
+                profiles[vote.userId] = {
+                  nome: vote.userName || `Usuário ${vote.userId.substring(0, 8)}`,
+                  fotoPerfil: null
+                };
+              }
             }
           }
         })
@@ -273,7 +392,7 @@ const DisputeDetailDialog = ({
                 </Avatar>
                 <Box>
                   <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                    {creatorProfile?.nome || loan.solicitadoPor?.nome || 'Nome não disponível'}
+                    {creatorProfile?.nome || loan.solicitadoPor?.nome || (creatorProfile === null ? 'Carregando...' : 'Nome não disponível')}
                   </Typography>
                   {creatorProfile?.email && (
                     <Typography variant="caption" color="text.secondary">
@@ -536,7 +655,7 @@ const DisputeDetailDialog = ({
                       </Avatar>
                       <Box>
                         <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                          {creatorProfile?.nome || 'Carregando...'}
+                          {creatorProfile?.nome || (creatorProfile === null ? 'Carregando...' : 'Usuário não encontrado')}
                         </Typography>
                         {creatorProfile?.email && (
                           <Typography variant="caption" color="text.secondary">
