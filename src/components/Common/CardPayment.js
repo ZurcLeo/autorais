@@ -191,15 +191,19 @@ const CardPayment = ({
       const token = await createCardToken(tokenizationData);
       
       console.log('✅ Card tokenized successfully:', {
-        tokenId: token.id,
-        hasDeviceId: !!token.device_id
+        hasTokenId: !!token.id,
+        hasDeviceId: !!token.device_id,
+        tokenType: token.type || 'card'
       });
 
       setTokenData(token);
       setActiveStep(1);
 
     } catch (err) {
-      console.error('❌ Card tokenization error:', err);
+      console.error('❌ Card tokenization error:', {
+        errorType: err.name || 'Unknown',
+        hasMessage: !!err.message
+      });
       setError(err.message || 'Erro ao processar cartão');
     } finally {
       setLoading(false);
@@ -239,15 +243,20 @@ const CardPayment = ({
       };
 
       console.log('💳 Processing card payment with token:', {
-        tokenId: tokenData.id,
+        hasTokenId: !!tokenData.id,
         hasDeviceId: !!tokenData.device_id,
-        amount: amount
+        amount: amount,
+        hasPayerEmail: !!paymentData.payer.email
       });
 
       // Process payment through banking service
       const result = await processCardPayment(paymentData);
       
-      console.log('✅ Payment processed successfully:', result);
+      console.log('✅ Payment processed successfully:', {
+        hasPaymentId: !!result.id,
+        status: result.status,
+        hasTransactionAmount: !!result.transaction_amount
+      });
 
       setSuccess(true);
       
@@ -257,7 +266,11 @@ const CardPayment = ({
       }, 2000);
 
     } catch (err) {
-      console.error('❌ Payment processing error:', err);
+      console.error('❌ Payment processing error:', {
+        errorType: err.name || 'Unknown',
+        hasMessage: !!err.message,
+        statusCode: err.status
+      });
       setError(err.message || 'Erro ao processar pagamento');
       onError?.(err);
     } finally {

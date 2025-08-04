@@ -6,8 +6,10 @@ import {
   Button, 
   Paper,
   useMediaQuery,
+  useTheme,
   Stack,
-  Divider
+  Divider,
+  alpha
 } from '@mui/material';
 import { 
   ChatBubbleOutlineRounded, 
@@ -26,7 +28,8 @@ import { useTranslation } from 'react-i18next';
 const SelectConversation = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <Box 
@@ -38,23 +41,31 @@ const SelectConversation = () => {
         height: '100%',
         width: '100%',
         p: 3,
-        bgcolor: 'background.default'
+        background: 'transparent'
       }}
     >
       <Paper
-        elevation={1}
+        elevation={0}
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           p: 4,
-          borderRadius: 2,
+          borderRadius: 3,
           maxWidth: 500,
           width: '100%',
-          bgcolor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider'
+          background: `linear-gradient(135deg, 
+            ${alpha(theme.palette.background.paper, 0.9)} 0%, 
+            ${alpha(theme.palette.background.paper, 0.7)} 100%)`,
+          backdropFilter: 'blur(20px)',
+          border: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+          boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: `0 12px 40px ${alpha(theme.palette.common.black, 0.15)}`
+          }
         }}
       >
         <ChatBubbleOutlineRounded

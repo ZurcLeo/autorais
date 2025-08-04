@@ -30,7 +30,7 @@ class SocketService extends BaseService {
 
     // Definir URL baseada no ambiente
     this.SOCKET_URL = process.env.NODE_ENV === 'production' 
-      ? 'https://backend-elos.onrender.com'
+      ? 'https://api.eloscloud.com'
       : 'https://localhost:9000';
     
     // Configuração inicial sem token (será adicionado antes da conexão)

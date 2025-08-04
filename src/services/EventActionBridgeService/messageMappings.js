@@ -125,6 +125,62 @@ export const setupMessageMappings = (eventBridgeService) => {
       serviceName: 'messages',
       eventType: MESSAGE_EVENTS.MESSAGES_CLEARED,
       actionType: MESSAGE_ACTIONS.CLEAR_STATE
-    }
+    },
+
+    // Mapeamentos para fluxo de escalonamento IA -> Humano
+    {
+      serviceName: 'messages',
+      eventType: MESSAGE_EVENTS.ESCALATION_INITIATED,
+      actionType: MESSAGE_ACTIONS.SET_CONVERSATION_STATUS, // Requer nova action ou reutilizar
+      transformer: (eventData) => ({
+        conversationId: eventData.conversationId,
+        status: 'escalation_initiated', // Ex: 'connecting_to_human', 'escalation_requested'
+        isLoading: true,
+      }),
+    },
+    {
+      serviceName: 'messages',
+      eventType: MESSAGE_EVENTS.AI_SUGGESTS_ESCALATION,
+      actionType: MESSAGE_ACTIONS.NOTIFY_ESCALATION_SUGGESTION, // Requer nova action
+      transformer: (eventData) => ({
+        conversationId: eventData.conversationId,
+        reason: eventData.reason,
+        message: eventData.suggestedMessage || `O assistente virtual sugere transferir para um atendente. Motivo: ${eventData.reason || 'Não especificado'}.`,
+      }),
+    },
+    {
+      serviceName: 'messages',
+      eventType: MESSAGE_EVENTS.ESCALATION_PENDING,
+      actionType: MESSAGE_ACTIONS.SET_CONVERSATION_STATUS,
+      transformer: (eventData) => ({
+        conversationId: eventData.conversationId,
+        status: 'escalation_pending',
+        queuePosition: eventData.queuePosition,
+        estimatedWaitTime: eventData.estimatedWaitTime,
+        isLoading: true,
+      }),
+    },
+    {
+      serviceName: 'messages',
+      eventType: MESSAGE_EVENTS.CONVERSATION_ASSIGNED, // Usando CONVERSATION_ASSIGNED
+      actionType: MESSAGE_ACTIONS.UPDATE_CONVERSATION_HANDLER, // Requer nova action
+      transformer: (eventData) => ({
+        conversationId: eventData.conversationId,
+        newHandler: eventData.humanAgent, // { id, name, avatar }
+        previousHandlerId: eventData.previousAgentId, // e.g., AI_AGENT_USER_ID
+        status: 'active_human', // Atualiza o status da conversa
+        isLoading: false,
+      }),
+    },
+    {
+      serviceName: 'messages',
+      eventType: MESSAGE_EVENTS.ESCALATION_FAILED,
+      actionType: MESSAGE_ACTIONS.SET_ERROR, // Pode ser um erro específico de conversa
+      transformer: (eventData) => ({
+        conversationId: eventData.conversationId, // Para erro contextualizado
+        error: `Falha no escalonamento: ${eventData.reason || 'Não foi possível conectar com um atendente. Tente novamente.'}`,
+        isLoading: false,
+      }),
+    },
   ]);
 };

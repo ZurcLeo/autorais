@@ -402,6 +402,57 @@ class SupportService extends BaseService {
     }
 
     /**
+     * Busca todos os tickets do sistema (para agentes de suporte)
+     * @param {Object} options - Opções de busca
+     * @returns {Promise<Array>} Lista de todos os tickets
+     */
+    async fetchAllTickets(options = {}) {
+        const currentUser = this.getCurrentUser();
+        if (!currentUser) {
+            throw new Error('Usuário não autenticado');
+        }
+
+        const { status, limit = 50 } = options;
+
+        this._emitEvent(SUPPORT_EVENTS.FETCH_TICKETS_START);
+
+        try {
+            let url = '/api/support/tickets/all';
+            const params = new URLSearchParams();
+            
+            if (status) params.append('status', status);
+            if (limit) params.append('limit', limit.toString());
+            
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            const response = await this._executeWithRetry(async () => {
+                return await this.apiService.get(url);
+            }, 'fetchAllTickets');
+
+            if (!response.data.success) {
+                throw new Error(response.data.message || 'Erro ao buscar todos os tickets');
+            }
+
+            const tickets = response.data.data || [];
+            
+            // Atualizar cache
+            tickets.forEach(ticket => {
+                this._ticketsCache.set(ticket.id, ticket);
+            });
+
+            this._emitEvent(SUPPORT_EVENTS.FETCH_ALL_TICKETS_SUCCESS, { tickets });
+            
+            return tickets;
+        } catch (error) {
+            this._logError(error, 'fetchAllTickets');
+            this._emitEvent(SUPPORT_EVENTS.FETCH_TICKETS_FAILURE, { error: error.message });
+            throw error;
+        }
+    }
+
+    /**
      * Busca tickets pendentes (para agentes)
      * @param {number} limit - Limite de tickets a retornar
      * @returns {Promise<Array>} Lista de tickets pendentes

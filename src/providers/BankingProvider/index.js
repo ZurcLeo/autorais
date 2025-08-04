@@ -63,8 +63,16 @@ export const BankingProvider = ({ children }) => {
       if (!caixinhaId) return null;
       try {
         const bankingService = serviceLocator.get('banking');
-        const history = await bankingService.getBankingHistory(caixinhaId);
-        return history.history;
+        const response = await bankingService.getBankingHistory(caixinhaId);
+        
+        console.log('🔍 Banking History Response:', {
+          hasResponse: !!response,
+          hasHistory: !!response?.history,
+          historyLength: response?.history?.length || 0,
+          responseKeys: response ? Object.keys(response) : []
+        });
+        
+        return response.history || [];
       } catch (error) {
         console.error('Error fetching banking history:', error);
         throw error;

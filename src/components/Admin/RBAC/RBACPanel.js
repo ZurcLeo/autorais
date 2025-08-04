@@ -70,7 +70,7 @@ const RBACPanel = () => {
   // Carregar roles do usuário quando selecionar um usuário
   useEffect(() => {
     if (selectedUser) {
-      fetchUserRoles(selectedUser.id);
+      fetchUserRoles(selectedUser.id, selectedUser);
     }
   }, [selectedUser]);
 
@@ -137,7 +137,7 @@ const RBACPanel = () => {
     }
   }
   
-  async function fetchUserRoles(userId) {
+  async function fetchUserRoles(userId, user = null) {
     if (!userId) return;
     try {
       setLoading(true);
@@ -158,11 +158,17 @@ const RBACPanel = () => {
         }
       }
       
+      // Validar e normalizar dados dos roles
+      userRolesData = userRolesData.map(userRole => ({
+        ...userRole,
+        context: userRole.context || { type: 'global', resourceId: null }
+      }));
+      
       console.log("Processed user roles data:", userRolesData);
       
       // Se ainda não temos roles e o usuário tem flag isOwnerOrAdmin,
       // adicionar uma role "admin" virtual para representação visual
-      if (userRolesData.length === 0 && selectedUser?.isOwnerOrAdmin) {
+      if (userRolesData.length === 0 && user?.isOwnerOrAdmin) {
         userRolesData = [{
           id: `virtual_admin_${userId}`,
           roleId: 'admin',
@@ -806,11 +812,12 @@ const RBACPanel = () => {
         </Button>
       </Box>
     }
+    primaryTypographyProps={{ component: 'div' }}
     secondary={
       <Box sx={{ mt: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          <strong>Contexto:</strong> {userRole.context.type}
-          {userRole.context.resourceId && ` (${userRole.context.resourceId})`}
+          <strong>Contexto:</strong> {userRole.context?.type || 'N/A'}
+          {userRole.context?.resourceId && ` (${userRole.context.resourceId})`}
         </Typography>
         
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 1 }}>
@@ -860,6 +867,7 @@ const RBACPanel = () => {
         </Box>
       </Box>
     }
+    secondaryTypographyProps={{ component: 'div' }}
   />
 </ListItem>
                                 {index < userRoles.length - 1 && <Divider />}

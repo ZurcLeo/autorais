@@ -198,26 +198,40 @@ const PixPayment = ({
         description,
         paymentId,
         caixinhaId,
-        userInfo
+        hasUserEmail: !!userInfo.email,
+        hasUserName: !!userInfo.firstName,
+        documentType: userInfo.identificationType
       });
       
-      // Prepare payment data with user information
+      // Prepare payment data with user information (sanitized)
       const paymentData = {
-        amount: amount,
-        description: description,
-        email: userInfo.email,
-        firstName: userInfo.firstName,
-        lastName: userInfo.lastName,
+        amount: parseFloat(amount),
+        description: description?.trim() || 'Validação de Conta',
+        email: userInfo.email?.trim().toLowerCase(),
+        firstName: userInfo.firstName?.trim(),
+        lastName: userInfo.lastName?.trim(),
         identificationType: userInfo.identificationType,
         identificationNumber: userInfo.identificationNumber.replace(/\D/g, '')
       };
       
+      // Validate payment data before sending
+      if (!paymentData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paymentData.email)) {
+        throw new Error('Email inválido');
+      }
+      if (!paymentData.firstName || paymentData.firstName.length < 2) {
+        throw new Error('Nome deve ter pelo menos 2 caracteres');
+      }
+      if (!paymentData.identificationNumber || paymentData.identificationNumber.length < 11) {
+        throw new Error('Documento inválido');
+      }
+      
       // Call the banking service to generate PIX for validation
       const response = await generateValidationPix(paymentId, paymentData);
       
-      console.log('🔍 Response from generateValidationPix:', {
+      console.log('🔍 PIX validation response received:', {
         hasPixData: !!response?.pixData,
-        responseKeys: Object.keys(response || {})
+        hasPaymentId: !!response?.pixData?.payment_id,
+        hasQrCode: !!response?.pixData?.qr_code
       });
       
       // Check if we have a valid response with payment data
@@ -229,9 +243,11 @@ const PixPayment = ({
       // Extract PIX data according to backend structure
       const pixData = response.pixData;
       
-      console.log('🔍 PIX Data structure:', {
+      console.log('🔍 PIX Data validation:', {
         hasPixData: !!pixData,
-        pixDataKeys: pixData ? Object.keys(pixData) : null
+        hasPaymentId: !!pixData?.payment_id,
+        hasQrCode: !!pixData?.qr_code,
+        hasExpiration: !!pixData?.expires_at
       });
       
       if (!pixData) {
@@ -253,11 +269,11 @@ const PixPayment = ({
       }
       
       console.log('🔍 PIX Data extracted:', {
-        responsePaymentId,
+        hasPaymentId: !!responsePaymentId,
         hasQrCode: !!pixData.qr_code,
         hasQrCodeBase64: !!pixData.qr_code_base64,
-        expiresAt: pixData.expires_at,
-        amount: pixData.amount
+        hasValidExpiration: !!pixData.expires_at,
+        amountMatches: pixData.amount === amount
       });
       
       setPaymentData({
@@ -275,8 +291,7 @@ const PixPayment = ({
       
       // Start countdown
       const expirationDate = pixData.expires_at;
-      console.log('🔍 Expiration date from backend:', expirationDate);
-      console.log('🔍 Type of expiration date:', typeof expirationDate);
+      console.log('🔍 Setting up PIX expiration timer');
       
       let expiresAt;
       if (expirationDate) {
@@ -284,17 +299,9 @@ const PixPayment = ({
         const parsedDate = new Date(expirationDate);
         expiresAt = parsedDate.getTime();
         
-        console.log('🔍 Original expiration value:', expirationDate);
-        console.log('🔍 Parsed as Date object:', parsedDate);
-        console.log('🔍 Parsed expiration timestamp:', expiresAt);
-        console.log('🔍 Current timestamp:', Date.now());
-        console.log('🔍 Is valid date?', !isNaN(parsedDate.getTime()));
-        
-        // Check if parsed date is reasonable (not too far in future)
         const timeLeftMs = expiresAt - Date.now();
         const timeLeftSeconds = Math.floor(timeLeftMs / 1000);
-        console.log('🔍 Time difference (milliseconds):', timeLeftMs);
-        console.log('🔍 Time difference (seconds):', timeLeftSeconds);
+        console.log('🔍 PIX expires in:', timeLeftSeconds, 'seconds');
         
         // If time is unreasonable, use fallback
         if (isNaN(expiresAt) || timeLeftSeconds < 0 || timeLeftSeconds > 86400) {
@@ -304,11 +311,11 @@ const PixPayment = ({
       } else {
         // Fallback: 15 minutes from now
         expiresAt = Date.now() + 15 * 60 * 1000;
-        console.log('🔍 Using fallback expiration (15 min):', expiresAt);
+        console.log('🔍 Using fallback expiration (15 minutes)');
       }
       
       const finalTimeLeftSeconds = Math.floor((expiresAt - Date.now()) / 1000);
-      console.log('🔍 Final time left (seconds):', finalTimeLeftSeconds);
+      console.log('🔍 PIX timer initialized for', finalTimeLeftSeconds, 'seconds');
       setTimeLeft(Math.max(0, finalTimeLeftSeconds)); // Ensure non-negative
       
     } catch (err) {

@@ -16,7 +16,7 @@ import {
   Tab,
   LinearProgress,
 } from '@mui/material';
-import { useAuth } from './providers/AuthProvider';
+import { useSimpleAuth } from './hooks/useSimpleAuth';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Layout from './components/Layout/Layout';
@@ -44,6 +44,7 @@ import { serviceLocator } from './core/services/BaseService';
 import RBACPanel from './components/Admin/RBAC/RBACPanel';
 import Shop from './components/shop/Shop';
 import CaixinhaWelcome from './components/Caixinhas/CaixinhaWelcome';
+import { SupportPage } from './components/Support';
 
 const MODULE_NAME = 'AppRoutes';
 
@@ -77,52 +78,28 @@ const AdminRoute = ({ children }) => {
  * @returns {React.ReactElement} Either the login element or AccountConfirmation component
  */
 const LoginRoute = ({ element }) => {
-  const { isAuthenticated: authProviderAuthenticated } = useAuth();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, currentUser, authLoading } = useSimpleAuth();
   const [loading, setLoading] = useState(true);
   
-  // Efeito para verificar autenticação de forma confiável
+  // Simplificar para usar apenas o AuthProvider como fonte única de verdade
   useEffect(() => {
-    const checkAuth = async () => {
-      setLoading(true);
-      try {
-        // Já temos isAuthenticated do provider, obtido fora do useEffect
-        let isAuthFromProvider = authProviderAuthenticated;
-        
-        // Verificar autenticação pelo serviço (fallback)
-        const authService = serviceLocator.get('auth');
-        const serviceUser = authService.getCurrentUser();
-        
-        // Verificar autenticação pela store (outra fonte)
-        const storeState = serviceLocator.get('store').getState()?.auth;
-        const storeIsAuthenticated = storeState?.isAuthenticated;
-        
-        // Combinar resultados - é autenticado se qualquer fonte confirmar
-        const finalIsAuthenticated = isAuthFromProvider || Boolean(serviceUser) || storeIsAuthenticated;
-        
-        console.log('LoginRoute - Verificação de autenticação:', {
-          fromProvider: isAuthFromProvider,
-          fromService: Boolean(serviceUser),
-          fromStore: storeIsAuthenticated,
-          final: finalIsAuthenticated
-        });
-        
-        setIsAuthenticated(finalIsAuthenticated);
-      } catch (error) {
-        console.error('Erro ao verificar autenticação em LoginRoute:', error);
-        setIsAuthenticated(false);
-      } finally {
-        setAuthChecked(true);
-        setLoading(false);
-      }
-    };
+    // Usar um pequeno delay para permitir que o AuthProvider se inicialize
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 100);
     
-    checkAuth();
-  }, [authProviderAuthenticated]);
+    return () => clearTimeout(timer);
+  }, []);
   
-  // Loading state
-  if (loading || !authChecked) {
+  console.log('LoginRoute - Estado de autenticação:', {
+    isAuthenticated,
+    hasUser: !!currentUser,
+    authLoading,
+    loading
+  });
+  
+  // Loading state - usar apenas AuthProvider para determinar loading
+  if (loading || authLoading) {
     return (
       <Box 
         sx={{
@@ -141,12 +118,12 @@ const LoginRoute = ({ element }) => {
     );
   }
   
-  // Se já estiver autenticado, mostra a tela de confirmação de conta
-  if (isAuthenticated) {
+  // Se estiver autenticado, mostrar a tela de confirmação de conta
+  if (isAuthenticated && currentUser) {
     return <AccountConfirmation />;
   }
   
-  // Caso contrário, mostra o componente de login normal
+  // Se não estiver autenticado, mostrar o elemento de login
   return element;
 };
 
@@ -158,47 +135,20 @@ const LoginRoute = ({ element }) => {
  * @component
  * @returns {React.ReactElement} Account confirmation UI
  */
-// Componente AccountConfirmation corrigido para routes.js
+// Componente AccountConfirmation simplificado
 const AccountConfirmation = () => {
   const [loading, setLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { switchAccount } = useAuth();
+  const { currentUser, logout } = useSimpleAuth();
   const { showToast } = useToast();
   const intendedPath = location.state?.from || '/dashboard';
   
   const [adminModalOpen, setAdminModalOpen] = useState(false);
   const [adminTabValue, setAdminTabValue] = useState(0);
 
-  // Efeito para carregar dados do usuário ao inicializar
-  useEffect(() => {
-    const loadUserData = async () => {
-      setLoading(true);
-      try {
-        // Tentar obter dados do usuário de diferentes fontes
-        const authService = serviceLocator.get('auth');
-        const storeState = serviceLocator.get('store').getState()?.auth;
-        
-        // Combinar dados do serviço e da store para maior confiabilidade
-        const currentUser = storeState?.currentUser || authService.getCurrentUser();
-        
-        if (!currentUser) {
-          console.error('Nenhum dado de usuário encontrado em AccountConfirmation');
-          throw new Error('Dados de usuário não disponíveis');
-        }
-        
-        setUserInfo(currentUser);
-      } catch (error) {
-        console.error('Erro ao carregar dados do usuário:', error);
-        showToast('Erro ao carregar dados do usuário. Tente fazer login novamente.', { type: 'error' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadUserData();
-  }, [showToast]);
+  // Usar dados do currentUser diretamente do hook simplificado
+  const userInfo = currentUser;
 
   /**
    * Abre o modal de administração
@@ -227,32 +177,19 @@ const handleButtonClick = async (action) => {
     if (action === 'continue') {
       navigate(intendedPath, { replace: true });
     } else if (action === 'otherAccount') {
-      // Garantir logout completo
+      // Logout simplificado usando hook unificado
       try {
-        // 1. Logout via AuthProvider
-        await switchAccount();
+        await logout();
         
-        // 2. Logout explícito no serviço Firebase (redundância)
-        const authService = serviceLocator.get('auth');
-        if (authService.signOut) {
-          await authService.signOut();
-        }
-        
-        // 3. Despachar ação de logout diretamente para o Redux
-        const store = serviceLocator.get('store');
-        if (store && store.dispatch) {
-          store.dispatch({ type: 'auth/LOGOUT' });
-        }
-        
-        // 4. Forçar redirecionamento para login
+        // Forçar redirecionamento para login
         setTimeout(() => {
-          console.log('Forçando redirecionamento para tela de login');
-          window.location.href = '/login'; // Usar window.location para forçar refresh completo
+          console.log('Redirecionando para tela de login');
+          navigate('/login', { replace: true });
         }, 100);
       } catch (error) {
         console.error('Erro ao tentar fazer logout:', error);
-        // Em caso de erro, mesmo assim tentar forçar redirecionamento
-        window.location.href = '/login';
+        // Em caso de erro, forçar redirecionamento
+        navigate('/login', { replace: true });
       }
     }
   } catch (error) {
@@ -508,6 +445,8 @@ export const AppRoutes = () => {
         <Route path="caixinha" element={<PrivateRoute element={<CaixinhaWelcome />} />} />
         <Route path="caixinha/:caixinhaId" element={<PrivateRoute element={<CaixinhaOverview />} />} />
         <Route path="vendedor" element={<PrivateRoute element={<SellerDashboard />} />} />
+        <Route path="support" element={<PrivateRoute element={<SupportPage />} />} />
+        <Route path="support/ticket/:ticketId" element={<PrivateRoute element={<SupportPage ticketDetailMode={true} />} />} />
         
         {/* Rotas de administração */}
         <Route path="admin">

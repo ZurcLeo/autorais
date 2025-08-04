@@ -204,7 +204,10 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
       let authProvider;
       if (provider === 'google') {
           authProvider = new GoogleAuthProvider();
-          authProvider.setCustomParameters({prompt: 'select_account'});
+          authProvider.setCustomParameters({
+              'prompt': 'select_account',
+              'hd': 'eloscloud.com' // Opcional: restringir a domínios específicos
+          });
       } else if (provider === 'microsoft') {
           authProvider = new OAuthProvider('microsoft.com');
           authProvider.setCustomParameters({prompt: 'select_account'});
@@ -320,6 +323,13 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
         try {
             this._log(MODULE_NAME, LOG_LEVELS.STATE, 'Google sign-in initiated');
             const provider = new GoogleAuthProvider();
+            
+            // Configurar parâmetros personalizados para melhorar a experiência do usuário
+            provider.setCustomParameters({
+                'prompt': 'select_account',
+                'hd': 'eloscloud.com' // Opcional: restringir a domínios específicos
+            });
+            
             const userCredential = await signInWithPopup(firebaseAuth, provider);
             // const userData = userCredential.user; Optional: Emit a simple USER_SIGNED_IN
             // immediately if needed for quick UI feedback before backend validation, but
@@ -1005,6 +1015,25 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
             return null;
         }
 
+        // Processar roles do usuário
+        const userRoles = sourceUser.roles || {};
+        const rolesArray = Object.keys(userRoles);
+        const permissions = [];
+        
+        // Extrair permissões das roles
+        Object.values(userRoles).forEach(roleData => {
+            if (roleData.permissions) {
+                permissions.push(...roleData.permissions);
+            }
+        });
+
+        console.log('🔐 [AuthService] Processando roles do usuário:', {
+            userRoles,
+            rolesArray,
+            permissions,
+            isAdmin: rolesArray.includes('admin') || sourceUser.isOwnerOrAdmin
+        });
+
         // Apenas mapeia e retorna o usuário
         return {
             uid: userId,
@@ -1021,6 +1050,12 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
             saldoElosCoins: sourceUser.saldoElosCoins || 0,
             isOwnerOrAdmin: sourceUser.isOwnerOrAdmin || false,
             perfilPublico: sourceUser.perfilPublico || false,
+            // Incluir dados de roles e permissões
+            roles: rolesArray,
+            rolesData: userRoles,
+            permissions: permissions,
+            isAdmin: rolesArray.includes('admin') || sourceUser.isOwnerOrAdmin,
+            role: rolesArray.includes('admin') ? 'admin' : (rolesArray.includes('support') ? 'support' : 'cliente'),
             ...(
                 response
                     ?.data

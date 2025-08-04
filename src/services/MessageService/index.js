@@ -8,6 +8,9 @@ import socket from '../socketService';
 import { SERVICE_ACTIONS } from '../../core/constants/actions';
 
 const MODULE_NAME = 'messages';
+const AI_AGENT_USER_ID = 'ai-support-agent'; // ID para o agente de IA
+// const HUMAN_SUPPORT_QUEUE_ID = 'human-support-queue'; // Pode ser útil no backend
+
 
 class MessageService extends BaseService {
     constructor() {
@@ -637,6 +640,56 @@ class MessageService extends BaseService {
         }
     }
 
+    /**
+     * Solicita o escalonamento de uma conversa para um atendente humano.
+     * @param {string} conversationId - ID da conversa a ser escalonada.
+     * @returns {Promise<Object>} Resultado da operação de solicitação.
+     */
+    async requestHumanEscalation(conversationId) {
+        this._currentUser = this.authService.getCurrentUser();
+        if (!this._currentUser) {
+            const error = new Error('Usuário não autenticado');
+            this._logError(error, 'requestHumanEscalation');
+            throw error;
+        }
+
+        if (!conversationId) {
+            const error = new Error('ID da conversa é obrigatório para escalonamento.');
+            this._logError(error, 'requestHumanEscalation');
+            throw error;
+        }
+
+        this._log(MODULE_NAME, LOG_LEVELS.INFO, `Solicitando escalonamento para humano para conversa: ${conversationId}`);
+        this._emitEvent(MESSAGE_EVENTS.ESCALATION_INITIATED, { conversationId }); // Evento para feedback imediato na UI
+
+        try {
+            // Priorizar Socket.IO para comunicação em tempo real
+            if (socket && socket.connected) {
+                socket.emit('request_human_escalation', {
+                    conversationId,
+                    userId: this._currentUser.uid,
+                    timestamp: new Date().toISOString()
+                });
+                // O backend deve processar, colocar na fila e emitir eventos de volta ('escalation_pending', 'conversation_assigned_to_human')
+                return { success: true, message: 'Solicitação de escalonamento enviada via socket.' };
+            } else {
+                // Fallback para API REST se o socket não estiver disponível
+                const response = await this._executeWithRetry(async () => {
+                    return await this.apiService.post(`/api/support/conversations/${conversationId}/escalate`, {});
+                }, 'requestHumanEscalationApi');
+
+                if (!response.data.success) {
+                    throw new Error(response.data.message || 'Erro ao solicitar escalonamento via API.');
+                }
+                return response.data; // Supondo que o backend também possa emitir eventos ou retornar status
+            }
+        } catch (error) {
+            this._logError(error, 'requestHumanEscalation');
+            this._emitEvent(MESSAGE_EVENTS.ESCALATION_FAILED, { conversationId, error: error.message });
+            throw error;
+        }
+    }
+
     _initializeSocket() {
         if (this._socketInitialized) return;
         
@@ -672,6 +725,10 @@ class MessageService extends BaseService {
         socket.off('message_deleted');
         socket.off('reconcile_message');
         socket.off('message_send_failed');
+        socket.off('ai_suggests_escalation');
+        socket.off('escalation_pending');
+        socket.off('conversation_assigned_to_human');
+        socket.off('escalation_failed');
         
         // Configurar handlers para mensagens
         socket.on('new_message', (message) => {
@@ -696,6 +753,43 @@ class MessageService extends BaseService {
                     deleted: true
                 });
             }
+        });
+
+        // Handlers para o fluxo de escalonamento de IA para Humano
+        socket.on('ai_suggests_escalation', (data) => {
+            // data: { conversationId, reason, suggestedMessage }
+            this._log(MODULE_NAME, LOG_LEVELS.INFO, 'IA sugeriu escalonamento', data);
+            this._emitEvent(MESSAGE_EVENTS.AI_SUGGESTS_ESCALATION, data);
+        });
+
+        socket.on('escalation_pending', (data) => {
+            // data: { conversationId, queuePosition, estimatedWaitTime }
+            this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Escalonamento pendente, aguardando agente', data);
+            this._emitEvent(MESSAGE_EVENTS.ESCALATION_PENDING, data);
+            const conversation = this._conversationsCache.get(data.conversationId);
+            if (conversation) {
+                conversation.status = 'pending_human_assignment'; // Adicionar um campo de status à conversa
+                conversation.queueInfo = { position: data.queuePosition, waitTime: data.estimatedWaitTime };
+                this._conversationsCache.set(data.conversationId, conversation);
+            }
+        });
+
+        socket.on('conversation_assigned_to_human', (data) => {
+            // data: { conversationId, humanAgent: { id, name, avatar }, previousAgentId: AI_AGENT_USER_ID }
+            this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Conversa atribuída a um agente humano', data);
+            this._emitEvent(MESSAGE_EVENTS.CONVERSATION_ASSIGNED, data); // Usar CONVERSATION_ASSIGNED
+            const conversation = this._conversationsCache.get(data.conversationId);
+            if (conversation) {
+                // Atualizar participantes ou um campo 'handledBy'
+                conversation.handledBy = data.humanAgent.id;
+                conversation.status = 'active_human';
+                this._conversationsCache.set(data.conversationId, conversation);
+            }
+        });
+
+        socket.on('escalation_failed', (data) => {
+            this._log(MODULE_NAME, LOG_LEVELS.ERROR, 'Falha no processo de escalonamento', data);
+            this._emitEvent(MESSAGE_EVENTS.ESCALATION_FAILED, data);
         });
         
         this._log(MODULE_NAME, LOG_LEVELS.INFO, 'Handlers de socket registrados com sucesso');
@@ -746,6 +840,11 @@ class MessageService extends BaseService {
             socket.off('new_message');
             socket.off('message_status_update');
             socket.off('message_deleted');
+            socket.off('ai_suggests_escalation');
+            socket.off('escalation_pending');
+            socket.off('conversation_assigned_to_human');
+            socket.off('escalation_failed');
+            this._socketInitialized = false;
         }
         
         this._conversationsCache.clear();

@@ -1,6 +1,6 @@
 // src/components/Messages/ChatLayout.js
 import React, { useState, useEffect } from 'react';
-import { Box, useMediaQuery } from '@mui/material';
+import { Box, useMediaQuery, useTheme, alpha } from '@mui/material';
 import ConversationsList from './ConversationList';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
 import SelectConversation from './SelectConversation';
@@ -14,8 +14,8 @@ import SelectConversation from './SelectConversation';
  * @returns {React.ReactElement} Responsive chat interface layout
  */
 const ChatLayout = () => {
-  // Use theme directly from MUI
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { uidDestinatario } = useParams();
   const location = useLocation();
   
@@ -37,10 +37,14 @@ const ChatLayout = () => {
         flexDirection: 'column',
         height: 'calc(100vh - 80px)',
         width: '100%',
-        bgcolor: 'background.paper',
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.background.paper, 0.9)} 0%, 
+          ${alpha(theme.palette.background.paper, 0.8)} 100%)`,
+        backdropFilter: 'blur(20px)',
+        border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
         borderRadius: 2,
         overflow: 'hidden',
-        boxShadow: 1
+        boxShadow: theme.shadows[8]
       }}>
         {mobileView === 'list' ? <ConversationsList /> : <Outlet />}
       </Box>
@@ -53,16 +57,23 @@ const ChatLayout = () => {
       display: 'flex',
       height: 'calc(100vh - 80px)',
       width: '100%',
-      bgcolor: 'background.paper',
+      background: `linear-gradient(135deg, 
+        ${alpha(theme.palette.background.paper, 0.9)} 0%, 
+        ${alpha(theme.palette.background.paper, 0.8)} 100%)`,
+      backdropFilter: 'blur(20px)',
+      border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
       borderRadius: 2,
       overflow: 'hidden',
-      boxShadow: 1
+      boxShadow: theme.shadows[8]
     }}>
       {/* Conversations list - fixed width */}
       <Box sx={{ 
         width: 320,
-        borderRight: 1,
-        borderColor: 'divider'
+        borderRight: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+        backdropFilter: 'blur(10px)',
+        background: `linear-gradient(180deg, 
+          ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+          ${alpha(theme.palette.background.paper, 0.85)} 100%)`
       }}>
         <ConversationsList />
       </Box>
@@ -70,7 +81,11 @@ const ChatLayout = () => {
       {/* Chat area - flexible width */}
       <Box sx={{ 
         flexGrow: 1,
-        display: 'flex'
+        display: 'flex',
+        background: `linear-gradient(180deg, 
+          ${alpha(theme.palette.background.default, 0.9)} 0%, 
+          ${alpha(theme.palette.background.default, 0.8)} 100%)`,
+        backdropFilter: 'blur(10px)'
       }}>
         {!uidDestinatario ? <SelectConversation /> : <Outlet />}
       </Box>

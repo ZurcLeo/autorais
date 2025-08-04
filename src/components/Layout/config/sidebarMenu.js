@@ -11,6 +11,7 @@ import {
   GiPresent, 
   GiLockedChest 
 } from "react-icons/gi";
+import { MdSupportAgent } from "react-icons/md";
 
 export const sidebarMenu = [
   {
@@ -69,5 +70,12 @@ export const sidebarMenu = [
         icon: <GiPiggyBank size={20} />,
       },
     ],
+  },
+  
+  {
+    id: 'support',
+    path: '/support',
+    icon: <MdSupportAgent size={24} />,
+    textKey: 'sidebar.support',
   },
 ];

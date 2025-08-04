@@ -184,7 +184,8 @@ export const NotificationProvider = ({children}) => {
         }
 
         return () => {
-            if (isInitialized) {
+            // Só parar o serviço se estivermos realmente desmontando ou mudando de usuário
+            if (isInitialized && notificationService?.stop && !isAuthenticated) {
                 notificationService.stop();
                 setIsInitialized(false);
             }

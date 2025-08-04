@@ -245,10 +245,12 @@ const ConversationsList = () => {
       position="static" 
       elevation={0}
       sx={{ 
-        bgcolor: 'background.paper',
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+          ${alpha(theme.palette.background.paper, 0.85)} 100%)`,
+        backdropFilter: 'blur(20px)',
         color: 'text.primary',
-        borderBottom: 1,
-        borderColor: 'divider'
+        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.3)}`
       }}
     >
       <Toolbar sx={{ minHeight: { xs: 56 }, px: 1 }}>
@@ -269,7 +271,10 @@ const ConversationsList = () => {
       position: 'sticky', 
       top: 0, 
       zIndex: 10, 
-      bgcolor: 'background.paper' 
+      background: `linear-gradient(180deg, 
+        ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+        ${alpha(theme.palette.background.paper, 0.9)} 100%)`,
+      backdropFilter: 'blur(10px)'
     }}>
       <Paper
         elevation={0}
@@ -278,9 +283,19 @@ const ConversationsList = () => {
           display: 'flex',
           alignItems: 'center',
           borderRadius: 20,
-          bgcolor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider'
+          background: `linear-gradient(135deg, 
+            ${alpha(theme.palette.background.paper, 0.8)} 0%, 
+            ${alpha(theme.palette.background.paper, 0.6)} 100%)`,
+          backdropFilter: 'blur(10px)',
+          border: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+          transition: 'all 0.3s ease',
+          '&:focus-within': {
+            background: `linear-gradient(135deg, 
+              ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+              ${alpha(theme.palette.background.paper, 0.85)} 100%)`,
+            borderColor: alpha(theme.palette.primary.main, 0.5),
+            boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`
+          }
         }}
       >
         <IconButton sx={{ p: '10px', color: 'action.active' }}>
@@ -332,7 +347,7 @@ const ConversationsList = () => {
       flexDirection: 'column',
       height: isMobile ? '100%' : '80vh',
       width: '100%',
-      bgcolor: 'background.paper'
+      background: 'transparent'
     }}>
       {/* Header */}
       {renderHeader()}
@@ -362,18 +377,45 @@ const ConversationsList = () => {
                   selected={isSelected}
                   sx={{ 
                     py: 1.5,
-                    borderRadius: 1,
+                    borderRadius: 2,
                     my: 0.5,
                     mx: 0.5,
+                    background: isSelected 
+                      ? `linear-gradient(135deg, 
+                          ${alpha(theme.palette.primary.main, 0.2)} 0%, 
+                          ${alpha(theme.palette.primary.main, 0.1)} 100%)`
+                      : 'transparent',
+                    backdropFilter: isSelected ? 'blur(10px)' : 'none',
+                    border: isSelected 
+                      ? `1px solid ${alpha(theme.palette.primary.main, 0.3)}`
+                      : `1px solid transparent`,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: 'translateX(0)',
                     '&.Mui-selected': {
-                      bgcolor: 'action.selected',
+                      background: `linear-gradient(135deg, 
+                        ${alpha(theme.palette.primary.main, 0.25)} 0%, 
+                        ${alpha(theme.palette.primary.main, 0.15)} 100%)`,
+                      backdropFilter: 'blur(15px)',
+                      boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
                       '&:hover': {
-                        bgcolor: 'action.selected'
+                        background: `linear-gradient(135deg, 
+                          ${alpha(theme.palette.primary.main, 0.3)} 0%, 
+                          ${alpha(theme.palette.primary.main, 0.2)} 100%)`,
+                        transform: 'translateX(4px) translateY(-2px)',
+                        boxShadow: `0 6px 25px ${alpha(theme.palette.primary.main, 0.25)}`
                       }
                     },
                     '&:hover': {
-                      bgcolor: 'action.hover',
-                      cursor: 'pointer'
+                      background: !isSelected 
+                        ? `linear-gradient(135deg, 
+                            ${alpha(theme.palette.action.hover, 0.8)} 0%, 
+                            ${alpha(theme.palette.action.hover, 0.6)} 100%)`
+                        : undefined,
+                      backdropFilter: 'blur(10px)',
+                      transform: 'translateX(4px) translateY(-1px)',
+                      boxShadow: `0 4px 15px ${alpha(theme.palette.common.black, 0.1)}`,
+                      cursor: 'pointer',
+                      border: `1px solid ${alpha(theme.palette.divider, 0.5)}`
                     }
                   }}
                 >

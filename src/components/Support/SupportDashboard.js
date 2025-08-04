@@ -72,6 +72,7 @@ const SupportDashboard = () => {
   const {
     fetchPendingTickets,
     fetchMyTickets,
+    fetchAllTickets,
     assignTicket,
     resolveTicket,
     addTicketNote,
@@ -85,7 +86,8 @@ const SupportDashboard = () => {
     clearError,
     hasPermissions,
     pendingTickets = [],
-    myTickets = []
+    myTickets = [],
+    allTickets = []
   } = supportContext;
 
 
@@ -106,17 +108,17 @@ const SupportDashboard = () => {
 
   // Calcular métricas localmente baseado nos tickets disponíveis
   const calculatedMetrics = useMemo(() => {
-    const allTickets = [...pendingTickets, ...myTickets];
+    const ticketsToUse = allTickets.length > 0 ? allTickets : [...pendingTickets, ...myTickets];
     
     const metrics = {
-      totalTickets: allTickets.length,
-      pendingTickets: pendingTickets.filter(t => t.status === 'pending').length,
-      assignedTickets: allTickets.filter(t => t.status === 'assigned').length,
-      resolvedTickets: allTickets.filter(t => t.status === 'resolved').length
+      totalTickets: ticketsToUse.length,
+      pendingTickets: ticketsToUse.filter(t => t.status === 'pending').length,
+      assignedTickets: ticketsToUse.filter(t => t.status === 'assigned').length,
+      resolvedTickets: ticketsToUse.filter(t => t.status === 'resolved').length
     };
     
     return metrics;
-  }, [pendingTickets, myTickets]);
+  }, [pendingTickets, myTickets, allTickets]);
 
   useEffect(() => {
     if (hasPermissions) {
@@ -131,6 +133,7 @@ const SupportDashboard = () => {
       await Promise.all([
         fetchPendingTickets(),
         fetchMyTickets(),
+        fetchAllTickets({ limit: 100 }), // Buscar todos os tickets
         loadAnalytics()
       ]);
     } catch (error) {
@@ -148,7 +151,14 @@ const SupportDashboard = () => {
   };
 
   const currentTickets = useMemo(() => {
-    const sourceTickets = tabValue === 0 ? pendingTickets : myTickets;
+    let sourceTickets;
+    if (tabValue === 0) {
+      sourceTickets = pendingTickets;
+    } else if (tabValue === 1) {
+      sourceTickets = myTickets;
+    } else {
+      sourceTickets = allTickets;
+    }
     
     const filtered = filterTickets(sourceTickets, {
       searchQuery,
@@ -166,7 +176,7 @@ const SupportDashboard = () => {
       // Then by creation date (newest first)
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
-  }, [pendingTickets, myTickets, tabValue, searchQuery, statusFilter, categoryFilter, priorityFilter, filterTickets]);
+  }, [pendingTickets, myTickets, allTickets, tabValue, searchQuery, statusFilter, categoryFilter, priorityFilter, filterTickets]);
 
   const handleAssignTicket = async (ticket) => {
     try {
@@ -387,6 +397,13 @@ const SupportDashboard = () => {
               </Badge>
             } 
           />
+          <Tab 
+            label={
+              <Badge badgeContent={allTickets.length} color="primary">
+                Todos os Tickets
+              </Badge>
+            } 
+          />
         </Tabs>
 
         {/* Filters */}
@@ -477,7 +494,9 @@ const SupportDashboard = () => {
             <Typography variant="body2" color="textSecondary">
               {tabValue === 0 
                 ? 'Não há tickets pendentes no momento.'
-                : 'Você não tem tickets atribuídos.'
+                : tabValue === 1
+                ? 'Você não tem tickets atribuídos.'
+                : 'Não há tickets no sistema.'
               }
             </Typography>
           </Box>

@@ -72,6 +72,56 @@ import { useMessages } from '../../providers/MessageProvider';
 import { useTranslation } from 'react-i18next';
 import { ThemeControls } from '../../ThemeControls';
 import LanguageSwitcher from '../../LanguageSwitcher';
+import logoElosCloud from '../../images/logo_eloscloud.jpeg';
+
+// Componente de Logo compacto para TopNavBar
+const CompactLogo = ({ isMobile }) => {
+  const theme = useTheme();
+  
+  if (!isMobile) return null;
+  
+  return (
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        mr: 2,
+        cursor: 'pointer',
+        transition: 'transform 0.2s ease',
+        '&:hover': {
+          transform: 'scale(1.05)'
+        }
+      }}
+      onClick={() => window.location.href = '/dashboard'}
+    >
+      <Box
+        component="img"
+        src={logoElosCloud}
+        alt="ElosCloud"
+        sx={{
+          height: 32,
+          width: 'auto',
+          objectFit: 'contain'
+        }}
+      />
+      <Typography 
+        variant="h6" 
+        sx={{ 
+          ml: 1, 
+          fontWeight: 'bold',
+          background: `linear-gradient(45deg, ${theme?.palette?.primary?.main || '#1976d2'}, ${theme?.palette?.secondary?.main || '#dc004e'})`,
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          fontSize: '1rem',
+          display: { xs: 'none', sm: 'block' }
+        }}
+      >
+        ElosCloud
+      </Typography>
+    </Box>
+  );
+};
 
 // Componente de busca global avançada
 const GlobalSearchBar = ({ onSearch, onClose }) => {
@@ -731,8 +781,8 @@ const ModernTopNavBar = ({
       position="fixed"
       elevation={0}
       sx={{
-        width: { sm: `calc(100% - ${sidebarWidth}px)` },
-        ml: { sm: `${sidebarWidth}px` },
+        width: isMobile ? '100%' : `calc(100% - ${sidebarWidth}px)`,
+        ml: isMobile ? 0 : `${sidebarWidth}px`,
         bgcolor: alpha(theme?.palette?.background?.paper || '#fff', 0.8),
         backdropFilter: 'blur(20px)',
         borderBottom: `1px solid ${alpha(theme?.palette?.divider || 'rgba(0,0,0,0.12)', 0.2)}`,
@@ -744,17 +794,21 @@ const ModernTopNavBar = ({
       }}
     >
       <Toolbar sx={{ minHeight: 64, px: { xs: 2, sm: 3 } }}>
-        {/* Mobile Menu Button */}
-        {isMobile && (
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={toggleSidebar}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
+        {/* Menu Button */}
+        <IconButton
+          color="inherit"
+          edge="start"
+          onClick={toggleSidebar}
+          sx={{ 
+            mr: 2,
+            display: isMobile ? 'block' : 'none'
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        {/* Logo para mobile */}
+        <CompactLogo isMobile={isMobile} />
 
         {/* Breadcrumbs */}
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>

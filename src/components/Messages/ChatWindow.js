@@ -26,6 +26,8 @@ import { useTranslation } from 'react-i18next';
 import { useMessages } from '../../providers/MessageProvider';
 import { serviceLocator } from '../../core/services/BaseService';
 import ModernChatInput from './ModernChatInput';
+import SupportButton from '../Support/SupportButton';
+import EscalationStatus from '../Support/EscalationStatus';
 
 /**
  * Helper function to optimize profile picture URLs
@@ -138,10 +140,14 @@ const MessageBubble = React.memo(({ message, isOwnMessage, senderName, avatar, o
     new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
     '';
   
-  // Calculate background and text colors
+  // Calculate background and text colors with glassmorphism
   const bubbleBgColor = isOwnMessage 
-    ? alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.8 : 0.15) 
-    : (theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.8) : alpha(theme.palette.grey[100], 0.9));
+    ? `linear-gradient(135deg, 
+        ${alpha(theme.palette.primary.main, 0.8)} 0%, 
+        ${alpha(theme.palette.primary.main, 0.6)} 100%)`
+    : `linear-gradient(135deg, 
+        ${alpha(theme.palette.background.paper, 0.9)} 0%, 
+        ${alpha(theme.palette.background.paper, 0.7)} 100%)`;
     
   const bubbleTextColor = isOwnMessage 
     ? (theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.primary.dark) 
@@ -177,12 +183,19 @@ const MessageBubble = React.memo(({ message, isOwnMessage, senderName, avatar, o
           p: 1.5,
           px: 2,
           maxWidth: '70%',
-          backgroundColor: bubbleBgColor,
+          background: bubbleBgColor,
+          backdropFilter: 'blur(15px)',
+          border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
           color: bubbleTextColor,
           position: 'relative',
           borderRadius: isOwnMessage ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
           opacity: message.deleted ? 0.7 : 1,
+          boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.1)}`,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: 'translateY(0)',
           '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: `0 6px 25px ${alpha(theme.palette.common.black, 0.15)}`,
             '& .message-actions': {
               opacity: 1,
               transform: 'translateX(0)',
@@ -625,9 +638,10 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
       height: '100%',
       display: 'flex', 
       flexDirection: 'column',
-      bgcolor: theme.palette.mode === 'dark' 
-        ? alpha(theme.palette.background.default, 0.9) 
-        : alpha(theme.palette.grey[50], 0.9),
+      background: `linear-gradient(180deg, 
+        ${alpha(theme.palette.background.default, 0.95)} 0%, 
+        ${alpha(theme.palette.background.default, 0.85)} 100%)`,
+      backdropFilter: 'blur(20px)',
       position: 'relative'
     }}>
       {/* Chat header */}
@@ -636,10 +650,12 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
         py: 1.5,
         display: 'flex', 
         alignItems: 'center', 
-        borderBottom: 1, 
-        borderColor: 'divider',
-        bgcolor: theme.palette.background.paper,
-        boxShadow: 1
+        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+          ${alpha(theme.palette.background.paper, 0.85)} 100%)`,
+        backdropFilter: 'blur(20px)',
+        boxShadow: `0 2px 20px ${alpha(theme.palette.common.black, 0.1)}`
       }}>
         <IconButton 
           onClick={() => navigate('/messages')} 
@@ -691,12 +707,25 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
           </IconButton>
         </Tooltip>
         
+        <SupportButton 
+          conversationId={conversationId}
+          variant="icon"
+          size="small"
+        />
+        
         <Tooltip title="Mais opções">
           <IconButton>
             <MoreVertIcon />
           </IconButton>
         </Tooltip>
       </Box>
+
+      {/* Escalation Status */}
+      <EscalationStatus 
+        conversationId={conversationId}
+        variant="banner"
+        dismissible={true}
+      />
 
       {/* Main chat area with messages */}
       <Box sx={{ 
@@ -753,10 +782,12 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
             right: 0,
             width: 320,
             height: '100%',
-            bgcolor: 'background.paper',
-            borderLeft: '1px solid',
-            borderColor: 'divider',
-            boxShadow: 10,
+            background: `linear-gradient(135deg, 
+              ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+              ${alpha(theme.palette.background.paper, 0.85)} 100%)`,
+            backdropFilter: 'blur(25px)',
+            borderLeft: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+            boxShadow: `0 0 40px ${alpha(theme.palette.common.black, 0.2)}`,
             zIndex: 10,
             display: 'flex',
             flexDirection: 'column',
@@ -817,9 +848,12 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
       {/* Input area */}
       <Box sx={{ 
         p: 2, 
-        borderTop: 1, 
-        borderColor: 'divider',
-        bgcolor: theme.palette.background.paper
+        borderTop: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.background.paper, 0.95)} 0%, 
+          ${alpha(theme.palette.background.paper, 0.85)} 100%)`,
+        backdropFilter: 'blur(20px)',
+        boxShadow: `0 -2px 20px ${alpha(theme.palette.common.black, 0.1)}`
       }}>
         <ModernChatInput
           friendName={friendName}

@@ -29,6 +29,8 @@ import { setupLoanMappings } from './loanMappings';
 import { disputeReducer } from '../../reducers/dispute/disputeReducer';
 import { setupDisputeMappings } from './disputeMappings';
 import {inviteReducer} from '../../reducers/invites/inviteReducer';
+import { supportReducer } from '../../reducers/support/supportReducer';
+import { setupSupportMappings } from './supportMappings';
 import { SERVICE_ACTIONS } from '../../core/constants/actions';
 // import { setupAppMappings } from './actionMappings';
 
@@ -84,6 +86,7 @@ class StoreService extends BaseService {
             messages: messageReducer,
             metadata: metadataReducer,
             validation: validationReducer,
+            support: supportReducer,
           });
         }
 
@@ -209,6 +212,7 @@ class StoreService extends BaseService {
         setupCaixinhaInviteMappings(eventActionBridgeService);
         setupLoanMappings(eventActionBridgeService);
         setupDisputeMappings(eventActionBridgeService);
+        setupSupportMappings(eventActionBridgeService);
         eventActionBridgeService._activateAllMappings();
         this._log("Mapeamentos registrados para usuário:", eventActionBridgeService.mappings);
 

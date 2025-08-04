@@ -9,6 +9,7 @@ const initialState = {
   pendingTickets: [],
   myTickets: [],
   userTickets: [],
+  allTickets: [],
   ticketConversations: {},
   
   // Status de escalonamento por conversa
@@ -154,6 +155,14 @@ const supportReducer = (state, action) => {
         ...state,
         isFetchingTickets: false,
         userTickets: action.payload.tickets,
+        lastFetch: new Date().toISOString()
+      };
+      
+    case 'FETCH_ALL_TICKETS_SUCCESS':
+      return {
+        ...state,
+        isFetchingTickets: false,
+        allTickets: action.payload.tickets,
         lastFetch: new Date().toISOString()
       };
       
@@ -593,6 +602,23 @@ export const SupportProvider = ({ children }) => {
     }
   }, [supportService, state.hasPermissions]);
 
+  const fetchAllTickets = useCallback(async (options = {}) => {
+    if (!supportService || !state.hasPermissions) return;
+
+    dispatch({ type: 'FETCH_TICKETS_START' });
+    
+    try {
+      const tickets = await supportService.fetchAllTickets(options);
+      return tickets;
+    } catch (error) {
+      dispatch({ 
+        type: 'FETCH_TICKETS_FAILURE', 
+        payload: { error: error.message } 
+      });
+      throw error;
+    }
+  }, [supportService, state.hasPermissions]);
+
   const assignTicket = useCallback(async (ticketId, agentId = null) => {
     if (!supportService || !state.hasPermissions) return;
 
@@ -751,6 +777,7 @@ export const SupportProvider = ({ children }) => {
     escalateConversation,
     fetchPendingTickets,
     fetchMyTickets,
+    fetchAllTickets,
     assignTicket,
     resolveTicket,
     loadTicketConversation,
@@ -774,6 +801,7 @@ export const SupportProvider = ({ children }) => {
     escalateConversation,
     fetchPendingTickets,
     fetchMyTickets,
+    fetchAllTickets,
     assignTicket,
     resolveTicket,
     loadTicketConversation,

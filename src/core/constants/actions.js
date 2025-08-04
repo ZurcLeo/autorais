@@ -447,7 +447,83 @@ export const MESSAGE_ACTIONS = {
 
   //ID's temporarios e conciliacao
   RECONCILE_MESSAGE: 'messages/RECONCILE_MESSAGE',
-  MESSAGE_SEND_FAILED: 'messages/MESSAGE_SEND_FAILED'
+  MESSAGE_SEND_FAILED: 'messages/MESSAGE_SEND_FAILED',
+  
+  // Ações para suporte humano
+  SET_CONVERSATION_STATUS: 'messages/SET_CONVERSATION_STATUS',
+  NOTIFY_ESCALATION_SUGGESTION: 'messages/NOTIFY_ESCALATION_SUGGESTION',
+  UPDATE_CONVERSATION_HANDLER: 'messages/UPDATE_CONVERSATION_HANDLER'
+};
+
+/**
+ * Ações emitidas pelo SupportService para gerenciar o sistema de suporte
+ * @namespace SUPPORT_ACTIONS
+ * @enum {string}
+ */
+export const SUPPORT_ACTIONS = {
+  // Ações de inicialização
+  SERVICE_INITIALIZED: 'support/SERVICE_INITIALIZED',
+  
+  // Ações de escalonamento (Legacy)
+  ESCALATION_START: 'support/ESCALATION_START',
+  ESCALATION_SUCCESS: 'support/ESCALATION_SUCCESS',
+  ESCALATION_FAILED: 'support/ESCALATION_FAILED',
+  
+  // Ações de criação de tickets
+  TICKET_CREATION_START: 'support/TICKET_CREATION_START',
+  TICKET_CREATED_SUCCESS: 'support/TICKET_CREATED_SUCCESS',
+  TICKET_CREATION_FAILED: 'support/TICKET_CREATION_FAILED',
+  
+  // Ações de busca de tickets
+  FETCH_TICKETS_START: 'support/FETCH_TICKETS_START',
+  FETCH_PENDING_TICKETS_SUCCESS: 'support/FETCH_PENDING_TICKETS_SUCCESS',
+  FETCH_MY_TICKETS_SUCCESS: 'support/FETCH_MY_TICKETS_SUCCESS',
+  FETCH_USER_TICKETS_START: 'support/FETCH_USER_TICKETS_START',
+  FETCH_USER_TICKETS_SUCCESS: 'support/FETCH_USER_TICKETS_SUCCESS',
+  FETCH_USER_TICKETS_FAILURE: 'support/FETCH_USER_TICKETS_FAILURE',
+  FETCH_TICKETS_FAILURE: 'support/FETCH_TICKETS_FAILURE',
+  
+  // Ações de detalhes de tickets
+  TICKET_DETAILS_LOADED: 'support/TICKET_DETAILS_LOADED',
+  TICKETS_BY_CATEGORY_LOADED: 'support/TICKETS_BY_CATEGORY_LOADED',
+  
+  // Ações de status de tickets
+  TICKET_STATUS_UPDATE_START: 'support/TICKET_STATUS_UPDATE_START',
+  TICKET_STATUS_UPDATED: 'support/TICKET_STATUS_UPDATED',
+  TICKET_STATUS_UPDATE_FAILED: 'support/TICKET_STATUS_UPDATE_FAILED',
+  
+  // Ações de atribuição de tickets (Agentes)
+  ASSIGN_TICKET_START: 'support/ASSIGN_TICKET_START',
+  ASSIGN_TICKET_SUCCESS: 'support/ASSIGN_TICKET_SUCCESS',
+  ASSIGN_TICKET_FAILURE: 'support/ASSIGN_TICKET_FAILURE',
+  
+  // Ações de resolução de tickets (Agentes)
+  RESOLVE_TICKET_START: 'support/RESOLVE_TICKET_START',
+  RESOLVE_TICKET_SUCCESS: 'support/RESOLVE_TICKET_SUCCESS',
+  RESOLVE_TICKET_FAILURE: 'support/RESOLVE_TICKET_FAILURE',
+  
+  // Ações de atualização
+  UPDATE_TICKET: 'support/UPDATE_TICKET',
+  ADD_TICKET: 'support/ADD_TICKET',
+  REMOVE_TICKET: 'support/REMOVE_TICKET',
+  
+  // Ações de conversa
+  LOAD_TICKET_CONVERSATION: 'support/LOAD_TICKET_CONVERSATION',
+  ADD_TICKET_NOTE: 'support/ADD_TICKET_NOTE',
+  
+  // Ações de estado
+  SET_LOADING: 'support/SET_LOADING',
+  SET_ERROR: 'support/SET_ERROR',
+  CLEAR_ERROR: 'support/CLEAR_ERROR',
+  CLEAR_STATE: 'support/CLEAR_STATE',
+  
+  // Ações de filtros e busca
+  SET_FILTERS: 'support/SET_FILTERS',
+  SET_SEARCH_QUERY: 'support/SET_SEARCH_QUERY',
+  
+  // Ações de métricas
+  UPDATE_METRICS: 'support/UPDATE_METRICS',
+  LOAD_METRICS: 'support/LOAD_METRICS'
 };
 
 /**

@@ -430,6 +430,15 @@ const BankingManagement = ({ caixinhaId }) => {
     setModalOpen,
     selectCaixinha,
     selectedCaixinha } = useBanking();
+
+  console.log('🔍 BankingManagement Debug:', {
+    caixinhaId,
+    selectedCaixinha,
+    hasBankingHistory: !!bankingHistory,
+    bankingHistoryLength: bankingHistory?.length || 0,
+    bankingHistoryType: typeof bankingHistory,
+    loading
+  });
   const { t } = useTranslation();
   const theme = useTheme();
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -437,6 +446,7 @@ const BankingManagement = ({ caixinhaId }) => {
   // Select caixinha when caixinhaId prop changes
   useEffect(() => {
     if (caixinhaId && selectedCaixinha !== caixinhaId) {
+      console.log('🔄 Selecting caixinha:', caixinhaId, 'previous:', selectedCaixinha);
       selectCaixinha(caixinhaId);
     }
   }, [caixinhaId, selectCaixinha, selectedCaixinha]);

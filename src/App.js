@@ -27,6 +27,7 @@ import {CaixinhaInviteProvider} from './providers/CaixinhaInviteProvider/index.j
 import {RifaProvider} from './providers/RifaProvider/index.js';
 import {LoanProvider} from './providers/LoanProvider/index.js';
 import {DisputeProvider} from './providers/DisputeProvider/index.js';
+import {SupportProvider} from './providers/SupportProvider';
 console.log(`app renderizando - ${new Date().toISOString()}`);
 
 /**
@@ -167,7 +168,8 @@ function App() {
                                                 <InterestsProvider>
                                                     <ConnectionProvider>
                                                         <MessageProvider>
-                                                            <CaixinhaProvider>
+                                                            <SupportProvider>
+                                                                <CaixinhaProvider>
                                                                 <CaixinhaInviteProvider>
                                                                     <BankingProvider>
                                                                         <RifaProvider>
@@ -183,7 +185,8 @@ function App() {
                                                                         </RifaProvider>
                                                                     </BankingProvider>
                                                                 </CaixinhaInviteProvider>
-                                                            </CaixinhaProvider>
+                                                                </CaixinhaProvider>
+                                                            </SupportProvider>
                                                         </MessageProvider>
                                                     </ConnectionProvider>
                                                 </InterestsProvider>

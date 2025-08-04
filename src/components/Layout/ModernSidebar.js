@@ -20,6 +20,7 @@ import {
   Zoom,
   InputBase
 } from '@mui/material';
+import logoElosCloud from '../../images/logo_eloscloud.jpeg';
 import { 
   ExpandLess, 
   ExpandMore, 
@@ -39,6 +40,60 @@ import { sidebarMenu } from './config/sidebarMenu';
 import { useAuth } from '../../providers/AuthProvider';
 
 const MODULE_NAME = 'ModernSidebar';
+
+// Componente de Logo da ElosCloud
+const ElosCloudLogo = ({ open }) => {
+  const theme = useTheme();
+  
+  return (
+    <Box 
+      sx={{ 
+        p: open ? 2 : 1, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: open ? 'flex-start' : 'center',
+        borderBottom: `1px solid ${alpha(theme?.palette?.divider || 'rgba(0,0,0,0.12)', 0.3)}`,
+        mb: 1
+      }}
+    >
+      <Box
+        component="img"
+        src={logoElosCloud}
+        alt="ElosCloud"
+        sx={{
+          height: open ? 48 : 40,
+          width: 'auto',
+          maxWidth: open ? 200 : 40,
+          objectFit: 'contain',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          '&:hover': {
+            transform: 'scale(1.05)'
+          }
+        }}
+        onClick={() => window.location.href = '/dashboard'}
+      />
+      {open && (
+        <Fade in={open} timeout={400}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              ml: 2, 
+              fontWeight: 'bold',
+              background: `linear-gradient(45deg, ${theme?.palette?.primary?.main || '#1976d2'}, ${theme?.palette?.secondary?.main || '#dc004e'})`,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontSize: '1.1rem'
+            }}
+          >
+            ElosCloud
+          </Typography>
+        </Fade>
+      )}
+    </Box>
+  );
+};
 
 // Componente de Profile Card moderno
 const ProfileCard = ({ currentUser, open, onProfileClick }) => {
@@ -415,6 +470,9 @@ const ModernSidebar = ({
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Logo da ElosCloud */}
+      <ElosCloudLogo open={open} />
+      
       {/* Header com Profile */}
       <Box sx={{ p: 1 }}>
         <ProfileCard 
@@ -515,8 +573,8 @@ const ModernSidebar = ({
     <Box
       component="nav"
       sx={{ 
-        width: { sm: drawerWidth }, 
-        flexShrink: { sm: 0 } 
+        width: isMobile ? 0 : drawerWidth, 
+        flexShrink: isMobile ? 1 : 0 
       }}
     >
       <Drawer

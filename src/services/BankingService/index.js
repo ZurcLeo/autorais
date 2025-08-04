@@ -155,6 +155,14 @@ class BankingService extends BaseService {
         return await this.apiService.get(`/api/banking/${caixinhaId}/history`);
       }, 'getBankingHistory');
 
+      console.log('🔍 Banking Service Raw Response:', {
+        hasResponseData: !!response.data,
+        responseDataKeys: response.data ? Object.keys(response.data) : [],
+        hasHistory: !!response.data?.history,
+        historyLength: response.data?.history?.length || 0,
+        status: response.data?.status
+      });
+
       const history = response.data.history || [];
       
       // Emitir evento

@@ -373,7 +373,9 @@
       "cnpj": "CNPJ",
       "email": "E-mail",
       "phone": "Telefone",
-      "random": "Chave Aleatoria"
+      "random": "Chave Aleatoria",
+      "noAccountsRegistered": "Nenhuma conta registrada",
+      "registerAccountPrompt": "Registre uma conta bancária para começar"
     },
     "termsOfUse": {
       "title": "Termos de Uso",
@@ -1223,7 +1225,8 @@
 "financial": "Financeiro",
 "box": "Caixinha",
 "contribute": "Contribuir",
-"createBox": "Criar Caixinha"
+"createBox": "Criar Caixinha",
+"support": "Suporte"
 },
 "invitationCard": {
   "status": {

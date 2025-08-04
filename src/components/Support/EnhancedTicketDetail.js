@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -76,6 +76,7 @@ const CATEGORY_CONFIG = {
 /**
  * Componente aprimorado para exibir detalhes completos do ticket
  * Utiliza todas as informações disponíveis do backend de forma organizada
+ * Inclui timeline com dados corretos dos agentes (nome e foto)
  */
 const EnhancedTicketDetail = ({ ticket, open, onClose, onUpdate }) => {
   const theme = useTheme();
@@ -87,6 +88,50 @@ const EnhancedTicketDetail = ({ ticket, open, onClose, onUpdate }) => {
     context: false,
     errorLogs: false
   });
+  const [agentsCache, setAgentsCache] = useState(new Map());
+
+  // Função para obter dados do agente usando agentInfo do ticket
+  const getAgentDisplayName = (item) => {
+    // Se o item tem agentId e coincide com o agentInfo do ticket, usar os dados corretos
+    if (item.agentId && ticket.agentInfo && item.agentId === ticket.agentInfo.id) {
+      return ticket.agentInfo.nome || 'Agente';
+    }
+    
+    // Fallback para propriedades diretas (exceto 'Agent' genérico)
+    const directName = item.agentName || 
+                      item.senderInfo?.name || 
+                      item.agent?.name || 
+                      item.author?.name ||
+                      item.user?.name ||
+                      item.createdBy?.name ||
+                      item.authorName ||
+                      item.userName;
+    
+    if (directName && directName !== 'Agent') {
+      return directName;
+    }
+    
+    return 'Agente';
+  };
+  
+  const getAgentAvatar = (item) => {
+    // Se o item tem agentId e coincide com o agentInfo do ticket, usar a foto correta
+    if (item.agentId && ticket.agentInfo && item.agentId === ticket.agentInfo.id) {
+      return ticket.agentInfo.fotoDoPerfil;
+    }
+    
+    // Fallback para propriedades diretas
+    const directAvatar = item.agentAvatar || 
+                        item.senderInfo?.avatar || 
+                        item.agent?.avatar ||
+                        item.author?.avatar ||
+                        item.user?.avatar ||
+                        item.createdBy?.avatar ||
+                        item.authorAvatar ||
+                        item.userAvatar;
+    
+    return directAvatar || null;
+  };
 
   if (!ticket) return null;
 
@@ -443,42 +488,57 @@ const EnhancedTicketDetail = ({ ticket, open, onClose, onUpdate }) => {
       <AccordionDetails>
         {ticket.conversationHistory && ticket.conversationHistory.length > 0 ? (
           <List>
-            {ticket.conversationHistory.map((item, index) => (
-              <React.Fragment key={index}>
-                <ListItem alignItems="flex-start">
-                  <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: item.type === 'agent_note' ? 'primary.main' : 'secondary.main' }}>
-                      {item.type === 'agent_note' ? <PersonIcon /> : <InfoIcon />}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Typography variant="subtitle2">
-                          {item.type === 'agent_note' ? 'Nota do Agente' : 'Atualização'}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDate(item.timestamp)}
-                        </Typography>
-                      </Box>
-                    }
-                    secondary={
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          {item.content || item.note}
-                        </Typography>
-                        {item.agentName && (
-                          <Typography variant="caption" color="primary">
-                            por {item.agentName}
+            {ticket.conversationHistory.map((item, index) => {
+              const isAgentNote = item.type === 'agent_note';
+              
+              
+              // Usar as funções melhoradas para obter nome e avatar
+              const agentName = getAgentDisplayName(item);
+              const agentAvatar = getAgentAvatar(item);
+              const agentInitial = agentName.charAt(0).toUpperCase();
+              
+              return (
+                <React.Fragment key={index}>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar 
+                        src={agentAvatar}
+                        sx={{ 
+                          bgcolor: isAgentNote ? 'primary.main' : 'secondary.main',
+                          width: 40,
+                          height: 40
+                        }}
+                      >
+                        {agentAvatar ? null : (isAgentNote ? agentInitial : <InfoIcon />)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Typography variant="subtitle2">
+                            {isAgentNote ? 'Nota do Agente' : 'Atualização'}
                           </Typography>
-                        )}
-                      </Box>
-                    }
-                  />
-                </ListItem>
-                {index < ticket.conversationHistory.length - 1 && <Divider variant="inset" component="li" />}
-              </React.Fragment>
-            ))}
+                          <Typography variant="caption" color="text.secondary">
+                            {formatDate(item.timestamp)}
+                          </Typography>
+                        </Box>
+                      }
+                      secondary={
+                        <Box>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            {item.content || item.note}
+                          </Typography>
+                          <Typography variant="caption" color="primary" sx={{ fontWeight: 'medium' }}>
+                            por {agentName}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                  {index < ticket.conversationHistory.length - 1 && <Divider variant="inset" component="li" />}
+                </React.Fragment>
+              );
+            })}
           </List>
         ) : (
           <Alert severity="info">
