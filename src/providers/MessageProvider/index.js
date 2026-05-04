@@ -712,3 +712,4 @@ export const useMessages = () => {
   }
   return context;
 };
+export { MessageContext };

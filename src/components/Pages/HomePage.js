@@ -255,9 +255,9 @@ const HomePage = () => {
                   size="large"
                   color="primary"
                   sx={{ borderRadius: 2, py: 1.5, px: 5, fontWeight: 700, fontSize: '1.05rem' }}
-                  onClick={() => handleNavigation('/login')}
+                  onClick={() => handleNavigation('/demo')}
                 >
-                  Já tenho conta
+                  Explorar Demo
                 </Button>
               </Box>
             </Grid>

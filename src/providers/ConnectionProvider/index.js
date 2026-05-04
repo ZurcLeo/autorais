@@ -707,3 +707,4 @@ export function useConnections() {
   
   return context;
 }
+export { ConnectionContext };

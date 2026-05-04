@@ -45,6 +45,7 @@ import RBACPanel from './components/Admin/RBAC/RBACPanel';
 import Shop from './components/shop/Shop';
 import CaixinhaWelcome from './components/Caixinhas/CaixinhaWelcome';
 import { SupportPage } from './components/Support';
+import DemoPage from './components/Pages/DemoPage';
 
 const MODULE_NAME = 'AppRoutes';
 
@@ -430,6 +431,7 @@ export const AppRoutes = () => {
       <Route path="invite/validate/:inviteId" element={<Register />} />
       <Route path="/invalid-invite" element={<InvalidInvite />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/demo" element={<DemoPage />} />
       <Route index element={<HomePage />} />
 
       {/* Rotas protegidas */}

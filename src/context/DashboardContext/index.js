@@ -118,3 +118,4 @@ export const useDashboard = () => {
     }
     return context;
 };
+export { DashboardContext };

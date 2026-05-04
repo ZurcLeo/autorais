@@ -981,3 +981,4 @@ return context;
 // };
 
 // export default CaixinhaService;
+export { CaixinhaContext };

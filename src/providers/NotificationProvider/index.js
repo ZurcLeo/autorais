@@ -693,3 +693,4 @@ export const useNotifications = () => {
 
     return context;
 };
+export { NotificationContext };
