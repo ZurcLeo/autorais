@@ -239,8 +239,12 @@ export const InviteProvider = ({ children }) => {
 
   // Métodos de API expostos para componentes de forma segura e consistente
   const getSentInvitations = useCallback(() => {
-    if (!isAuthenticated) return Promise.resolve([]);
-    
+    // Verificar autenticação diretamente no AuthService
+    const authService = serviceLocator.get('auth');
+    const currentUser = authService.getCurrentUser();
+
+    if (!currentUser) return Promise.resolve([]);
+
     try {
       const inviteService = serviceLocator.get('invites');
       return inviteService.getSentInvitations();
@@ -248,7 +252,7 @@ export const InviteProvider = ({ children }) => {
       console.error('Erro ao obter serviço de convites:', error);
       return Promise.resolve([]);
     }
-  }, [isAuthenticated]);
+  }, []);
   
   const getInviteById = useCallback((inviteId) => {
     try {
@@ -261,12 +265,19 @@ export const InviteProvider = ({ children }) => {
   }, []);
   
   const sendInvitation = useCallback(async (invitationData) => {
-    if (!isAuthenticated) return Promise.reject(new Error('Não autenticado'));
-    
+    // Verificar autenticação diretamente no AuthService ao invés do Redux store
+    const authService = serviceLocator.get('auth');
+    const currentUser = authService.getCurrentUser();
+
+    if (!currentUser) {
+      console.error('InviteProvider: Usuário não autenticado ao tentar enviar convite');
+      return Promise.reject(new Error('Não autenticado'));
+    }
+
     try {
       const inviteService = serviceLocator.get('invites');
       const response = await inviteService.sendInvitation(invitationData);
-      
+
       // Atualizar a lista de convites enviados
       dispatch({
         type: INVITATION_ACTIONS.SEND_SUCCESS,
@@ -275,17 +286,21 @@ export const InviteProvider = ({ children }) => {
           sentInvitations: [...state.sentInvitations, response]
         }
       });
-      
+
       return response;
     } catch (error) {
       console.error('Erro ao enviar convite:', error);
       return Promise.reject(error);
     }
-  }, [isAuthenticated, state.sentInvitations]);
+  }, [state.sentInvitations]);
   
   const cancelInvitation = useCallback((inviteId) => {
-    if (!isAuthenticated) return Promise.reject(new Error('Não autenticado'));
-    
+    // Verificar autenticação diretamente no AuthService
+    const authService = serviceLocator.get('auth');
+    const currentUser = authService.getCurrentUser();
+
+    if (!currentUser) return Promise.reject(new Error('Não autenticado'));
+
     try {
       const inviteService = serviceLocator.get('invites');
       return inviteService.cancelInvitation(inviteId);
@@ -293,11 +308,15 @@ export const InviteProvider = ({ children }) => {
       console.error('Erro ao cancelar convite:', error);
       return Promise.reject(error);
     }
-  }, [isAuthenticated]);
+  }, []);
   
   const resendInvitation = useCallback((inviteId) => {
-    if (!isAuthenticated) return Promise.reject(new Error('Não autenticado'));
-    
+    // Verificar autenticação diretamente no AuthService
+    const authService = serviceLocator.get('auth');
+    const currentUser = authService.getCurrentUser();
+
+    if (!currentUser) return Promise.reject(new Error('Não autenticado'));
+
     try {
       const inviteService = serviceLocator.get('invites');
       return inviteService.resendInvitation(inviteId);
@@ -305,7 +324,7 @@ export const InviteProvider = ({ children }) => {
       console.error('Erro ao reenviar convite:', error);
       return Promise.reject(error);
     }
-  }, [isAuthenticated]);
+  }, []);
   
   const validateInvite = useCallback((inviteId, email, nome) => {
     try {

@@ -205,8 +205,8 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
       if (provider === 'google') {
           authProvider = new GoogleAuthProvider();
           authProvider.setCustomParameters({
-              'prompt': 'select_account',
-              'hd': 'eloscloud.com' // Opcional: restringir a domínios específicos
+              'prompt': 'select_account'
+              // Removido 'hd' para permitir qualquer conta Gmail
           });
       } else if (provider === 'microsoft') {
           authProvider = new OAuthProvider('microsoft.com');
@@ -323,11 +323,11 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
         try {
             this._log(MODULE_NAME, LOG_LEVELS.STATE, 'Google sign-in initiated');
             const provider = new GoogleAuthProvider();
-            
+
             // Configurar parâmetros personalizados para melhorar a experiência do usuário
             provider.setCustomParameters({
-                'prompt': 'select_account',
-                'hd': 'eloscloud.com' // Opcional: restringir a domínios específicos
+                'prompt': 'select_account'
+                // Removido 'hd' para permitir qualquer conta Gmail
             });
             
             const userCredential = await signInWithPopup(firebaseAuth, provider);
@@ -729,45 +729,63 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
         if (firebaseUser) {
             // User is signed in (or token refreshed) according to Firebase
             try {
+                // Verificar se já temos um usuário válido com o mesmo UID
+                if (this._currentUser && this._currentUser.uid === firebaseUser.uid) {
+                    this._log(
+                        MODULE_NAME,
+                        LOG_LEVELS.STATE,
+                        'User already authenticated, skipping token exchange',
+                        {uid: firebaseUser.uid}
+                    );
+                    return;
+                }
+
                 this._log(
                     MODULE_NAME,
                     LOG_LEVELS.STATE,
                     'Firebase user detected, attempting token exchange',
                     {uid: firebaseUser.uid}
                 );
-                const firebaseToken = await firebaseUser.getIdToken(true); // Force refresh might be needed
-                const userData = await this._exchangeToken(firebaseToken, firebaseUser); // Validates with backend
-
-                this._log(
-                    MODULE_NAME,
-                    LOG_LEVELS.STATE,
-                    'Auth session validated with backend',
-                    {uid: userData.uid}
-                );
-
-                // Garantir um formato consistente de dados no evento
-                this._emitEvent(AUTH_EVENTS.AUTH_SESSION_VALID, {
-                    userId: userData.uid,
-                    email: userData.email,
-                    user: userData, // Objeto completo do usuário
-                    isAuthenticated: true,
-                    timestamp: Date.now()
-                });
+                const firebaseToken = await firebaseUser.getIdToken(false);
+                // _exchangeToken already emits AUTH_SESSION_VALID on success
+                await this._exchangeToken(firebaseToken, firebaseUser);
 
             } catch (error) {
-                // Token exchange failed
-                this._log(
-                    MODULE_NAME,
-                    LOG_LEVELS.ERROR,
-                    'Token exchange failed',
-                    {error: error.message}
-                );
-                this._emitEvent(AUTH_EVENTS.AUTH_ERROR, { // Emit standard error event
-                    error: 'Failed to validate session with backend: ' + error.message,
-                    code: error.code || 'token-exchange-failed'
-                });
-                // Consider attempting logout if token exchange fails consistently? await
-                // this.logoutAndClearSession();  Optionally force logout on severe error
+                // Se o erro é de rede (backend indisponível), não bloquear o login —
+                // usar dados do Firebase diretamente em modo degradado.
+                const isNetworkError =
+                    error.code === 'ERR_NETWORK' ||
+                    error.code === 'ECONNABORTED' ||
+                    !navigator.onLine;
+
+                if (isNetworkError) {
+                    this._log(
+                        MODULE_NAME,
+                        LOG_LEVELS.WARNING,
+                        'Backend unreachable during auth, falling back to Firebase user (degraded mode)',
+                        {uid: firebaseUser.uid}
+                    );
+                    const fallbackUser = this._mapFirebaseUser(firebaseUser);
+                    this._currentUser = fallbackUser;
+                    this._emitEvent(AUTH_EVENTS.AUTH_SESSION_VALID, {
+                        userId: fallbackUser.uid,
+                        email: fallbackUser.email,
+                        user: fallbackUser,
+                        isAuthenticated: true,
+                        timestamp: Date.now()
+                    });
+                } else {
+                    this._log(
+                        MODULE_NAME,
+                        LOG_LEVELS.ERROR,
+                        'Token exchange failed',
+                        {error: error.message}
+                    );
+                    this._emitEvent(AUTH_EVENTS.AUTH_ERROR, {
+                        error: 'Failed to validate session with backend: ' + error.message,
+                        code: error.code || 'token-exchange-failed'
+                    });
+                }
             } finally {}
         } else {
             // User is signed out according to Firebase
@@ -872,16 +890,6 @@ async registerWithProvider(provider, profileData, inviteId, registrationToken) {
             }
         } catch (error) {
             console.error('Erro na troca de token:', error);
-
-            // Emitir evento de erro de autenticação
-            this._emitEvent(AUTH_EVENTS.AUTH_ERROR, {
-
-                error: error.message,
-                code: error.code || 'exchange_token_error',
-                context: 'exchangeToken'
-
-            });
-
             throw error;
         }
     }

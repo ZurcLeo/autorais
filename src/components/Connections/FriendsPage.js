@@ -514,17 +514,17 @@ const FriendsPage = () => {
                           })}
                         </Typography>
                         <Stack direction="row" spacing={1} justifyContent="flex-end">
-                          <Button 
-                            size="small" 
-                            color="error" 
-                            onClick={() => handleCancelInvitation(invitation.id)}
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={() => handleCancelInvitation(invitation.inviteId)}
                           >
                             {t('common.cancel')}
                           </Button>
-                          <Button 
-                            size="small" 
-                            variant="outlined" 
-                            onClick={() => handleResendInvitation(invitation.id)}
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => handleResendInvitation(invitation.inviteId)}
                           >
                             {t('friendsPage.resend')}
                           </Button>
