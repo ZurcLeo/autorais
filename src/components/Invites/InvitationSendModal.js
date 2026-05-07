@@ -91,8 +91,9 @@ const InvitationSendModal = ({ open, handleClose }) => {
         }, 1000);
       } catch (error) {
         console.error('Erro ao enviar convite:', error.message);
+        const backendMessage = error.response?.data?.message;
         showContextualToast(
-          t('invitationSendModal.problem'),
+          backendMessage || t('invitationSendModal.problem'),
           'invitationError',
           {
             action: {
