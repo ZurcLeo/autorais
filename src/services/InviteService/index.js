@@ -328,8 +328,8 @@ class InviteService extends BaseService {
       const enhancedData = {
         ...invitationData,
         userId: invitationData.senderUid || currentUser.uid,
-        senderName: invitationData.senderName || currentUser.displayName,
-        senderEmail: invitationData.senderEmail || currentUser.email
+        senderName: invitationData.senderName || currentUser.displayName || undefined,
+        senderEmail: invitationData.senderEmail || currentUser.email || undefined
       };
       
       const response = await this._executeWithRetry(async () => {

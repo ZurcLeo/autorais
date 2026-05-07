@@ -8,7 +8,7 @@ import socket from '../socketService';
 import { SERVICE_ACTIONS } from '../../core/constants/actions';
 
 const MODULE_NAME = 'messages';
-const AI_AGENT_USER_ID = 'ai-support-agent'; // ID para o agente de IA
+const AI_AGENT_USER_ID = process.env.REACT_APP_AI_AGENT_USER_ID || 'sS855lp9DwhZodxMqG7bf5cYeQ92'; // ID para o agente de IA
 // const HUMAN_SUPPORT_QUEUE_ID = 'human-support-queue'; // Pode ser útil no backend
 
 
@@ -675,7 +675,7 @@ class MessageService extends BaseService {
             } else {
                 // Fallback para API REST se o socket não estiver disponível
                 const response = await this._executeWithRetry(async () => {
-                    return await this.apiService.post(`/api/support/conversations/${conversationId}/escalate`, {});
+                    return await this.apiService.post(`/api/support/escalate`, { conversationId });
                 }, 'requestHumanEscalationApi');
 
                 if (!response.data.success) {
