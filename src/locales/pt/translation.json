@@ -1320,4 +1320,81 @@
     "lastUpdated": "Última atualização",
     "consentRecord": "Consentimento registrado em",
     "cookieSettings": "Configurações de Cookies"
-  }}
+  },
+  "home": {
+    "nav": {
+      "howItWorks": "Como Funciona",
+      "features": "Recursos",
+      "security": "Segurança",
+      "register": "Cadastrar"
+    },
+    "hero": {
+      "chip": "Plataforma colaborativa de caixinhas",
+      "titlePart1": "Sua caixinha colaborativa,",
+      "titleHighlight": "organizada e segura",
+      "subtitle": "Crie e gerencie caixinhas comunitárias com contribuições via PIX, controle de membros, empréstimos, rifas e relatórios — tudo em um só lugar.",
+      "ctaPrimary": "Criar conta grátis",
+      "ctaSecondary": "Explorar Demo"
+    },
+    "howItWorks": {
+      "title": "Como Funciona",
+      "subtitle": "Três passos para começar a gerenciar sua caixinha colaborativa",
+      "step1": {
+        "title": "Crie sua Caixinha",
+        "description": "Configure uma caixinha colaborativa, defina as regras e o valor das contribuições mensais."
+      },
+      "step2": {
+        "title": "Convide os Membros",
+        "description": "Envie convites por e-mail. Cada membro aceita e se cadastra diretamente na plataforma."
+      },
+      "step3": {
+        "title": "Contribua via PIX",
+        "description": "Gere cobranças PIX, pague com segurança e acompanhe o saldo em tempo real."
+      }
+    },
+    "features": {
+      "title": "Tudo que sua caixinha precisa",
+      "subtitle": "Funcionalidades completas para gestão financeira colaborativa",
+      "items": {
+        "savings": {
+          "title": "Caixinhas Colaborativas",
+          "description": "Gerencie grupos de poupança com regras flexíveis, histórico completo e controle de saldo."
+        },
+        "pix": {
+          "title": "Pagamentos via PIX",
+          "description": "Contribuições geradas automaticamente. Pagamentos validados e registrados sem burocracia."
+        },
+        "messages": {
+          "title": "Mensagens Integradas",
+          "description": "Comunicação direta entre membros da caixinha dentro da própria plataforma."
+        },
+        "loans": {
+          "title": "Empréstimos",
+          "description": "Solicite empréstimos ao grupo com regras definidas pelo gestor da caixinha."
+        },
+        "raffles": {
+          "title": "Rifas",
+          "description": "Organize rifas dentro da caixinha como forma de distribuição ou arrecadação extra."
+        },
+        "reports": {
+          "title": "Relatórios",
+          "description": "Visualize extratos, histórico de atividades e relatórios financeiros detalhados."
+        }
+      }
+    },
+    "security": {
+      "title": "Seguro por construção",
+      "subtitle": "Infraestrutura confiável para cuidar do dinheiro da sua comunidade",
+      "items": {
+        "firebaseAuth": "Autenticação Firebase",
+        "pixValidation": "Validação bancária via PIX",
+        "jwtTokens": "Tokens JWT seguros",
+        "rbac": "Controle de permissões por papel"
+      }
+    },
+    "cta": {
+      "title": "Comece sua caixinha hoje",
+      "subtitle": "Cadastro gratuito. Configure sua caixinha em minutos e convide seus membros."
+    }
+  }
+}

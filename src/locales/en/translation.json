@@ -310,19 +310,80 @@
     "modal_instructions": "Instructions for obtaining an invitation"
   },
   "home": {
-    "welcome_message": "Welcome to ElosCloud",
-    "intro_text": "An exclusive social network for invitees",
-    "enter_now": "Login now",
-    "features_title": "Discover what you can do on ElosCloud",
-    "feature1_title": "Create your account and register your details",
-    "feature2_title": "Buy ElosCoin, the platform's virtual currency",
-    "feature3_title": "Trade products and services with other users",
-    "feature4_title": "Create posts and receive reactions and comments",
-    "feature5_title": "Receive gifts from your friends and connections",
-    "feature6_title": "Create and participate in live video and audio broadcasts",
-    "feature7_title": "Send private messages to your contacts",
-    "feature8_title": "Earn ElosCoin by completing tasks and missions",
-    "call_to_action": "Log in with your account"
+    "nav": {
+      "howItWorks": "How It Works",
+      "features": "Features",
+      "security": "Security",
+      "register": "Sign Up"
+    },
+    "hero": {
+      "chip": "Collaborative savings platform",
+      "titlePart1": "Your collaborative savings group,",
+      "titleHighlight": "organized and secure",
+      "subtitle": "Create and manage community savings groups with PIX contributions, member control, loans, raffles and reports — all in one place.",
+      "ctaPrimary": "Create free account",
+      "ctaSecondary": "Explore Demo"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Three steps to start managing your collaborative savings group",
+      "step1": {
+        "title": "Create your Group",
+        "description": "Set up a collaborative savings group, define the rules and monthly contribution amounts."
+      },
+      "step2": {
+        "title": "Invite Members",
+        "description": "Send email invitations. Each member accepts and registers directly on the platform."
+      },
+      "step3": {
+        "title": "Contribute via PIX",
+        "description": "Generate PIX charges, pay securely and track the balance in real time."
+      }
+    },
+    "features": {
+      "title": "Everything your group needs",
+      "subtitle": "Complete features for collaborative financial management",
+      "items": {
+        "savings": {
+          "title": "Collaborative Groups",
+          "description": "Manage savings groups with flexible rules, complete history and balance control."
+        },
+        "pix": {
+          "title": "PIX Payments",
+          "description": "Automatically generated contributions. Payments validated and recorded without bureaucracy."
+        },
+        "messages": {
+          "title": "Integrated Messaging",
+          "description": "Direct communication between group members within the platform itself."
+        },
+        "loans": {
+          "title": "Loans",
+          "description": "Request loans from the group with rules defined by the group manager."
+        },
+        "raffles": {
+          "title": "Raffles",
+          "description": "Organize raffles within the group as a way of distribution or extra fundraising."
+        },
+        "reports": {
+          "title": "Reports",
+          "description": "View statements, activity history and detailed financial reports."
+        }
+      }
+    },
+    "security": {
+      "title": "Secure by design",
+      "subtitle": "Reliable infrastructure to take care of your community's money",
+      "items": {
+        "firebaseAuth": "Firebase Authentication",
+        "pixValidation": "Banking validation via PIX",
+        "jwtTokens": "Secure JWT tokens",
+        "rbac": "Role-based permission control"
+      }
+    },
+    "cta": {
+      "title": "Start your group today",
+      "subtitle": "Free registration. Set up your group in minutes and invite your members."
+    }
   },
   "topnavbar": {
     "home": "Home",

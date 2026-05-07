@@ -1,6 +1,7 @@
 // src/components/Pages/HomePage.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Typography,
@@ -37,67 +38,6 @@ import { LOG_LEVELS } from '../../core/constants/config';
 import Footer from './Footer';
 
 const MODULE_NAME = 'HomePage';
-
-const howItWorksSteps = [
-  {
-    icon: <Savings fontSize="large" />,
-    step: '01',
-    title: 'Crie sua Caixinha',
-    description: 'Configure uma caixinha colaborativa, defina as regras e o valor das contribuições mensais.'
-  },
-  {
-    icon: <GroupAdd fontSize="large" />,
-    step: '02',
-    title: 'Convide os Membros',
-    description: 'Envie convites por e-mail. Cada membro aceita e se cadastra diretamente na plataforma.'
-  },
-  {
-    icon: <PixOutlined fontSize="large" />,
-    step: '03',
-    title: 'Contribua via PIX',
-    description: 'Gere cobranças PIX, pague com segurança e acompanhe o saldo em tempo real.'
-  }
-];
-
-const features = [
-  {
-    icon: <Savings />,
-    title: 'Caixinhas Colaborativas',
-    description: 'Gerencie grupos de poupança com regras flexíveis, histórico completo e controle de saldo.'
-  },
-  {
-    icon: <PixOutlined />,
-    title: 'Pagamentos via PIX',
-    description: 'Contribuições geradas automaticamente. Pagamentos validados e registrados sem burocracia.'
-  },
-  {
-    icon: <ChatBubbleOutline />,
-    title: 'Mensagens Integradas',
-    description: 'Comunicação direta entre membros da caixinha dentro da própria plataforma.'
-  },
-  {
-    icon: <AccountBalanceWallet />,
-    title: 'Empréstimos',
-    description: 'Solicite empréstimos ao grupo com regras definidas pelo gestor da caixinha.'
-  },
-  {
-    icon: <CardGiftcard />,
-    title: 'Rifas',
-    description: 'Organize rifas dentro da caixinha como forma de distribuição ou arrecadação extra.'
-  },
-  {
-    icon: <BarChart />,
-    title: 'Relatórios',
-    description: 'Visualize extratos, histórico de atividades e relatórios financeiros detalhados.'
-  }
-];
-
-const trustItems = [
-  { icon: <VerifiedUser />, label: 'Autenticação Firebase' },
-  { icon: <Lock />, label: 'Validação bancária via PIX' },
-  { icon: <CheckCircleOutline />, label: 'Tokens JWT seguros' },
-  { icon: <People />, label: 'Controle de permissões por papel' }
-];
 
 const HeroSection = styled('section')(({ theme }) => ({
   minHeight: '88vh',
@@ -151,6 +91,68 @@ const HomePage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useTranslation();
+
+  const howItWorksSteps = [
+    {
+      icon: <Savings fontSize="large" />,
+      step: '01',
+      title: t('home.howItWorks.step1.title'),
+      description: t('home.howItWorks.step1.description')
+    },
+    {
+      icon: <GroupAdd fontSize="large" />,
+      step: '02',
+      title: t('home.howItWorks.step2.title'),
+      description: t('home.howItWorks.step2.description')
+    },
+    {
+      icon: <PixOutlined fontSize="large" />,
+      step: '03',
+      title: t('home.howItWorks.step3.title'),
+      description: t('home.howItWorks.step3.description')
+    }
+  ];
+
+  const features = [
+    {
+      icon: <Savings />,
+      title: t('home.features.items.savings.title'),
+      description: t('home.features.items.savings.description')
+    },
+    {
+      icon: <PixOutlined />,
+      title: t('home.features.items.pix.title'),
+      description: t('home.features.items.pix.description')
+    },
+    {
+      icon: <ChatBubbleOutline />,
+      title: t('home.features.items.messages.title'),
+      description: t('home.features.items.messages.description')
+    },
+    {
+      icon: <AccountBalanceWallet />,
+      title: t('home.features.items.loans.title'),
+      description: t('home.features.items.loans.description')
+    },
+    {
+      icon: <CardGiftcard />,
+      title: t('home.features.items.raffles.title'),
+      description: t('home.features.items.raffles.description')
+    },
+    {
+      icon: <BarChart />,
+      title: t('home.features.items.reports.title'),
+      description: t('home.features.items.reports.description')
+    }
+  ];
+
+  const trustItems = [
+    { icon: <VerifiedUser />, label: t('home.security.items.firebaseAuth') },
+    { icon: <Lock />, label: t('home.security.items.pixValidation') },
+    { icon: <CheckCircleOutline />, label: t('home.security.items.jwtTokens') },
+    { icon: <People />, label: t('home.security.items.rbac') }
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -187,9 +189,9 @@ const HomePage = () => {
 
           {!isMobile && (
             <>
-              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>Como Funciona</Button>
-              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>Recursos</Button>
-              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>Segurança</Button>
+              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>{t('home.nav.howItWorks')}</Button>
+              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>{t('home.nav.features')}</Button>
+              <Button color="primary" sx={{ mx: 1, fontWeight: 600 }}>{t('home.nav.security')}</Button>
             </>
           )}
 
@@ -199,7 +201,7 @@ const HomePage = () => {
             sx={{ borderRadius: 2, ml: 1, mr: 1, fontWeight: 600 }}
             onClick={() => handleNavigation('/login')}
           >
-            Entrar
+            {t('common.login_button')}
           </Button>
           <Button
             variant="contained"
@@ -207,7 +209,7 @@ const HomePage = () => {
             sx={{ borderRadius: 2, fontWeight: 600 }}
             onClick={() => handleNavigation('/register')}
           >
-            Cadastrar
+            {t('home.nav.register')}
           </Button>
         </Toolbar>
       </AppBar>
@@ -218,7 +220,7 @@ const HomePage = () => {
           <Grid container justifyContent="center">
             <Grid item xs={12} md={9} lg={7}>
               <Chip
-                label="Plataforma colaborativa de caixinhas"
+                label={t('home.hero.chip')}
                 color="primary"
                 variant="outlined"
                 size="small"
@@ -228,17 +230,16 @@ const HomePage = () => {
                 variant={isMobile ? 'h3' : 'h1'}
                 sx={{ fontWeight: 800, mb: 3, lineHeight: 1.15 }}
               >
-                Sua caixinha colaborativa,{' '}
+                {t('home.hero.titlePart1')}{' '}
                 <Box component="span" sx={{ color: theme.palette.primary.main }}>
-                  organizada e segura
+                  {t('home.hero.titleHighlight')}
                 </Box>
               </Typography>
               <Typography
                 variant={isMobile ? 'body1' : 'h6'}
                 sx={{ mb: 5, color: theme.palette.text.secondary, maxWidth: 600, mx: 'auto', lineHeight: 1.7 }}
               >
-                Crie e gerencie caixinhas comunitárias com contribuições via PIX, controle de membros,
-                empréstimos, rifas e relatórios — tudo em um só lugar.
+                {t('home.hero.subtitle')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
                 <Button
@@ -248,7 +249,7 @@ const HomePage = () => {
                   sx={{ borderRadius: 2, py: 1.5, px: 5, fontWeight: 700, fontSize: '1.05rem' }}
                   onClick={() => handleNavigation('/register')}
                 >
-                  Criar conta grátis
+                  {t('home.hero.ctaPrimary')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -257,7 +258,7 @@ const HomePage = () => {
                   sx={{ borderRadius: 2, py: 1.5, px: 5, fontWeight: 700, fontSize: '1.05rem' }}
                   onClick={() => handleNavigation('/demo')}
                 >
-                  Explorar Demo
+                  {t('home.hero.ctaSecondary')}
                 </Button>
               </Box>
             </Grid>
@@ -270,10 +271,10 @@ const HomePage = () => {
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 8 }}>
             <SectionTitle variant={isMobile ? 'h4' : 'h3'} align="center">
-              Como Funciona
+              {t('home.howItWorks.title')}
             </SectionTitle>
             <Typography variant="body1" sx={{ color: theme.palette.text.secondary, maxWidth: 520, mx: 'auto' }}>
-              Três passos para começar a gerenciar sua caixinha colaborativa
+              {t('home.howItWorks.subtitle')}
             </Typography>
           </Box>
 
@@ -330,10 +331,10 @@ const HomePage = () => {
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 8 }}>
             <SectionTitle variant={isMobile ? 'h4' : 'h3'} align="center">
-              Tudo que sua caixinha precisa
+              {t('home.features.title')}
             </SectionTitle>
             <Typography variant="body1" sx={{ color: theme.palette.text.secondary, maxWidth: 520, mx: 'auto' }}>
-              Funcionalidades completas para gestão financeira colaborativa
+              {t('home.features.subtitle')}
             </Typography>
           </Box>
 
@@ -395,10 +396,10 @@ const HomePage = () => {
         <Container maxWidth="md">
           <Box sx={{ textAlign: 'center', mb: 6 }}>
             <SectionTitle variant={isMobile ? 'h4' : 'h3'} align="center">
-              Seguro por construção
+              {t('home.security.title')}
             </SectionTitle>
             <Typography variant="body1" sx={{ color: theme.palette.text.secondary, maxWidth: 480, mx: 'auto' }}>
-              Infraestrutura confiável para cuidar do dinheiro da sua comunidade
+              {t('home.security.subtitle')}
             </Typography>
           </Box>
 
@@ -441,10 +442,10 @@ const HomePage = () => {
       >
         <Container maxWidth="sm">
           <Typography variant={isMobile ? 'h4' : 'h3'} sx={{ fontWeight: 800, mb: 2 }}>
-            Comece sua caixinha hoje
+            {t('home.cta.title')}
           </Typography>
           <Typography variant="body1" sx={{ mb: 5, opacity: 0.85, lineHeight: 1.7 }}>
-            Cadastro gratuito. Configure sua caixinha em minutos e convide seus membros.
+            {t('home.cta.subtitle')}
           </Typography>
           <Button
             variant="contained"
@@ -463,7 +464,7 @@ const HomePage = () => {
             }}
             onClick={() => handleNavigation('/register')}
           >
-            Criar conta grátis
+            {t('home.hero.ctaPrimary')}
           </Button>
         </Container>
       </Box>

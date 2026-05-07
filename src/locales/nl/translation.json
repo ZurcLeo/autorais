@@ -308,19 +308,80 @@
     "modal_instructions": "Instructies voor het verkrijgen van een uitnodiging"
   },
   "home": {
-    "welcome_message": "Welkom bij ElosCloud",
-    "intro_text": "Een exclusief sociaal netwerk voor genodigden",
-    "enter_now": "Nu inloggen",
-    "features_title": "Ontdek wat u kunt doen op ElosCloud",
-    "feature1_title": "Maak uw account aan en registreer uw gegevens",
-    "feature2_title": "Koop ElosCoin, de virtuele valuta van het platform",
-    "feature3_title": "Handel in producten en diensten met andere gebruikers",
-    "feature4_title": "Maak berichten en ontvang reacties en reacties",
-    "feature5_title": "Ontvang cadeaus van uw vrienden en connecties",
-    "feature6_title": "Maak en neem deel aan live video- en stemuitzendingen",
-    "feature7_title": "Verzend privéberichten naar uw contacten",
-    "feature8_title": "Verdien ElosCoin door taken en missies te voltooien",
-    "call_to_action": "Log in met uw account"
+    "nav": {
+      "howItWorks": "Hoe het werkt",
+      "features": "Functies",
+      "security": "Beveiliging",
+      "register": "Registreren"
+    },
+    "hero": {
+      "chip": "Collaboratief spaarplatform",
+      "titlePart1": "Uw collaboratieve spaargroep,",
+      "titleHighlight": "georganiseerd en veilig",
+      "subtitle": "Maak en beheer gemeenschappelijke spaargroepen met PIX-bijdragen, ledenbeheer, leningen, loterijen en rapporten — alles op één plek.",
+      "ctaPrimary": "Gratis account aanmaken",
+      "ctaSecondary": "Demo verkennen"
+    },
+    "howItWorks": {
+      "title": "Hoe het werkt",
+      "subtitle": "Drie stappen om uw collaboratieve spaargroep te beheren",
+      "step1": {
+        "title": "Maak uw groep",
+        "description": "Stel een collaboratieve spaargroep in, definieer de regels en het bedrag van de maandelijkse bijdragen."
+      },
+      "step2": {
+        "title": "Nodig leden uit",
+        "description": "Stuur e-mailuitnodigingen. Elk lid accepteert en registreert zich rechtstreeks op het platform."
+      },
+      "step3": {
+        "title": "Draag bij via PIX",
+        "description": "Genereer PIX-betalingen, betaal veilig en volg het saldo in realtime."
+      }
+    },
+    "features": {
+      "title": "Alles wat uw groep nodig heeft",
+      "subtitle": "Volledige functies voor collaboratief financieel beheer",
+      "items": {
+        "savings": {
+          "title": "Collaboratieve Groepen",
+          "description": "Beheer spaargroepen met flexibele regels, volledige geschiedenis en saldocontrole."
+        },
+        "pix": {
+          "title": "PIX Betalingen",
+          "description": "Automatisch gegenereerde bijdragen. Betalingen gevalideerd en geregistreerd zonder bureaucratie."
+        },
+        "messages": {
+          "title": "Geïntegreerde Berichten",
+          "description": "Directe communicatie tussen groepsleden binnen het platform zelf."
+        },
+        "loans": {
+          "title": "Leningen",
+          "description": "Vraag leningen aan bij de groep met regels die zijn gedefinieerd door de groepsbeheerder."
+        },
+        "raffles": {
+          "title": "Loterijen",
+          "description": "Organiseer loterijen binnen de groep als manier van verdeling of extra fondsenwerving."
+        },
+        "reports": {
+          "title": "Rapporten",
+          "description": "Bekijk afschriften, activiteitsgeschiedenis en gedetailleerde financiële rapporten."
+        }
+      }
+    },
+    "security": {
+      "title": "Veilig van ontwerp",
+      "subtitle": "Betrouwbare infrastructuur om het geld van uw gemeenschap te beheren",
+      "items": {
+        "firebaseAuth": "Firebase Authenticatie",
+        "pixValidation": "Bankvalidatie via PIX",
+        "jwtTokens": "Veilige JWT-tokens",
+        "rbac": "Rolgebaseerde toegangscontrole"
+      }
+    },
+    "cta": {
+      "title": "Begin uw groep vandaag",
+      "subtitle": "Gratis registratie. Stel uw groep in enkele minuten in en nodig uw leden uit."
+    }
   },
   "banking": {
     "holderDetailsTitle": "Vul de gegevens van de rekeninghouder in",
