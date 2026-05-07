@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { serviceLocator } from '../../core/services/BaseService';
 import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../../LanguageSwitcher';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider'; // Supondo que useAuth fornece isAuthenticated, authLoading, error, login, etc.
 import { useToast } from '../../providers/ToastProvider';
@@ -281,15 +282,18 @@ const Login = () => {
 
       {/* Login Section - Lado direito */}
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square sx={{ overflow: 'auto', maxHeight: '100vh' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2, pr: 2 }}>
+          <LanguageSwitcher />
+        </Box>
         <Box
           sx={{
-            py: 4,
+            py: 2,
             px: 4,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '100%'
+            minHeight: 'calc(100% - 56px)'
           }}
         >
           <motion.div

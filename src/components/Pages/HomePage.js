@@ -19,6 +19,7 @@ import {
   useMediaQuery,
   Chip
 } from '@mui/material';
+import LanguageSwitcher from '../../LanguageSwitcher';
 import {
   People,
   Lock,
@@ -211,6 +212,7 @@ const HomePage = () => {
           >
             {t('home.nav.register')}
           </Button>
+          <LanguageSwitcher />
         </Toolbar>
       </AppBar>
 
