@@ -58,5 +58,10 @@ match /media/{userId}/publico/{allPaths=**} {
     allow read;
     allow write, create, update: if request.auth != null;
 }
+
+  match /emailPictures/{allPaths=**} {
+    allow read;
+    allow write, create, update: if request.auth != null;
+}
 }
 }

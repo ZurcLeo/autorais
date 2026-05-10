@@ -440,6 +440,7 @@ export const AppRoutes = () => {
         <Route path="notifications" element={<PrivateRoute element={<NotificationHistory />} />} />
         <Route path="profile/:uid" element={<PrivateRoute element={<Profile />} />} />
         <Route path="connections" element={<PrivateRoute element={<FriendsPage />} />} />
+
         <Route path="messages" element={<PrivateRoute element={<ChatLayout />} />}>
           <Route index element={<SelectConversation />} />
           <Route path=":uidDestinatario" element={<ChatWindow />} />

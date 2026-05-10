@@ -1121,9 +1121,9 @@ Aí, a gente pega o total de dinheiro que tem na caixinha e divide de acordo com
             <Typography variant="body2">
               {t('caixinha.welcome.faq.answer7', `Para deixar tudo seguro e funcionando direitinho, a caixinha só começa de verdade quando duas coisas acontecem:
 
-A gente confirma a conta bancária da caixinha: Isso é como colocar uma trava de segurança no cofre da caixinha. Só vai poder sair dinheiro para aquela conta que já foi conferida antes. Assim, evitamos qualquer problema com o seu dinheiro.
+1. A gente confirma a conta bancária da caixinha: Isso é como colocar uma trava de segurança no cofre da caixinha. Só vai poder sair dinheiro para aquela conta que já foi conferida antes. Assim, evitamos qualquer problema com o seu dinheiro.
 
-A gente confirma os dados de quem está cuidando da caixinha (o administrador): Precisamos saber direitinho quem é a pessoa responsável por gerenciar tudo.
+2. A gente confirma os dados de quem está cuidando da caixinha (o administrador): Precisamos saber direitinho quem é a pessoa responsável por gerenciar tudo.
 
 Enquanto essas duas confirmações não estiverem prontas, não dá para colocar dinheiro na caixinha, chamar mais gente para participar, nem fazer nenhuma movimentação. É uma medida de segurança para proteger o dinheiro de todos e garantir que tudo funcione da forma certa desde o início.
 

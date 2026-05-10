@@ -235,10 +235,12 @@ export const NOTIFICATION_CACHE_CONFIG = {
 export const CAIXINHA_CACHE_CONFIG = {
     CAIXINHAS_KEY: 'user:caixinhas', // Chave para armazenar a lista de caixinhas do usuário
     SINGLE_CAIXINHA_KEY: 'caixinha:single', // Chave para armazenar uma única caixinha específica
+    CONTRIBUTIONS_KEY: 'caixinha:contributions', // Chave para contribuições de uma caixinha
     CACHE_TIME: 5 * 60 * 1000, // Tempo total em cache: 5 minutos
     STALE_TIME: 30 * 1000, // Tempo em que os dados são considerados válidos antes de nova requisição: 30 segundos
     SINGLE_CACHE_TIME: 2 * 60 * 1000, // Tempo total em cache para uma caixinha individual: 2 minutos
-    SINGLE_STALE_TIME: 15 * 1000 // Tempo válido para dados individuais antes da atualização: 15 segundos
+    SINGLE_STALE_TIME: 15 * 1000, // Tempo válido para dados individuais antes da atualização: 15 segundos
+    CONTRIBUTIONS_CACHE_TIME: 60 * 1000 // 1 minuto — contribuições mudam com frequência
 };
 
 /**

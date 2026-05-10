@@ -1,8 +1,12 @@
-import React, { createContext, useContext, useReducer, useState, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useState, useCallback, useMemo } from 'react';
 import { serviceLocator } from '../../core/services/BaseService';
 import { useToast } from '../ToastProvider';
 import {rifaReducer} from '../../reducers/rifas/rifaReducer'
 import { initialRifaState } from '../../core/constants/initialState';
+import { LOG_LEVELS } from '../../core/constants/config';
+import { coreLogger } from '../../core/logging';
+
+const MODULE_NAME = 'RifaProvider';
 
 // Contexto inicial
 const RifaContext = createContext();
@@ -11,7 +15,7 @@ const RifaContext = createContext();
 export const RifaProvider = ({ children }) => {
   const [state, dispatch] = useReducer(rifaReducer, initialRifaState);
   const { showToast } = useToast();
-  
+
   // Obter serviço de API
   const apiService = serviceLocator.get('apiService');
   const authService = serviceLocator.get('auth')
@@ -19,12 +23,14 @@ export const RifaProvider = ({ children }) => {
   // Buscar todas as rifas de uma caixinha
   const getRifasByCaixinha = useCallback(async (caixinhaId) => {
     dispatch({ type: 'FETCH_START' });
-    
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Fetching rifas', { caixinhaId });
+
     try {
       const response = await apiService.get(`/api/rifas/${caixinhaId}/all`);
       dispatch({ type: 'FETCH_SUCCESS', payload: response.data.data });
       return response.data.data;
     } catch (error) {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to fetch rifas', { caixinhaId, error: error.message });
       dispatch({ type: 'FETCH_ERROR', payload: error.message });
       showToast(error.message, { type: 'error' });
       throw error;
@@ -96,25 +102,26 @@ export const RifaProvider = ({ children }) => {
 
   // Comprar um bilhete
   const buyTicket = useCallback(async (caixinhaId, rifaId, numeroBilhete) => {
-  
     dispatch({ type: 'FETCH_START' });
-    
-    try {
+    coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Buying ticket', { caixinhaId, rifaId, numeroBilhete });
 
+    try {
       const membroId = authService.getCurrentUser().uid;
       const response = await apiService.post(`/api/rifas/${caixinhaId}/bilhetes/${rifaId}`, { membroId, numeroBilhete });
-      
-      // Atualizar a rifa com o novo bilhete
-      const updatedRifa = await getRifaById(caixinhaId, rifaId);
-      
+
+      if (response.data.data) {
+        dispatch({ type: 'UPDATE_RIFA_SUCCESS', payload: response.data.data });
+      }
+
       showToast('Bilhete comprado com sucesso!', { type: 'success' });
       return response.data.data;
     } catch (error) {
+      coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to buy ticket', { caixinhaId, rifaId, error: error.message });
       dispatch({ type: 'FETCH_ERROR', payload: error.message });
       showToast(error.message, { type: 'error' });
       throw error;
     }
-  }, [apiService, showToast, getRifaById]);
+  }, [apiService, authService, showToast]);
 
   // Realizar sorteio
   const performDraw = useCallback(async (caixinhaId, rifaId, metodo, referencia) => {
@@ -147,7 +154,7 @@ export const RifaProvider = ({ children }) => {
     }
   }, [apiService, showToast]);
 
-  const value = {
+  const value = useMemo(() => ({
     ...state,
     getRifasByCaixinha,
     getRifaById,
@@ -157,7 +164,17 @@ export const RifaProvider = ({ children }) => {
     buyTicket,
     performDraw,
     verifyAuthenticity
-  };
+  }), [
+    state,
+    getRifasByCaixinha,
+    getRifaById,
+    createRifa,
+    updateRifa,
+    cancelRifa,
+    buyTicket,
+    performDraw,
+    verifyAuthenticity
+  ]);
 
   return <RifaContext.Provider value={value}>{children}</RifaContext.Provider>;
 };

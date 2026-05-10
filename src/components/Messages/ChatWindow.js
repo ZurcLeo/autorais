@@ -34,6 +34,8 @@ import EscalationStatus from '../Support/EscalationStatus';
  * @param {string} url - Original profile picture URL
  * @returns {string|null} - Optimized URL or null if input is falsy
  */
+const AI_AGENT_USER_ID = process.env.REACT_APP_AI_AGENT_USER_ID || 'sS855lp9DwhZodxMqG7bf5cYeQ92';
+
 const getOptimizedProfilePicture = (url) => {
   if (!url) return null;
   return url.includes('?') ? `${url}&size=100` : `${url}?size=100`;
@@ -429,9 +431,11 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
   const friend = useMemo(() => {
     return friends.find(f => f.id === uidDestinatario);
   }, [friends, uidDestinatario]);
-  
+
+  const isAiConversation = uidDestinatario === AI_AGENT_USER_ID;
+
   // Get friend name from props or data
-  const friendName = propsFriendName || (friend ? friend.nome : 'Contato');
+  const friendName = propsFriendName || (isAiConversation ? 'Assistente Virtual' : (friend ? friend.nome : 'Contato'));
   
   // Check remote typing status
   const remoteTyping = useMemo(() => {
@@ -594,8 +598,8 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
     return <Navigate to="/messages" />;
   }
   
-  // Render friend-not-found state
-  if (!friend && uidDestinatario) {
+  // Render friend-not-found state (skip for the AI assistant bot)
+  if (!friend && uidDestinatario && !isAiConversation) {
     return (
       <Box sx={{ 
         height: '100%',
@@ -674,30 +678,30 @@ const ChatWindow = ({ uidDestinatarioProps, friendName: propsFriendName }) => {
                 width: 12,
                 height: 12,
                 borderRadius: '50%',
-                bgcolor: friend?.online ? 'success.main' : 'text.disabled',
+                bgcolor: (isAiConversation || friend?.online) ? 'success.main' : 'text.disabled',
                 border: `2px solid ${theme.palette.background.paper}`
               }}
             />
           }
         >
-          <Avatar 
-            src={friend ? getOptimizedProfilePicture(friend.fotoDoPerfil) : null} 
-            sx={{ 
-              width: 42, 
+          <Avatar
+            src={friend ? getOptimizedProfilePicture(friend.fotoDoPerfil) : null}
+            sx={{
+              width: 42,
               height: 42,
               bgcolor: theme.palette.primary.main
             }}
           >
-            {friend && friend.nome ? friend.nome[0] : '?'}
+            {isAiConversation ? 'A' : (friend && friend.nome ? friend.nome[0] : '?')}
           </Avatar>
         </Badge>
-        
+
         <Box sx={{ ml: 2, flexGrow: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 'medium', lineHeight: 1.2 }}>
-            {friend ? friend.nome : 'Carregando...'}
+            {friendName}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {friend && friend.online ? 'Online' : 'Offline'}
+            {isAiConversation ? 'Sempre disponível' : (friend && friend.online ? 'Online' : 'Offline')}
           </Typography>
         </Box>
         

@@ -26,7 +26,7 @@ service cloud.firestore {
 
             // Subcoleção 'pagamentos'
       match /usuario/{userId}/ancestralidade/{document=**} {
-        allow read: if request.auth.uid == userId || isFriend(request.auth.uid);
+        allow read: if request.auth.uid == userId || hasFriends(request.auth.uid);
       }
 
     // Regras para a coleção 'reservasIndex'
@@ -65,7 +65,7 @@ match /usuario/{userId}/uploadHistory/{uploadId} {
       return userDoc.data.isOwnerOrAdmin || userDoc.data.isOwner;
     }
 
-        function isFriend(uid) {
+        function hasFriends(uid) {
       let userDoc = get(/databases/$(database)/documents/usuario/$(uid));
       return userDoc.data.amigos || userDoc.data.amigosAutorizados;
     }

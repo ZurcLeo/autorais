@@ -1,340 +1,224 @@
-// // src/context/PaymentContext.js
-// import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
-// import { useAuth } from './AuthContext';
-// import paymentService from '../services/paymentService';
-// import { showToast, showPromiseToast } from '../utils/toastUtils';
-// import { useCachedResource, globalCache } from '../utils/cache/cacheManager';
-// import { formatDocument } from '../utils/formatters';
+// src/context/PaymentContext.js
+import React, { createContext, useState, useContext, useCallback, useMemo } from 'react';
+import { serviceLocator } from '../core/services/BaseService';
+import { useAuth } from '../providers/AuthProvider';
 
-// // Configuration constants for the payment context
-// const PAYMENT_CONFIG = {
-//   STORAGE_KEY: 'pix_payment_data',
-//   CACHE_KEY: 'payment:sessions',
-//   CACHE_TIME: 30 * 60 * 1000, // 30 minutes
-//   STALE_TIME: 5 * 60 * 1000,  // 5 minutes
-//   STATUS_CHECK_INTERVAL: 5000, // 5 seconds
-//   PAYMENT_EXPIRY_TIME: 30 * 60 * 1000, // 30 minutes
-//   MAX_RETRIES: 3
-// };
+const PaymentContext = createContext();
 
-// // Payment status enumeration
-// const PAYMENT_STATUS = {
-//   PENDING: 'pending',
-//   PROCESSING: 'processing',
-//   SUCCEEDED: 'succeeded',
-//   FAILED: 'failed',
-//   EXPIRED: 'expired',
-//   CANCELED: 'canceled'
-// };
+// Intervalo de polling para verificar status do pagamento (ms)
+const STATUS_CHECK_INTERVAL = 5000;
 
-// const PaymentContext = createContext();
+// Tempo máximo de espera pelo pagamento (30 minutos)
+const PAYMENT_TIMEOUT_MS = 30 * 60 * 1000;
 
-// // Storage utility functions with error handling
-// const storageUtils = {
-//   save: (data) => {
-//     try {
-//       localStorage.setItem(PAYMENT_CONFIG.STORAGE_KEY, JSON.stringify(data));
-//     } catch (error) {
-//       console.error('Error saving payment data to storage:', error);
-//     }
-//   },
+export const PaymentProvider = ({ children }) => {
+  const { currentUser } = useAuth();
 
-//   load: () => {
-//     try {
-//       const data = localStorage.getItem(PAYMENT_CONFIG.STORAGE_KEY);
-//       return data ? JSON.parse(data) : null;
-//     } catch (error) {
-//       console.error('Error loading payment data from storage:', error);
-//       return null;
-//     }
-//   },
+  const [cobranca, setCobranca] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-//   clear: () => {
-//     try {
-//       localStorage.removeItem(PAYMENT_CONFIG.STORAGE_KEY);
-//     } catch (error) {
-//       console.error('Error clearing payment data from storage:', error);
-//     }
-//   }
-// };
+  /**
+   * Retorna a instância do apiService via serviceLocator.
+   */
+  const _api = useCallback(() => {
+    return serviceLocator.get('apiService');
+  }, []);
 
-// export const PaymentProvider = ({ children }) => {
-//   const { currentUser } = useAuth();
-//   const userId = currentUser?.uid;
+  /**
+   * Cria uma cobrança PIX Asaas para contribuição na caixinha.
+   * Endpoint: POST /api/payments/asaas/pix
+   * Retorna os dados da cobrança (pixCopiaECola, encodedImage, txid, expiresAt, paymentId, status).
+   */
+  const gerarCobrancaPix = useCallback(async (valor, caixinhaId, description) => {
+    if (!currentUser) throw new Error('Usuário não autenticado');
+    if (!caixinhaId || !valor || valor <= 0) {
+      throw new Error('caixinhaId e valor são obrigatórios');
+    }
 
-//   // State management with detailed payment information
-//   const [state, setState] = useState({
-//     paymentData: null,
-//     timeLeft: null,
-//     loading: false,
-//     error: null,
-//     retryCount: 0,
-//     lastUpdated: null
-//   });
+    setLoading(true);
+    setError(null);
 
-//   // Cache key for current user's payment sessions
-//   const cacheKey = useMemo(() => 
-//     userId ? `${PAYMENT_CONFIG.CACHE_KEY}:${userId}` : null
-//   , [userId]);
+    try {
+      const api = _api();
+      const response = await api.post('/api/payments/asaas/pix', {
+        caixinhaId,
+        amount: Number(valor),
+        description: description || 'Contribuição ElosCloud'
+      });
 
-//   // Clear expired payment data on mount and state changes
-//   useEffect(() => {
-//     const checkExpiry = () => {
-//       if (state.paymentData?.expiresAt) {
-//         const expiresAt = new Date(state.paymentData.expiresAt).getTime();
-//         const now = Date.now();
-        
-//         if (now >= expiresAt) {
-//           clearPaymentData();
-//         } else {
-//           setTimeLeft(Math.floor((expiresAt - now) / 1000));
-//         }
-//       }
-//     };
+      const data = response?.data?.data || response?.data;
 
-//     checkExpiry();
-//     const interval = setInterval(checkExpiry, 1000);
-//     return () => clearInterval(interval);
-//   }, [state.paymentData]);
+      setCobranca(data);
+      return data;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || 'Erro ao gerar cobrança PIX';
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, _api]);
 
-//   // Clear payment data and related state
-//   const clearPaymentData = useCallback(() => {
-//     setState(prev => ({
-//       ...prev,
-//       paymentData: null,
-//       timeLeft: null,
-//       error: null,
-//       retryCount: 0,
-//       lastUpdated: null
-//     }));
-//     storageUtils.clear();
-//   }, []);
+  /**
+   * Verifica o status de um pagamento Asaas pelo paymentId.
+   * Endpoint: GET /api/payments/asaas/status/:paymentId
+   * O status retornado pelo Asaas é: PENDING | RECEIVED | CONFIRMED | OVERDUE | REFUNDED | RECEIVED_IN_CASH | REFUND_REQUESTED | CHARGEBACK_REQUESTED
+   * 'CONCLUIDO' é normalizado a partir de RECEIVED | CONFIRMED.
+   */
+  const verificarPagamento = useCallback(async (paymentId) => {
+    if (!paymentId) throw new Error('paymentId é obrigatório');
 
-//   // Transform raw payment data into consistent format
-//   const transformPaymentData = useCallback((rawData) => {
-//     return {
-//       id: rawData.id,
-//       qrCode: rawData.qr_code,
-//       qrCodeBase64: rawData.qr_code_base64,
-//       ticketUrl: rawData.ticket_url,
-//       status: rawData.status,
-//       amount: rawData.amount,
-//       currency: rawData.currency || 'BRL',
-//       expiresAt: rawData.expires_at,
-//       createdAt: rawData.created_at || new Date().toISOString(),
-//       metadata: rawData.metadata || {}
-//     };
-//   }, []);
+    try {
+      const api = _api();
+      const response = await api.get(`/api/payments/asaas/status/${paymentId}`);
+      const data = response?.data?.data || response?.data;
+      const status = data?.status;
 
-//   // Set remaining time for payment
-//   const setTimeLeft = useCallback((seconds) => {
-//     setState(prev => ({
-//       ...prev,
-//       timeLeft: Math.max(0, seconds)
-//     }));
-//   }, []);
+      // Normaliza status Asaas → status usado pelo PagamentoPIX.js
+      if (status === 'RECEIVED' || status === 'CONFIRMED') {
+        return 'CONCLUIDO';
+      }
+      if (status === 'OVERDUE' || status === 'REFUNDED') {
+        return 'EXPIRADO';
+      }
+      return status || 'PENDENTE';
+    } catch (err) {
+      // Não lança — o polling deve continuar mesmo em falhas transitórias
+      console.warn('[PaymentContext] Falha ao verificar status do pagamento:', err?.message);
+      return 'PENDENTE';
+    }
+  }, [_api]);
 
-//   // Validate payment data before submission
-//   const validatePaymentData = useCallback((data) => {
-//     const { amount, email, identificationType, identificationNumber } = data;
-    
-//     if (!amount || amount <= 0) {
-//       throw new Error('Valor inválido para pagamento');
-//     }
+  /**
+   * Consulta o saldo virtual do membro autenticado em uma caixinha.
+   * Endpoint: GET /api/payments/asaas/balance/:caixinhaId
+   */
+  const consultarSaldo = useCallback(async (caixinhaId) => {
+    if (!currentUser) throw new Error('Usuário não autenticado');
+    if (!caixinhaId) throw new Error('caixinhaId é obrigatório');
 
-//     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-//       throw new Error('Email inválido');
-//     }
+    try {
+      const api = _api();
+      const response = await api.get(`/api/payments/asaas/balance/${caixinhaId}`);
+      const data = response?.data?.data || response?.data;
+      return data?.balance ?? 0;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || 'Erro ao consultar saldo';
+      throw new Error(msg);
+    }
+  }, [currentUser, _api]);
 
-//     if (!identificationType || !['cpf', 'cnpj'].includes(identificationType)) {
-//       throw new Error('Tipo de identificação inválido');
-//     }
+  /**
+   * Solicita um saque (fica pendente de aprovação do admin).
+   * Endpoint: POST /api/payments/asaas/withdrawal/request
+   */
+  const solicitarSaque = useCallback(async ({ caixinhaId, amount, pixKey, pixKeyType }) => {
+    if (!currentUser) throw new Error('Usuário não autenticado');
+    if (!caixinhaId || !amount || !pixKey) {
+      throw new Error('caixinhaId, amount e pixKey são obrigatórios');
+    }
 
-//     const cleanId = identificationNumber.replace(/\D/g, '');
-//     if (!cleanId) {
-//       throw new Error('Número de identificação inválido');
-//     }
+    setLoading(true);
+    setError(null);
 
-//     return {
-//       ...data,
-//       identificationNumber: cleanId
-//     };
-//   }, []);
+    try {
+      const api = _api();
+      const response = await api.post('/api/payments/asaas/withdrawal/request', {
+        caixinhaId,
+        amount: Number(amount),
+        pixKey,
+        pixKeyType
+      });
+      const data = response?.data?.data || response?.data;
+      return data;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || 'Erro ao solicitar saque';
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, _api]);
 
-//   // Initialize a new PIX payment
-//   const startPixPayment = useCallback(async (paymentData) => {
-//     setState(prev => ({ ...prev, loading: true, error: null }));
+  /**
+   * Admin aprova saque pendente.
+   * Endpoint: POST /api/payments/asaas/withdrawal/approve
+   */
+  const aprovarSaque = useCallback(async ({ caixinhaId, withdrawalId }) => {
+    if (!currentUser) throw new Error('Usuário não autenticado');
+    if (!caixinhaId || !withdrawalId) {
+      throw new Error('caixinhaId e withdrawalId são obrigatórios');
+    }
 
-//     return showPromiseToast(
-//       (async () => {
-//         try {
-//           const validatedData = validatePaymentData(paymentData);
-          
-//           const response = await paymentService.createPixPayment(validatedData);
-//           const transformedData = transformPaymentData(response);
-          
-//           setState(prev => ({
-//             ...prev,
-//             paymentData: transformedData,
-//             loading: false,
-//             lastUpdated: new Date().toISOString()
-//           }));
+    setLoading(true);
+    setError(null);
 
-//           storageUtils.save(transformedData);
+    try {
+      const api = _api();
+      const response = await api.post('/api/payments/asaas/withdrawal/approve', {
+        caixinhaId,
+        withdrawalId
+      });
+      const data = response?.data?.data || response?.data;
+      return data;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message || 'Erro ao aprovar saque';
+      setError(msg);
+      throw new Error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, _api]);
 
-//           const expiresAt = new Date(transformedData.expiresAt).getTime();
-//           setTimeLeft(Math.floor((expiresAt - Date.now()) / 1000));
+  /**
+   * Limpa o estado da cobrança atual (ex: ao cancelar ou após conclusão).
+   */
+  const limparCobranca = useCallback(() => {
+    setCobranca(null);
+    setError(null);
+  }, []);
 
-//           return transformedData;
-//         } catch (error) {
-//           console.error('Payment initialization error:', error);
-//           setState(prev => ({
-//             ...prev,
-//             error: error.message,
-//             loading: false
-//           }));
-//           throw error;
-//         }
-//       })(),
-//       {
-//         loading: 'Iniciando pagamento...',
-//         success: 'Pagamento iniciado com sucesso!',
-//         error: 'Erro ao iniciar pagamento'
-//       }
-//     );
-//   }, [validatePaymentData, transformPaymentData, setTimeLeft]);
+  const value = useMemo(() => ({
+    // Estado
+    cobranca,
+    loading,
+    error,
+    // Constantes úteis para o componente
+    STATUS_CHECK_INTERVAL,
+    PAYMENT_TIMEOUT_MS,
+    // Ações
+    gerarCobrancaPix,
+    verificarPagamento,
+    consultarSaldo,
+    solicitarSaque,
+    aprovarSaque,
+    limparCobranca
+  }), [
+    cobranca,
+    loading,
+    error,
+    gerarCobrancaPix,
+    verificarPagamento,
+    consultarSaldo,
+    solicitarSaque,
+    aprovarSaque,
+    limparCobranca
+  ]);
 
-//   // Monitor payment status with exponential backoff
-//   const monitorPaymentStatus = useCallback((paymentId, onSuccess, onCancel) => {
-//     let isCompleted = false;
-//     let checkCount = 0;
-//     let interval = PAYMENT_CONFIG.STATUS_CHECK_INTERVAL;
+  return (
+    <PaymentContext.Provider value={value}>
+      {children}
+    </PaymentContext.Provider>
+  );
+};
 
-//     const checkStatus = async () => {
-//       if (isCompleted || checkCount >= PAYMENT_CONFIG.MAX_RETRIES) {
-//         return;
-//       }
+export const usePayment = () => {
+  const context = useContext(PaymentContext);
+  if (context === undefined) {
+    throw new Error('usePayment deve ser usado dentro de um PaymentProvider');
+  }
+  return context;
+};
 
-//       try {
-//         const status = await paymentService.getPixPaymentStatus(paymentId);
-//         checkCount++;
-
-//         // Update state with new status
-//         setState(prev => ({
-//           ...prev,
-//           paymentData: prev.paymentData ? {
-//             ...prev.paymentData,
-//             status
-//           } : null,
-//           lastUpdated: new Date().toISOString()
-//         }));
-
-//         // Handle different status cases
-//         switch (status) {
-//           case PAYMENT_STATUS.SUCCEEDED:
-//             isCompleted = true;
-//             onSuccess?.();
-//             showToast('Pagamento realizado com sucesso!', { type: 'success' });
-//             break;
-          
-//           case PAYMENT_STATUS.CANCELED:
-//             isCompleted = true;
-//             onCancel?.();
-//             clearPaymentData();
-//             showToast('Pagamento cancelado', { type: 'warning' });
-//             break;
-          
-//           case PAYMENT_STATUS.FAILED:
-//             isCompleted = true;
-//             clearPaymentData();
-//             showToast('Falha no pagamento', { type: 'error' });
-//             break;
-          
-//           case PAYMENT_STATUS.EXPIRED:
-//             isCompleted = true;
-//             clearPaymentData();
-//             showToast('Pagamento expirado', { type: 'warning' });
-//             break;
-          
-//           default:
-//             // Implement exponential backoff for pending/processing status
-//             interval = Math.min(interval * 1.5, 30000); // Max 30 seconds
-//             setTimeout(checkStatus, interval);
-//         }
-//       } catch (error) {
-//         console.error('Error checking payment status:', error);
-//         interval = Math.min(interval * 2, 60000); // Max 1 minute on error
-//         setTimeout(checkStatus, interval);
-//       }
-//     };
-
-//     checkStatus();
-//     return () => {
-//       isCompleted = true;
-//     };
-//   }, [clearPaymentData]);
-
-//   // Countdown timer with callback
-//   const startCountdown = useCallback((expiresAt, onExpire) => {
-//     const intervalId = setInterval(() => {
-//       const now = Date.now();
-//       const expiryTime = new Date(expiresAt).getTime();
-//       const remainingSeconds = Math.floor((expiryTime - now) / 1000);
-
-//       if (remainingSeconds <= 0) {
-//         clearInterval(intervalId);
-//         setTimeLeft(0);
-//         onExpire?.();
-//         clearPaymentData();
-//       } else {
-//         setTimeLeft(remainingSeconds);
-//       }
-//     }, 1000);
-
-//     return () => clearInterval(intervalId);
-//   }, [setTimeLeft, clearPaymentData]);
-
-//   // Format time left for display
-//   const formattedTimeLeft = useMemo(() => {
-//     if (!state.timeLeft) return '';
-    
-//     const minutes = Math.floor(state.timeLeft / 60);
-//     const seconds = state.timeLeft % 60;
-//     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-//   }, [state.timeLeft]);
-
-//   // Context value
-//   const value = useMemo(() => ({
-//     paymentData: state.paymentData,
-//     loading: state.loading,
-//     error: state.error,
-//     timeLeft: state.timeLeft,
-//     formattedTimeLeft,
-//     startPixPayment,
-//     monitorPaymentStatus,
-//     startCountdown,
-//     clearPaymentData
-//   }), [
-//     state,
-//     formattedTimeLeft,
-//     startPixPayment,
-//     monitorPaymentStatus,
-//     startCountdown,
-//     clearPaymentData
-//   ]);
-
-//   return (
-//     <PaymentContext.Provider value={value}>
-//       {children}
-//     </PaymentContext.Provider>
-//   );
-// };
-
-// // Custom hook for using the payment context
-// export const usePayment = () => {
-//   const context = useContext(PaymentContext);
-//   if (context === undefined) {
-//     throw new Error('usePayment must be used within a PaymentProvider');
-//   }
-//   return context;
-// };
+export default PaymentContext;

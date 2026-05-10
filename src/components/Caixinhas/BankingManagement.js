@@ -384,7 +384,7 @@ const BankingGuide = ({ status }) => {
                 {t('banking.step1Description')}
               </Typography>
             </StepContent>
-            <Badge>Informe os dados como constam em seus documentos oficiais, isso assegura que a Trava sera realizada em uma conta real e assegura que apenas esta conta possa movimentar fluxos futuros, como retiradas e depositos.</Badge>
+            <Badge>Informe os dados como constam em seus documentos oficiais, isso assegura que a Trava sera realizada em uma conta real e que apenas esta conta possa movimentar fluxos futuros, como retiradas e depositos.</Badge>
           </Step>
           
           <Step completed={isActive}>

@@ -1,16 +1,19 @@
 // Layout.js corrigido para resolver problema após login
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { 
-  Box, 
-  CircularProgress, 
-  Typography, 
-  useMediaQuery, 
-  CssBaseline, 
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  useMediaQuery,
+  CssBaseline,
   useTheme,
-  Fade
+  Fade,
+  Fab,
+  Tooltip
 } from '@mui/material';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { useInterests } from '../../providers/InterestsProvider';
 import ModernTopNavBar from './ModernTopNavBar';
 import ModernSidebar from './ModernSidebar';
@@ -19,6 +22,8 @@ import { LOG_LEVELS } from '../../core/constants/config';
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from '../../providers/NotificationProvider';
 import { useAuth } from '../../providers/AuthProvider';
+
+const AI_AGENT_USER_ID = process.env.REACT_APP_AI_AGENT_USER_ID || 'sS855lp9DwhZodxMqG7bf5cYeQ92';
 
 // Configuration constants
 const LAYOUT_CONFIG = {
@@ -46,6 +51,12 @@ const Layout = ({ children }) => {
   const { loading: interestsLoading } = useInterests();
   const { notifLoading } = useNotifications();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleOpenAIChat = useCallback(() => {
+    if (!currentUser?.uid) return;
+    navigate(`/messages/${AI_AGENT_USER_ID}`);
+  }, [currentUser, navigate]);
   
   // Estado para sidebar behavior
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -194,7 +205,7 @@ const Layout = ({ children }) => {
       
       {/* Main Content Area */}
       <Fade in={isDataReady} timeout={300}>
-        <Box 
+        <Box
           component="main"
           sx={{
             flexGrow: 1,
@@ -214,8 +225,8 @@ const Layout = ({ children }) => {
               height: '8px',
             },
             '&::-webkit-scrollbar-thumb': {
-              backgroundColor: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.2)' 
+              backgroundColor: theme.palette.mode === 'dark'
+                ? 'rgba(255, 255, 255, 0.2)'
                 : 'rgba(0, 0, 0, 0.2)',
               borderRadius: '4px',
             },
@@ -227,6 +238,20 @@ const Layout = ({ children }) => {
           {children}
         </Box>
       </Fade>
+
+      {/* Global AI Assistant FAB — visible on all authenticated pages except /messages */}
+      {!location.pathname.startsWith('/messages') && (
+        <Tooltip title="Falar com assistente virtual" placement="left">
+          <Fab
+            color="primary"
+            aria-label="assistente virtual"
+            onClick={handleOpenAIChat}
+            sx={{ position: 'fixed', bottom: 88, right: 24, zIndex: 1300 }}
+          >
+            <SupportAgentIcon />
+          </Fab>
+        </Tooltip>
+      )}
     </Box>
   );
 };

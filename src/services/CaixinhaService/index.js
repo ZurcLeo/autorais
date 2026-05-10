@@ -373,7 +373,7 @@ async getMembers(caixinhaId) {
             valor: data.valor
           });
           
-          const response = await this.apiService.post('/api/caixinha/contribuicao', data);
+          const response = await this.apiService.post(`/api/caixinha/${data.caixinhaId}/contribuicao`, data);
 
           const duration = performance.now() - startTime;
           this._logPerformance('addContribuicao', duration, {

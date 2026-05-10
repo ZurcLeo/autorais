@@ -1,6 +1,6 @@
 
 // src/providers/CaixinhaProvider/index.js
-import React, { createContext, useContext, useReducer, useState, useMemo, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
 import { CAIXINHA_ACTIONS } from '../../core/constants/actions';
 import { CAIXINHA_EVENTS } from '../../core/constants/events';
 import { serviceEventHub, serviceLocator } from '../../core/services/BaseService.js';
@@ -21,7 +21,6 @@ export const CaixinhaProvider = ({ children }) => {
   // const { showToast } = useToast();
   const [state, dispatch] = useReducer(caixinhaReducer, initialCaixinhaState);
   const processCaixinhaData = useProcessCaixinhaData();
-  const [eventListeners, setEventListeners] = useState([]);
 
   const [caixinhasError, setCaixinhasError] = useState()
 
@@ -165,19 +164,16 @@ export const CaixinhaProvider = ({ children }) => {
       }
     );
 
-    // Armazena os cancelamentos dos listeners
-    setEventListeners([
-      caixinhasFetchedListener,
-      caixinhaFetchedListener,
-      caixinhaCriadaListener,
-      caixinhaAtualizadaListener,
-      caixinhaExcluidaListener,
-      contribuicaoListener
-    ]);
-
-    // Função de cleanup para remover os listeners
+    // Função de cleanup — fecha sobre as variáveis locais (não sobre state)
     return () => {
-      eventListeners.forEach(unsubscribe => {
+      [
+        caixinhasFetchedListener,
+        caixinhaFetchedListener,
+        caixinhaCriadaListener,
+        caixinhaAtualizadaListener,
+        caixinhaExcluidaListener,
+        contribuicaoListener
+      ].forEach(unsubscribe => {
         if (typeof unsubscribe === 'function') {
           unsubscribe();
         }
@@ -638,26 +634,16 @@ export const CaixinhaProvider = ({ children }) => {
       // showToast('Adicionando contribuição...', { type: 'loading', id: 'add-contribution' });
       
       const response = await caixinhaService.addContribuicao(contributionData);
-      
-      // Invalida o cache da caixinha individual
+
+      // Invalida caches — o listener CONTRIBUICAO_ADDED fará o refetch
       globalCache.remove(`${CAIXINHA_CACHE_CONFIG.SINGLE_CAIXINHA_KEY}:${data.caixinhaId}`);
-      
+      globalCache.remove(`${CAIXINHA_CACHE_CONFIG.CONTRIBUTIONS_KEY}:${data.caixinhaId}`);
+
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Contribution added successfully', {
         caixinhaId: data.caixinhaId,
         contributionId: response.id
       });
-      
-      // showToast('Contribuição adicionada com sucesso!', { 
-      //   type: 'success',
-      //   id: 'add-contribution'
-      // });
-      
-      // Atualizar a caixinha e as contribuições se for a caixinha atual
-      if (state.currentCaixinha?.caixinha.id === data.caixinhaId) {
-        getContributions(data.caixinhaId);
-        getCaixinha(data.caixinhaId);
-      }
-      
+
       return response;
       
     } catch (error) {
@@ -674,49 +660,57 @@ export const CaixinhaProvider = ({ children }) => {
       
       throw error;
     }
-  }, [userId, currentUser, state.currentCaixinha, getCaixinha]);
+  }, [userId, currentUser]);
 
   // Get Contributions
   const getContributions = useCallback(async (caixinhaId) => {
     if (!caixinhaId || !currentUser) {
-      // showToast('ID de caixinha inválido', { type: 'error' });
       return [];
     }
 
     dispatch({ type: CAIXINHA_ACTIONS.FETCH_START });
     coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Fetching contributions', { caixinhaId });
-    
+
     try {
+      const cacheKey = `${CAIXINHA_CACHE_CONFIG.CONTRIBUTIONS_KEY}:${caixinhaId}`;
+      const cachedData = globalCache.getItem(cacheKey);
+
+      if (cachedData && Date.now() - cachedData.timestamp < CAIXINHA_CACHE_CONFIG.CONTRIBUTIONS_CACHE_TIME) {
+        coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Using cached contributions', {
+          caixinhaId,
+          cacheAge: Date.now() - cachedData.timestamp
+        });
+        dispatch({ type: CAIXINHA_ACTIONS.UPDATE_CONTRIBUTIONS, payload: cachedData.data });
+        return cachedData.data;
+      }
+
       const contributions = await caixinhaService.getContribuicoes(caixinhaId);
-      
-      dispatch({ 
-        type: CAIXINHA_ACTIONS.UPDATE_CONTRIBUTIONS, 
-        payload: contributions || [] 
+
+      dispatch({
+        type: CAIXINHA_ACTIONS.UPDATE_CONTRIBUTIONS,
+        payload: contributions || []
       });
-      
+
+      globalCache.setItem(cacheKey, { data: contributions || [], timestamp: Date.now() });
+
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.INFO, 'Contributions fetched successfully', {
         caixinhaId,
         count: contributions.length
       });
-      
+
       return contributions;
-      
+
     } catch (error) {
       coreLogger.logEvent(MODULE_NAME, LOG_LEVELS.ERROR, 'Failed to fetch contributions', {
         caixinhaId,
         error: error.message
       });
-      
-      dispatch({ 
-        type: CAIXINHA_ACTIONS.FETCH_FAILURE, 
-        payload: error.message 
+
+      dispatch({
+        type: CAIXINHA_ACTIONS.FETCH_FAILURE,
+        payload: error.message
       });
-      
-      // showToast('Falha ao carregar contribuições', { 
-      //   type: 'error',
-      //   description: error.message 
-      // });
-      
+
       throw error;
     }
   }, [currentUser]);
