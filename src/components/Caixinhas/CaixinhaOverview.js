@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -60,6 +62,7 @@ import CaixinhaWelcome from './CaixinhaWelcome';
 import { useCaixinhaInvite } from '../../providers/CaixinhaInviteProvider';
 import CaixinhaInvitesNotification from './CaixinhaInvitesNotification';
 import CreateCaixinhaButton from './CreateCaixinhaButton';
+import { useToast } from '../../providers/ToastProvider';
 
 const caixinhaImg = caixinha_back;
 
@@ -96,7 +99,10 @@ const CaixinhaOverview = () => {
   const caixinhaContext = useCaixinha();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const {notifications} = useNotifications();
+  const { notifications } = useNotifications();
+  const { showToast } = useToast();
+  const { caixinhaId: urlCaixinhaId } = useParams();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [selectedCaixinhaId, setSelectedCaixinhaId] = useState(null);
@@ -105,40 +111,63 @@ const CaixinhaOverview = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [contributionDialog, setContributionDialog] = useState(false);
   const [contributionAmount, setContributionAmount] = useState('');
+  const [contributionLoading, setContributionLoading] = useState(false);
+  const [contributionError, setContributionError] = useState('');
 
+  const { contributions, getContributions, addContribution } = caixinhaContext;
   const caixinhasArray = caixinhaContext.caixinhas?.caixinhas || [];
   const hasCaixinhas = caixinhasArray.length > 0;
 
-  console.log('notifications:', caixinhasArray)
-
+  // A3: prioriza caixinhaId da URL na seleção inicial
   useEffect(() => {
     if (caixinhasArray.length > 0 && !selectedCaixinhaId) {
-      setSelectedCaixinhaId(caixinhasArray[0].id);
-      if (caixinhasArray[0]?.contribuicaoMensal) {
-        setContributionAmount(caixinhasArray[0].contribuicaoMensal);
-      }
+      const target = urlCaixinhaId
+        ? (caixinhasArray.find(c => c.id === urlCaixinhaId) || caixinhasArray[0])
+        : caixinhasArray[0];
+      setSelectedCaixinhaId(target.id);
+      if (target?.contribuicaoMensal) setContributionAmount(target.contribuicaoMensal);
     }
     setLoading(false);
-  }, [caixinhasArray, selectedCaixinhaId]);
-
-  const balanceHistory = [
-    { month: 'Jan', balance: 2500 },
-    { month: 'Fev', balance: 3200 },
-    { month: 'Mar', balance: 4100 },
-    { month: 'Abr', balance: 4800 },
-    { month: 'Mai', balance: 5400 },
-    { month: 'Jun', balance: 6200 },
-  ];
+  }, [caixinhasArray, selectedCaixinhaId, urlCaixinhaId]);
 
   const caixinha = hasCaixinhas
     ? (caixinhasArray.find(c => c.id === selectedCaixinhaId) || caixinhasArray[0])
     : null;
 
-  const nextDistribution = caixinha ? {
-    date: new Date(new Date().setDate(new Date().getDate() + 15)),
-    amount: caixinha?.saldoTotal || 0,
-    member: 'Maria Silva'
-  } : null;
+  // A2a: buscar contribuições reais ao selecionar caixinha
+  useEffect(() => {
+    if (caixinha?.id) getContributions(caixinha.id);
+  }, [caixinha?.id, getContributions]);
+
+  // A2a: derivar balanceHistory das contribuições reais
+  const balanceHistory = useMemo(() => {
+    if (!contributions?.length) return [];
+    const byMonth = {};
+    contributions
+      .filter(c => c.status !== 'estornada')
+      .forEach(c => {
+        const d = new Date(c.dataContribuicao);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+        if (!byMonth[key]) byMonth[key] = { label, balance: 0 };
+        byMonth[key].balance += c.valor;
+      });
+    return Object.entries(byMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .reduce((acc, [, { label, balance }]) => {
+        const prev = acc.length ? acc[acc.length - 1].balance : 0;
+        return [...acc, { month: label, balance: prev + balance }];
+      }, []);
+  }, [contributions]);
+
+  // A2b: próxima data de vencimento calculada a partir de diaVencimento real
+  const nextDueDate = useMemo(() => {
+    if (!caixinha?.diaVencimento) return null;
+    const today = new Date();
+    const due = new Date(today.getFullYear(), today.getMonth(), caixinha.diaVencimento);
+    if (due <= today) due.setMonth(due.getMonth() + 1);
+    return due;
+  }, [caixinha?.diaVencimento]);
 
   const handleMenuOpen = (event) => {
     setMenuAnchor(event.currentTarget);
@@ -152,9 +181,27 @@ const CaixinhaOverview = () => {
     setContributionDialog(true);
   };
 
-  const handleContributionSubmit = () => {
-    console.log('Contributing amount:', contributionAmount);
-    setContributionDialog(false);
+  // A1: conectar à API real
+  const handleContributionSubmit = async () => {
+    const valorNumerico = parseFloat(
+      String(contributionAmount).replace(/[R$\s.]/g, '').replace(',', '.')
+    );
+    if (!valorNumerico || valorNumerico <= 0) {
+      setContributionError(t('contribution.invalidAmount', 'Valor inválido.'));
+      return;
+    }
+    setContributionLoading(true);
+    setContributionError('');
+    try {
+      await addContribution({ caixinhaId: caixinha.id, valor: valorNumerico });
+      setContributionDialog(false);
+      setContributionAmount('');
+      showToast(t('contribution.success', 'Contribuição registrada com sucesso!'), { type: 'success' });
+    } catch (err) {
+      setContributionError(err.message || t('contribution.error', 'Erro ao registrar contribuição.'));
+    } finally {
+      setContributionLoading(false);
+    }
   };
 
   const formatCurrency = (value) => {
@@ -172,12 +219,12 @@ const CaixinhaOverview = () => {
     });
   };
 
+  // A3: atualizar URL ao trocar de caixinha
   const handleCaixinhaSelect = (selectedCaixinha) => {
     setSelectedCaixinhaId(selectedCaixinha.id);
     setActiveSection('overview');
-    if (selectedCaixinha?.contribuicaoMensal) {
-      setContributionAmount(selectedCaixinha.contribuicaoMensal);
-    }
+    navigate(`/caixinha/${selectedCaixinha.id}`, { replace: true });
+    if (selectedCaixinha?.contribuicaoMensal) setContributionAmount(selectedCaixinha.contribuicaoMensal);
   };
 
   const renderNotificationsDrawer = () => (
@@ -278,18 +325,13 @@ const CaixinhaOverview = () => {
           }}
         >
           <Typography variant="h6" fontWeight="bold" mb={1}>
-            {nextDistribution ? formatDate(nextDistribution.date) : t('noScheduled')}
+            {nextDueDate ? formatDate(nextDueDate) : t('noScheduled')}
           </Typography>
-          <Typography variant="body2" color="text.secondary">{t('nextDistributionDate')}</Typography>
-          {nextDistribution && (
-            <>
-              <Typography variant="body1" fontWeight="medium">
-                {t('amount')}: {formatCurrency(nextDistribution.amount)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t('recipient')}: {nextDistribution.member}
-              </Typography>
-            </>
+          <Typography variant="body2" color="text.secondary">{t('contributionDueDate', 'Dia de Contribuição')}</Typography>
+          {caixinha?.distribuicaoTipo && (
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              {t('distributionType', 'Distribuição')}: {caixinha.distribuicaoTipo}
+            </Typography>
           )}
         </Paper>
       </Grid>
@@ -300,42 +342,49 @@ const CaixinhaOverview = () => {
           <Typography variant="h6" fontWeight="bold" mb={2}>
             {t('balanceHistory')}
           </Typography>
-          <Box sx={{ height: 300 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={balanceHistory}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(value) => formatCurrency(value)}
-                />
-                <RechartsTooltip
-                  formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(label) => `<span class="math-inline">\{label\}/</span>{new Date().getFullYear()}`}
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    borderRadius: 8,
-                    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-                    border: 'none'
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="balance"
-                  stroke={theme.palette.primary.main}
-                  strokeWidth={3}
-                  dot={{ r: 6, strokeWidth: 2 }}
-                  activeDot={{ r: 8, strokeWidth: 2 }}
-                  name={t('currentBalance')}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
+          {balanceHistory.length === 0 ? (
+            <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                {t('noContributionsYet', 'Nenhuma contribuição registrada ainda.')}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={balanceHistory}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(value) => formatCurrency(value)}
+                  />
+                  <RechartsTooltip
+                    formatter={(value) => formatCurrency(value)}
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      borderRadius: 8,
+                      boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
+                      border: 'none'
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="balance"
+                    stroke={theme.palette.primary.main}
+                    strokeWidth={3}
+                    dot={{ r: 6, strokeWidth: 2 }}
+                    activeDot={{ r: 8, strokeWidth: 2 }}
+                    name={t('currentBalance')}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          )}
         </Paper>
       </Grid>
 
@@ -555,7 +604,15 @@ const CaixinhaOverview = () => {
       </Menu>
 
       {/* Contribution Dialog */}
-      <Dialog open={contributionDialog} onClose={() => setContributionDialog(false)}>
+      <Dialog
+        open={contributionDialog}
+        onClose={() => {
+          if (!contributionLoading) {
+            setContributionDialog(false);
+            setContributionError('');
+          }
+        }}
+      >
         <DialogTitle>{t('makeContribution')}</DialogTitle>
         <DialogContent>
           <TextField
@@ -565,17 +622,23 @@ const CaixinhaOverview = () => {
             margin="dense"
             value={contributionAmount}
             onChange={(e) => setContributionAmount(e.target.value)}
-            InputProps={{
-              startAdornment: 'R$',
-            }}
+            inputProps={{ inputMode: 'decimal', min: 0 }}
+            InputProps={{ startAdornment: 'R$' }}
+            disabled={contributionLoading}
           />
+          {contributionError && (
+            <Alert severity="error" sx={{ mt: 1 }}>{contributionError}</Alert>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setContributionDialog(false)}>{t('cancel')}</Button>
+          <Button onClick={() => { setContributionDialog(false); setContributionError(''); }} disabled={contributionLoading}>
+            {t('cancel')}
+          </Button>
           <Button
             onClick={handleContributionSubmit}
             variant="contained"
-            disabled={!contributionAmount}
+            disabled={!contributionAmount || contributionLoading}
+            startIcon={contributionLoading ? <CircularProgress size={16} color="inherit" /> : null}
           >
             {t('contribute')}
           </Button>
