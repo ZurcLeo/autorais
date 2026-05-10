@@ -98,6 +98,7 @@ export const CaixinhasSectionSkeleton = () => {
                 </ListItemAvatar>
                 
                 <ListItemText
+                  disableTypography
                   primary={
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Skeleton variant="text" width="40%" height={24} />
@@ -110,7 +111,7 @@ export const CaixinhasSectionSkeleton = () => {
                         <Skeleton variant="text" width="25%" height={16} />
                         <Skeleton variant="text" width="30%" height={16} />
                       </Box>
-                      
+
                       <Box sx={{ width: '100%', mt: 1 }}>
                         <Skeleton variant="rectangular" width="100%" height={4} sx={{ borderRadius: 2 }} />
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
