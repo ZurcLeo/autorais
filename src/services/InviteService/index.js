@@ -14,6 +14,7 @@ class InviteService extends BaseService {
 
     this._currentUser = null;
     this._invitesCache = new Map();
+    this._inFlight = new Map(); // MAINT-3: dedup de requests GET em andamento
     this._isInitialized = false;
 
     this._metadata = {
@@ -102,27 +103,39 @@ class InviteService extends BaseService {
       return []; // Retorna uma lista vazia em vez de lançar um erro
     }
 
+    // MAINT-3: dedup — reutiliza Promise em andamento para evitar requisições duplicadas
+    const dedupKey = `sent-${currentUser.uid}`;
+    if (this._inFlight.has(dedupKey)) {
+      return this._inFlight.get(dedupKey);
+    }
+
     this._emitEvent(INVITATION_ACTIONS.FETCH_START);
 
-    try {
-      const userId = currentUser.uid;
-      
-      const response = await this._executeWithRetry(async () => {
-        return await this.apiService.get(`/api/invite/sent/${userId}`);
-      }, 'getSentInvitations');
+    const requestPromise = (async () => {
+      try {
+        const userId = currentUser.uid;
 
-      const invitations = response.data.invitations || [];
-      console.log('verificar: ', response);
-      // Armazenar em cache
-      this._cacheSentInvitations(invitations);
+        const response = await this._executeWithRetry(async () => {
+          return await this.apiService.get(`/api/invite/sent/${userId}`);
+        }, 'getSentInvitations');
 
-      this._emitEvent(INVITATION_EVENTS.INVITATIONS_FETCHED, { invitations });
-      return invitations;
-    } catch (error) {
-      this._logError(error, 'getSentInvitations');
-      this._emitEvent(INVITATION_EVENTS.INVITATIONS_CLEARED, { error: error.message });
-      return []; // Retornar uma lista vazia em caso de erro
-    }
+        const invitations = response.data.invitations || [];
+        // Armazenar em cache
+        this._cacheSentInvitations(invitations);
+
+        this._emitEvent(INVITATION_EVENTS.INVITATIONS_FETCHED, { invitations });
+        return invitations;
+      } catch (error) {
+        this._logError(error, 'getSentInvitations');
+        this._emitEvent(INVITATION_EVENTS.INVITATIONS_CLEARED, { error: error.message });
+        return [];
+      } finally {
+        this._inFlight.delete(dedupKey);
+      }
+    })();
+
+    this._inFlight.set(dedupKey, requestPromise);
+    return requestPromise;
   }
 
   async getInviteById(inviteId) {
